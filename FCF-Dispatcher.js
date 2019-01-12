@@ -4,26 +4,26 @@
  * googleapis模組的npm https://www.npmjs.com/package/googleapis#service-to-service-authentication
  * 私鑰跳脫字元的問題 https://www.extreg.com/blog/2017/12/gcs-service-account-private-key-not-working-env/
  */
-var request = require("request");
-var crypto = require("crypto"); //引用可以產生亂數字串的模組
+const request = require("request");
+const crypto = require("crypto"); //引用可以產生亂數字串的模組
 const { GoogleToken } = require("gtoken");
 
 module.exports = function (RED) {
     function Dispatcher(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
         node.agentCredentials = RED.nodes.getNode(config.agentCredentials);
         node.rules = config.rules;
-        var projectID = node.agentCredentials.credentials.projectID.trim();
-        var email = node.agentCredentials.credentials.email.trim();
-        var privateKey = node.agentCredentials.credentials.privateKey.replace(/\\n/g, "\n").trim();
+        let projectID = node.agentCredentials.credentials.projectID.trim();
+        let email = node.agentCredentials.credentials.email.trim();
+        let privateKey = node.agentCredentials.credentials.privateKey.replace(/\\n/g, "\n").trim();
 
         this.on("input", function (msg) {
 
-            var rules = node.rules;
-            var output = [];
-            var buf = crypto.randomBytes(25); //產生一個25byte的亂數資料，來當作請求網址的session ID
+            let rules = node.rules;
+            let output = [];
+            let buf = crypto.randomBytes(25); //產生一個25byte的亂數資料，來當作請求網址的session ID
 
             const gtoken = new GoogleToken({
                 email: email,
@@ -31,14 +31,14 @@ module.exports = function (RED) {
                 key: privateKey
             });
 
-            var sendRequest = function (token) {
+            let sendRequest = function (token) {
 
-                var headers = {
+                let headers = {
                     "Content-Type": "application/json;charset=utf-8",
                     "Authorization": "Bearer " + token,
                 };
 
-                var options = {
+                let options = {
                     url: `https://dialogflow.googleapis.com/v2/projects/${projectID}/agent/sessions/${buf.toString("hex")}:detectIntent`,
                     method: "POST",
                     headers: headers,
@@ -54,7 +54,7 @@ module.exports = function (RED) {
 
                 request(options, function (error, response, body) {
                     body = JSON.parse(body);
-                    var action = body.queryResult.action;
+                    let action = body.queryResult.action;
                     rules.forEach(function (rule) {
                         if (action == (rule.topic).toString()) {
                             if (action == "input.unknown") {
@@ -69,7 +69,7 @@ module.exports = function (RED) {
                 });
             };
 
-            var gt = function () {
+            let gt = function () {
                 gtoken.getToken().then(function (token) {
                     return sendRequest(token);
                 }).catch(function (error) {

@@ -1,19 +1,19 @@
-let _ = require("underscore");
-let moment = require("moment");
-let ChatLog = require("./lib/chat-log");
-let ChatContextStore = require("./lib/chat-context-store");
-let helpers = require("./lib/facebook/facebook");
-let utils = require("./lib/helpers/utils");
-let request = require("request").defaults({
+const _ = require("underscore");
+const moment = require("moment");
+const ChatLog = require("./lib/chat-log");
+const ChatContextStore = require("./lib/chat-context-store");
+const helpers = require("./lib/facebook/facebook");
+const utils = require("./lib/helpers/utils");
+const request = require("request").defaults({
     encoding: null
 });
-let Bot = require("./lib/facebook/messenger-bot");
-let clc = require("cli-color");
+const Bot = require("./lib/facebook/messenger-bot");
+const clc = require("cli-color");
 
-let DEBUG = false;
-let green = clc.greenBright;
-let white = clc.white;
-let grey = clc.blackBright;
+const DEBUG = false;
+const green = clc.greenBright;
+const white = clc.white;
+const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
