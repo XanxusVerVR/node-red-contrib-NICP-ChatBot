@@ -36,8 +36,8 @@ let FacebookBotNode2 = {
     }
 };
 
-// FCF-Facebook.js的FacebookBotNode function參數的n的內容
-// n
+// FCF-Facebook.js的FacebookBotNode function參數的config的內容
+// config
 // 當NodeRED一起動的時候此this就存在了
 //ex1
 let n1 = {
@@ -124,6 +124,85 @@ let chatContext2 = {
     all: [Function],
     clear: [Function]
 };
+
+//FCF-Facebook.js中的FacebookInNode方法中的node.bot.on回呼函式的message物件的內容:
+let message = {
+    payload:{
+        chatId: "1267275450038190",
+        messageId: "V3WcChZHL40_kMc4wQrq1x_0GxCFfEUKu9rm71alazf-cG-QZ0-wwD4d6qAiJYT5qsgwifQElJ5yM-AYG91Nhw",
+        type: "message",
+        content: "哈囉",
+        date: moment("2019-01-12T21:27:15.521"),
+        inbound: true
+    },
+    originalMessage: {
+        transport: "facebook",
+        chat: {
+            id: "1267275450038190"
+        }
+    },
+    chat: [Function]
+};
+
+//FCF-Facebook.js中的FacebookInNode方法中的node.bot.on回呼函式的message物件的內容:
+/* FacebookInNode {
+    id: '957d666a.de3fb8',
+    type: 'FCF-facebook-receive',
+    z: '9fdb8a20.7c04d8',
+    _closeCallbacks: [],
+    wires: [ [ '15cd9267.0a04de' ] ],
+    _wireCount: 1,
+    send: [Function],
+    _wire: '15cd9267.0a04de',
+    bot:
+    Bot {
+    token: 'EAAQjsEZBbNxgBALqzenPjeGFaugrGIxQpQ3H8WIiDAlYUShTFJF57ZC6MbcGcE4UP0ojQnJ6rEnHJRGXdx1c4DB4ToYYoCNksvCV9ZClHyob4ptW4zCGYiqYBIGsbL8ElQbK8GAZA195wpj1eWZCdtk5qZBvTUCCGo7OJuPOsvSAZDZD',
+    app_secret: 'ef4905343a111e856770e7685d083ca3',
+    verify_token: '456',
+    webhookURL: '/phone',
+    domain: null,
+    _events:
+    { message: [Function],
+    postback: [Function],
+    account_linking: [Function],
+    relay: [Function] },
+    _eventsCount: 4,
+    _maxListeners: undefined },
+    config:
+    FacebookBotNode {
+    id: '98bd3fe8.c4eb5',
+    type: 'FCF-facebook-node',
+    z: '',
+    _closeCallbacks: [ [Function] ],
+    wires: [],
+    _wireCount: 0,
+    send: [Function],
+    credentials:
+    { token: 'EAAQjsEZBbNxgBALqzenPjeGFaugrGIxQpQ3H8WIiDAlYUShTFJF57ZC6MbcGcE4UP0ojQnJ6rEnHJRGXdx1c4DB4ToYYoCNksvCV9ZClHyob4ptW4zCGYiqYBIGsbL8ElQbK8GAZA195wpj1eWZCdtk5qZBvTUCCGo7OJuPOsvSAZDZD',
+    app_secret: 'ef4905343a111e856770e7685d083ca3',
+    verify_token: '456',
+    webhookURL: '/phone' },
+    botname: 'PhoneBot',
+    log: undefined,
+    usernames: [],
+    handleMessage: [Function],
+    token: 'EAAQjsEZBbNxgBALqzenPjeGFaugrGIxQpQ3H8WIiDAlYUShTFJF57ZC6MbcGcE4UP0ojQnJ6rEnHJRGXdx1c4DB4ToYYoCNksvCV9ZClHyob4ptW4zCGYiqYBIGsbL8ElQbK8GAZA195wpj1eWZCdtk5qZBvTUCCGo7OJuPOsvSAZDZD',
+    app_secret: 'ef4905343a111e856770e7685d083ca3',
+    verify_token: '456',
+    webhookURL: '/phone',
+    bot:
+    Bot {
+    token: 'EAAQjsEZBbNxgBALqzenPjeGFaugrGIxQpQ3H8WIiDAlYUShTFJF57ZC6MbcGcE4UP0ojQnJ6rEnHJRGXdx1c4DB4ToYYoCNksvCV9ZClHyob4ptW4zCGYiqYBIGsbL8ElQbK8GAZA195wpj1eWZCdtk5qZBvTUCCGo7OJuPOsvSAZDZD',
+    app_secret: 'ef4905343a111e856770e7685d083ca3',
+    verify_token: '456',
+    webhookURL: '/phone',
+    domain: null,
+    _events: [Object],
+    _eventsCount: 4,
+    _maxListeners: undefined },
+    isAuthorized: [Function],
+    getMessageDetails: [Function] } } */
+
 
 //可以印出RED底下的function
 console.log(Object.getOwnPropertyNames(RED).filter(function (p) {

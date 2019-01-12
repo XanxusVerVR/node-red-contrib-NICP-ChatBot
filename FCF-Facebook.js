@@ -106,6 +106,7 @@ module.exports = function (RED) {
                         // emit message directly the node where the conversation stopped
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
+                        // 使用者第一句話或訊息會從這裡觸發並接收進來
                         facebookBot.emit("relay", msg);
                     }
 
@@ -304,11 +305,12 @@ module.exports = function (RED) {
     });
 
     function FacebookInNode(config) {
+
         RED.nodes.createNode(this, config);
         let node = this;
-        this.bot = config.bot;
-
+        this.bot = config.bot;//config.bot是一個類似98bd3fe8.c4eb5這樣的字串
         this.config = RED.nodes.getNode(this.bot);
+
         if (this.config) {
             this.status({
                 fill: "red",
@@ -319,6 +321,7 @@ module.exports = function (RED) {
             node.bot = this.config.bot;
 
             if (node.bot) {
+
                 this.status({
                     fill: "green",
                     shape: "ring",
@@ -329,6 +332,7 @@ module.exports = function (RED) {
                     if (error != null) {
                         node.error(error);
                     } else {
+                        // 將使用者的第一個傳訊息給下個節點
                         node.send(message);
                     }
                 });
@@ -349,6 +353,7 @@ module.exports = function (RED) {
         this.bot = config.bot;
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
 
+        //這段主要在設置節點顯示的狀態
         this.config = RED.nodes.getNode(this.bot);
         if (this.config) {
             this.status({
@@ -373,12 +378,12 @@ module.exports = function (RED) {
         }
 
         function sendMeta(msg) {
-            return new Promise(function (resolve, reject) {
+            return new Promise((resolve, reject) => {
 
                 let type = msg.payload.type;
                 let bot = node.bot;
 
-                let reportError = function (err) {
+                let reportError = (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -386,24 +391,26 @@ module.exports = function (RED) {
                     }
                 };
 
+                //一般文字訊息type都是message
                 switch (type) {
                     case "persistent-menu":
                         bot.setPersistentMenu(msg.payload.items, reportError);
                         break;
                     default:
+                        //是message的話，就會跑到這裡，會reject()
                         reject();
                 }
             });
         }
 
         function sendMessage(msg) {
-            return new Promise(function (resolve, reject) {
+            return new Promise((resolve, reject) => {
 
                 let type = msg.payload.type;
                 let bot = node.bot;
                 let credentials = node.config.credentials;
 
-                let reportError = function (err) {
+                let reportError = (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -426,7 +433,6 @@ module.exports = function (RED) {
                         break;
 
                     case "request":
-
                         // todo error if not location
                         // send
                         bot.sendMessage(
@@ -567,6 +573,7 @@ module.exports = function (RED) {
 
         // relay message
         let handler = function (msg) {
+            //使用者說的話(除了第一句)都會從這裡傳出去
             node.send(msg);
         };
 
@@ -578,23 +585,25 @@ module.exports = function (RED) {
         });
 
         this.on("input", function (msg) {
+            // 所有機器人要傳給使用者的訊息都會從這裡進來
             // check if the message is from facebook
             if (msg.originalMessage != null && msg.originalMessage.transport !== "facebook") {
                 // exit, it"s not from facebook
                 return;
             }
+
             // try to send the meta first (those messages that doesn"t require a valid payload)
-            sendMeta(msg)
-                .then(function () {
+            sendMeta(msg)//then()有兩個參數，第一個表示Promise成功(被實現)的function，第二個表示Promise回傳失敗時要做的事的function
+                .then(function () {//如果這裡有傳參數進來，那整支程式就會停在這，且這個參數就是從sendMeta的reject方法傳進來的
                     // ok, meta sent, stop here
-                }, function (error) {
+                }, function (error) {//一般使用者正常傳訊息會執行這裡，且error是undefined，undefined在if else判斷會是false，所以才會從這開始執行
                     // if here, either there was an error or no met message was sent
-                    if (error != null) {
+                    if (error != null) {//error是undefined，undefined和null是相等的，所以程式執行正常的話這裡會false，故這不會執行
                         node.error(error);
                     } else {
                         // check payload
                         let payloadError = utils.hasValidPayload(msg);
-                        if (payloadError != null) {
+                        if (payloadError != null) {//不會跑到這if裡面
                             // invalid payload
                             node.error(payloadError);
                         } else {

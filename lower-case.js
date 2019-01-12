@@ -10,7 +10,7 @@ module.exports = function (RED) {
         let count = 0;//這裡一定要先宣告初始值為0
         //也有直接this.on這種寫法
         //註冊一個監聽器來監聽input事件來接收從上游傳來的訊息
-        node.on("input", function (msg) {
+        node.on("input", (msg) => {
             // msg.payload = msg.payload.toLowerCase();
             if(!context.get("count")){//count物件不存在(0和null都會被判定false)
                 context.set("count",count++);
