@@ -1,33 +1,33 @@
-var _ = require("underscore");
-var moment = require("moment");
-var ChatLog = require("./lib/chat-log");
-var ChatContextStore = require("./lib/chat-context-store");
-var helpers = require("./lib/facebook/facebook");
-var utils = require("./lib/helpers/utils");
-var request = require("request").defaults({
+let _ = require("underscore");
+let moment = require("moment");
+let ChatLog = require("./lib/chat-log");
+let ChatContextStore = require("./lib/chat-context-store");
+let helpers = require("./lib/facebook/facebook");
+let utils = require("./lib/helpers/utils");
+let request = require("request").defaults({
     encoding: null
 });
-var Bot = require("./lib/facebook/messenger-bot");
-var clc = require("cli-color");
+let Bot = require("./lib/facebook/messenger-bot");
+let clc = require("cli-color");
 
-var DEBUG = false;
-var green = clc.greenBright;
-var white = clc.white;
-var grey = clc.blackBright;
+let DEBUG = false;
+let green = clc.greenBright;
+let white = clc.white;
+let grey = clc.blackBright;
 
 module.exports = function (RED) {
 
-    function FacebookBotNode(n) {
-        RED.nodes.createNode(this, n);
+    function FacebookBotNode(config) {
+        RED.nodes.createNode(this, config);
 
-        var self = this;
-        this.botname = n.botname;
-        this.log = n.log;
+        const self = this;
+        this.botname = config.botname;
+        this.log = config.log;
 
         this.usernames = [];
-        if (n.usernames) {
+        if (config.usernames) {
 
-            this.usernames = _(n.usernames.split(",")).chain()
+            this.usernames = _(config.usernames.split(",")).chain()
                 .map(function (userId) {
                     return userId.match(/^[a-zA-Z0-9_]+?$/) ? userId : null;
                 })
@@ -39,7 +39,7 @@ module.exports = function (RED) {
         this.handleMessage = function (botMsg) {
 
 
-            var facebookBot = self.bot;
+            let facebookBot = self.bot;
 
             if (DEBUG) {
                 // eslint-disable-next-line no-console
@@ -55,15 +55,15 @@ module.exports = function (RED) {
                 transport: "facebook"
             });
 
-            var userId = botMsg.sender.id;
-            var chatId = botMsg.sender.id;
-            var messageId = botMsg.message != null ? botMsg.message.mid : null;
+            let userId = botMsg.sender.id;
+            let chatId = botMsg.sender.id;
+            let messageId = botMsg.message != null ? botMsg.message.mid : null;
             // todo fix this
 
-            var isAuthorized = true;
-            var chatContext = ChatContextStore.getOrCreateChatContext(self, chatId);
+            let isAuthorized = true;
+            let chatContext = ChatContextStore.getOrCreateChatContext(self, chatId);
 
-            var payload = null;
+            let payload = null;
             // decode the message, eventually download stuff
             self.getMessageDetails(botMsg, self.bot)
                 .then(function (obj) {
@@ -81,7 +81,7 @@ module.exports = function (RED) {
                     chatContext.set("transport", "facebook");
                     chatContext.set("message", payload.content);
 
-                    var chatLog = new ChatLog(chatContext);
+                    let chatLog = new ChatLog(chatContext);
                     return chatLog.log({
                         payload: payload,
                         originalMessage: {
@@ -97,7 +97,7 @@ module.exports = function (RED) {
                 })
                 .then(function (msg) {
 
-                    var currentConversationNode = chatContext.get("currentConversationNode");
+                    let currentConversationNode = chatContext.get("currentConversationNode");
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     if (currentConversationNode != null) {
@@ -134,7 +134,7 @@ module.exports = function (RED) {
                         webhookURL: this.webhookURL
                     });
 
-                    var uiPort = RED.settings.get("uiPort");
+                    let uiPort = RED.settings.get("uiPort");
                     // eslint-disable-next-line no-console
                     console.log("");
                     // eslint-disable-next-line no-console
@@ -157,7 +157,7 @@ module.exports = function (RED) {
         }
 
         this.on("close", function (done) {
-            var endpoints = ["/facebook", "/facebook/_status"];
+            let endpoints = ["/facebook", "/facebook/_status"];
             // remove middleware for facebook callback
             RED.httpNode._router.stack.forEach(function (route, i, routes) {
                 if (route.route && _.contains(endpoints, route.route.path)) {
@@ -178,9 +178,9 @@ module.exports = function (RED) {
         this.getMessageDetails = function (botMsg) {
             return new Promise(function (resolve, reject) {
 
-                //var userId = botMsg.sender.id;
-                var chatId = botMsg.sender.id;
-                var messageId = botMsg.message != null ? botMsg.message.mid : null;
+                //let userId = botMsg.sender.id;
+                let chatId = botMsg.sender.id;
+                let messageId = botMsg.message != null ? botMsg.message.mid : null;
 
                 if (!_.isEmpty(botMsg.account_linking)) {
                     resolve({
@@ -199,7 +199,7 @@ module.exports = function (RED) {
                     reject("Unable to detect inbound message for Facebook");
                 }
 
-                var message = botMsg.message;
+                let message = botMsg.message;
                 if (!_.isEmpty(message.quick_reply)) {
                     resolve({
                         chatId: chatId,
@@ -223,7 +223,7 @@ module.exports = function (RED) {
                 }
 
                 if (_.isArray(message.attachments) && !_.isEmpty(message.attachments)) {
-                    var attachment = message.attachments[0];
+                    let attachment = message.attachments[0];
                     switch (attachment.type) {
                         case "image":
                             // download the image into a buffer
@@ -305,7 +305,7 @@ module.exports = function (RED) {
 
     function FacebookInNode(config) {
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
         this.bot = config.bot;
 
         this.config = RED.nodes.getNode(this.bot);
@@ -345,9 +345,9 @@ module.exports = function (RED) {
 
     function FacebookOutNode(config) {
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
         this.bot = config.bot;
-        this.track = config.track;
+        this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
 
         this.config = RED.nodes.getNode(this.bot);
         if (this.config) {
@@ -375,11 +375,10 @@ module.exports = function (RED) {
         function sendMeta(msg) {
             return new Promise(function (resolve, reject) {
 
-                var type = msg.payload.type;
-                var bot = node.bot;
+                let type = msg.payload.type;
+                let bot = node.bot;
 
-
-                var reportError = function (err) {
+                let reportError = function (err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -391,11 +390,9 @@ module.exports = function (RED) {
                     case "persistent-menu":
                         bot.setPersistentMenu(msg.payload.items, reportError);
                         break;
-
                     default:
                         reject();
                 }
-
             });
         }
 
@@ -403,11 +400,11 @@ module.exports = function (RED) {
 
             return new Promise(function (resolve, reject) {
 
-                var type = msg.payload.type;
-                var bot = node.bot;
-                var credentials = node.config.credentials;
+                let type = msg.payload.type;
+                let bot = node.bot;
+                let credentials = node.config.credentials;
 
-                var reportError = function (err) {
+                let reportError = function (err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -445,7 +442,7 @@ module.exports = function (RED) {
                         break;
 
                     case "account-link":
-                        var attachment = {
+                        let attachment = {
                             "type": "template",
                             "payload": {
                                 "template_type": "button",
@@ -465,8 +462,8 @@ module.exports = function (RED) {
                         break;
 
                     case "inline-buttons":
-                        var quickReplies = _(msg.payload.buttons).map(function (button) {
-                            var quickReply = {
+                        let quickReplies = _(msg.payload.buttons).map(function (button) {
+                            let quickReply = {
                                 content_type: "text",
                                 title: button.label,
                                 payload: !_.isEmpty(button.value) ? button.value : button.label
@@ -498,10 +495,10 @@ module.exports = function (RED) {
                         break;
 
                     case "location":
-                        var lat = msg.payload.content.latitude;
-                        var lon = msg.payload.content.longitude;
+                        let lat = msg.payload.content.latitude;
+                        let lon = msg.payload.content.longitude;
 
-                        var locationAttachment = {
+                        let locationAttachment = {
                             "type": "template",
                             "payload": {
                                 "template_type": "generic",
@@ -525,7 +522,7 @@ module.exports = function (RED) {
                         break;
 
                     case "audio":
-                        var audio = msg.payload.content;
+                        let audio = msg.payload.content;
                         helpers.uploadBuffer({
                             recipient: msg.payload.chatId,
                             type: "audio",
@@ -551,7 +548,7 @@ module.exports = function (RED) {
                         break;
 
                     case "photo":
-                        var image = msg.payload.content;
+                        let image = msg.payload.content;
                         helpers.uploadBuffer({
                             recipient: msg.payload.chatId,
                             type: "image",
@@ -571,9 +568,10 @@ module.exports = function (RED) {
         }
 
         // relay message
-        var handler = function (msg) {
+        let handler = function (msg) {
             node.send(msg);
         };
+
         RED.events.on("node:" + config.id, handler);
 
         // cleanup on close
@@ -599,21 +597,21 @@ module.exports = function (RED) {
                         node.error(error);
                     } else {
                         // check payload
-                        var payloadError = utils.hasValidPayload(msg);
+                        let payloadError = utils.hasValidPayload(msg);
                         if (payloadError != null) {
                             // invalid payload
                             node.error(payloadError);
                         } else {
                             // payload is valid, go on
-                            var track = node.track;
-                            var chatContext = msg.chat();
+                            let track = node.track;
+                            let chatContext = msg.chat();
                             // check if this node has some wirings in the follow up pin, in that case
                             // the next message should be redirected here
                             if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
                                 chatContext.set("currentConversationNode", node.id);
                                 chatContext.set("currentConversationNode_at", moment());
                             }
-                            var chatLog = new ChatLog(chatContext);
+                            let chatLog = new ChatLog(chatContext);
                             chatLog.log(msg, node.config.log)
                                 .then(function () {
                                     sendMessage(msg);

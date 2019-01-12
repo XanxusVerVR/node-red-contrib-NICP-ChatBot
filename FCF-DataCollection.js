@@ -1,6 +1,6 @@
 module.exports = function (RED) {
     function DataCollection(config) {
-
+//test10
         RED.nodes.createNode(this, config);
         var node = this;
         var context = this.context();

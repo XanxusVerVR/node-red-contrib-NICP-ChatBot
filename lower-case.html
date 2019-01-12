@@ -1,0 +1,36 @@
+<script type="text/javascript">
+	RED.nodes.registerType("lower-case", {
+		//定義此節點要在NodeRED編輯器左邊的哪個分類之中，所以這裡定義他要在function分類中
+		category: "function",
+		color: "#a6bbcf",
+		//定義預設值，當拉出節點時會顯示設值
+		defaults: {
+			//節點於編輯器右邊資訊欄Name欄位所顯示的字串
+			name: {
+				value: ""
+			}
+		},
+		//一開始是幾個輸入
+		inputs: 1,
+		//一開始是幾個輸出
+		outputs: 1,
+		icon: "file.png",
+		//節點在編輯器中，節點上所顯示的名字串
+		label: function () {
+			return "label-test";
+		}
+	});
+</script>
+
+<!-- 定義此節點的表單元件 -->
+<script type="text/x-red" data-template-name="lower-case">
+	<div class="form-row">
+		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+</script>
+
+<!-- 定義節點的右邊資訊欄的輔助說明文字 -->
+<script type="text/x-red" data-help-name="lower-case">
+	<p>A simple node that converts the message payloads into all lower-case characters</p>
+</script>

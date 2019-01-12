@@ -2,21 +2,23 @@ module.exports = function (RED) {
     function Frame(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
-        var context = this.context().flow;
+        let node = this;
+        let context = this.context().flow;//建立並取得context物件
         node.name = config.name;
 
         this.on("input", function (msg) {
 
-            var frame = {};
+            let frame = {};
+            let name;//用來當frame的屬性
+            if (node.name) {//如果開發者有填節點的名稱，就存到name裡
+                name = node.name;
+            }
+            else {
+                name = 1;
+            }
 
-            if (node.name)
-                var name = node.name;
-            else
-                var name = 1;
-
-            if (context.get("frame") == null) {
-                frame[name] = {
+            if (context.get("frame") == null || !frame[name]) {
+                frame[name] = {//將此name設成frame的屬性名稱
                     Query: {},
                     UserData: {},
                     Result: {}
@@ -26,28 +28,22 @@ module.exports = function (RED) {
 
             frame = context.get("frame");
 
-            if (!frame[name])
-                frame[name] = {
-                    Query: {},
-                    UserData: {},
-                    Result: {}
-                };
-
+            //如果前一個節點的msg物件的query、userData、result不是空，就個別把這幾個屬性的值取出來，放到frame物件的name屬性裡
             if (msg.query != null) {
                 Object.keys(msg.query).map(function (objectKey, index) {
-                    var value = msg.query[objectKey];
+                    let value = msg.query[objectKey];
                     frame[name].Query[objectKey] = value;
                 });
             }
             if (msg.userData != null) {
                 Object.keys(msg.userData).map(function (objectKey, index) {
-                    var value = msg.userData[objectKey];
+                    let value = msg.userData[objectKey];
                     frame[name].UserData[objectKey] = value;
                 });
             }
             if (msg.result != null) {
                 Object.keys(msg.result).map(function (objectKey, index) {
-                    var value = msg.result[objectKey];
+                    let value = msg.result[objectKey];
                     frame[name].Result[objectKey] = value;
                 });
             }
