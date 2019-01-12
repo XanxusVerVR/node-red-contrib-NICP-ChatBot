@@ -20,7 +20,7 @@ module.exports = function (RED) {
     function FacebookBotNode(config) {
         RED.nodes.createNode(this, config);
 
-        const self = this;
+        const node = this;
         this.botname = config.botname;
         this.log = config.log;
 
@@ -39,7 +39,7 @@ module.exports = function (RED) {
         this.handleMessage = function (botMsg) {
 
 
-            let facebookBot = self.bot;
+            let facebookBot = node.bot;
 
             if (DEBUG) {
                 // eslint-disable-next-line no-console
@@ -61,14 +61,14 @@ module.exports = function (RED) {
             // todo fix this
 
             let isAuthorized = true;
-            let chatContext = ChatContextStore.getOrCreateChatContext(self, chatId);
+            let chatContext = ChatContextStore.getOrCreateChatContext(node, chatId);
 
             let payload = null;
             // decode the message, eventually download stuff
-            self.getMessageDetails(botMsg, self.bot)
+            node.getMessageDetails(botMsg, node.bot)
                 .then(function (obj) {
                     payload = obj;
-                    return helpers.getOrFetchProfile(userId, self.bot);
+                    return helpers.getOrFetchProfile(userId, node.bot);
                 })
                 .then(function (profile) {
                     // store some information
@@ -91,9 +91,9 @@ module.exports = function (RED) {
                             }
                         },
                         chat: function () {
-                            return ChatContextStore.getChatContext(self, chatId);
+                            return ChatContextStore.getChatContext(node, chatId);
                         }
-                    }, self.log);
+                    }, node.log);
                 })
                 .then(function (msg) {
 
@@ -168,8 +168,8 @@ module.exports = function (RED) {
         });
 
         this.isAuthorized = function (username, userId) {
-            if (self.usernames.length > 0) {
-                return self.usernames.indexOf(username) != -1 || self.usernames.indexOf(String(userId)) != -1;
+            if (node.usernames.length > 0) {
+                return node.usernames.indexOf(username) != -1 || node.usernames.indexOf(String(userId)) != -1;
             }
             return true;
         };
@@ -397,7 +397,6 @@ module.exports = function (RED) {
         }
 
         function sendMessage(msg) {
-
             return new Promise(function (resolve, reject) {
 
                 let type = msg.payload.type;
@@ -563,7 +562,6 @@ module.exports = function (RED) {
                     default:
                         reject("Unable to prepare unknown message type");
                 }
-
             });
         }
 
@@ -580,13 +578,11 @@ module.exports = function (RED) {
         });
 
         this.on("input", function (msg) {
-
             // check if the message is from facebook
             if (msg.originalMessage != null && msg.originalMessage.transport !== "facebook") {
                 // exit, it"s not from facebook
                 return;
             }
-
             // try to send the meta first (those messages that doesn"t require a valid payload)
             sendMeta(msg)
                 .then(function () {
@@ -619,10 +615,7 @@ module.exports = function (RED) {
                         } // end valid payload
                     } // end no error
                 }); // end then
-
-
         });
     }
     RED.nodes.registerType("FCF-facebook-send", FacebookOutNode);
-
 };
