@@ -4,6 +4,7 @@ const ChatLog = require("./lib/chat-log");
 const ChatContextStore = require("./lib/chat-context-store");
 const helpers = require("./lib/facebook/facebook");
 const utils = require("./lib/helpers/utils");
+const util = require("util");
 const request = require("request").defaults({
     encoding: null
 });
@@ -104,6 +105,7 @@ module.exports = function (RED) {
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
+                        //使用者第一句話以外的訊息會從這裡觸發，並傳進來
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
                         // 使用者第一句話或訊息會從這裡觸發並接收進來
@@ -572,11 +574,12 @@ module.exports = function (RED) {
         }
 
         // relay message
+        //當使用者一說話，就會觸發這個註冊的函式來傳送訊息
         let handler = function (msg) {
             //使用者說的話(除了第一句)都會從這裡傳出去
             node.send(msg);
         };
-
+        //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
         RED.events.on("node:" + config.id, handler);
 
         // cleanup on close

@@ -88,7 +88,7 @@ let Bot1 = {
 // FCF-Facebook.js的FacebookBotNode function中的n.log的內容
 console.log(n.log);//印出undefined
 console.log(this.log);//印出undefined
-//印為n物件裡根本沒有log這個屬性
+//因為n物件裡根本沒有log這個屬性
 
 // FCF-Facebook.js的FacebookBotNode function中this.handleMessage所參考的function參數物件的內容
 let botMsg = {

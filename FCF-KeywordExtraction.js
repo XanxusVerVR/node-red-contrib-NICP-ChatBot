@@ -62,7 +62,7 @@ module.exports = function (RED) {
                 }).catch(function (error) {
                     console.log(error);
                 });
-            }();
+            };
             gt();
         });
     }
