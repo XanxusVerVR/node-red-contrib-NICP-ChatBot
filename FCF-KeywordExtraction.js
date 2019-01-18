@@ -56,14 +56,15 @@ module.exports = function (RED) {
                 });
             };
 
-            let gt = function () {
-                gtoken.getToken().then(function (token) {
-                    return sendRequest(token);
-                }).catch(function (error) {
-                    console.log(error);
-                });
-            };
-            gt();
+            (() => {
+                gtoken.getToken()
+                    .then(function (token) {
+                        return sendRequest(token);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            })();
         });
     }
     RED.nodes.registerType("FCF-KeywordExtraction", KeywordExtraction);
