@@ -1,9 +1,9 @@
 module.exports = function (RED) {
     function DataCollection(config) {
-//test10
+
         RED.nodes.createNode(this, config);
-        var node = this;
-        var context = this.context();
+        let node = this;
+        let context = this.context();
         node.rules = config.rules;
         node.collect = config.collect;
         node.whetherToSendLocation = config.whetherToSendLocation;
@@ -18,11 +18,11 @@ module.exports = function (RED) {
         this.on("input", function (msg) {
 
             msg.whetherToSendLocation = node.whetherToSendLocation;
-            var rules = node.rules;
-            var collect = node.collect;
-            var output = [];
+            let rules = node.rules;
+            let collect = node.collect;
+            let output = [];
 
-            if (collect == "query")
+            if (collect == "query"){
                 if (context.get("dataCount") == null) {
 
                     rules.reverse();
@@ -31,7 +31,7 @@ module.exports = function (RED) {
                     output[0] = msg;
                     output[1] = null;
 
-                    var query = {};
+                    let query = {};
                     context.set("query", query);
 
                     msg.payload = rules[context.get("dataCount")].messageContent;
@@ -62,8 +62,8 @@ module.exports = function (RED) {
                     }
                     node.send(output);
                 }
-
-            if (collect == "userData")
+            }
+            if (collect == "userData"){
                 if (context.get("dataCount") == null) {
 
                     rules.reverse();
@@ -102,6 +102,7 @@ module.exports = function (RED) {
                     context.set("dataCount", null);
                     node.send(output);
                 }
+            }
         });
     }
     RED.nodes.registerType("FCF-DataCollection", DataCollection);

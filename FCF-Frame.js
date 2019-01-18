@@ -1,3 +1,4 @@
+const _ = require("underscore");
 module.exports = function (RED) {
     function Frame(config) {
 
@@ -16,12 +17,8 @@ module.exports = function (RED) {
             else {
                 name = 1;
             }
-            console.log("進入兩個if之前:");
-            console.log("context.get(\"frame\")=");
-            console.log(context.get("frame"));
-            console.log("frame[name]=");
-            console.log(frame[name]);
-            if (context.get("frame") == null || !frame[name]) {
+
+            if (_.isUndefined(context.get("frame")) || _.isNull(context.get("frame"))) {
                 frame[name] = {//將此name設成frame的屬性名稱
                     Query: {},
                     UserData: {},
@@ -31,11 +28,6 @@ module.exports = function (RED) {
             }
 
             frame = context.get("frame");
-            console.log("進入兩個if之後:");
-            console.log("context.get(\"frame\")=");
-            console.log(context.get("frame"));
-            console.log("frame[name]=");
-            console.log(frame[name]);
 
             //如果前一個節點的msg物件的query、userData、result不是空，就個別把這幾個屬性的值取出來，放到frame物件的name屬性裡
             if (msg.query != null) {
