@@ -1,21 +1,21 @@
-var _ = require("underscore");
-var utils = require("./lib/helpers/utils");
-var MessageTemplate = require("./lib/message-template");
-var emoji = require("node-emoji");
+const _ = require("underscore");
+const utils = require("./lib/helpers/utils");
+const MessageTemplate = require("./lib/message-template");
+const emoji = require("node-emoji");
 
 module.exports = function (RED) {
 
     function Message(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
         this.message = config.message;
         this.answer = config.answer;
         this.parse_mode = config.parse_mode;
         this.transports = ["telegram", "slack", "facebook", "smooch"];
 
         this.pickOne = function (messages) {
-            var luck = Math.floor(Math.random() * messages.length);
+            let luck = Math.floor(Math.random() * messages.length);
             return _.isString(messages[luck]) ? messages[luck] : messages[luck].message;
         };
 
@@ -27,12 +27,12 @@ module.exports = function (RED) {
 
         this.on("input", function (msg) {
 
-            var message = node.message;
-            var answer = node.answer;
-            var parse_mode = node.parse_mode;
-            var chatId = utils.getChatId(msg);
-            var messageId = utils.getMessageId(msg);
-            var template = MessageTemplate(msg, node);
+            let message = node.message;
+            let answer = node.answer;
+            let parse_mode = node.parse_mode;
+            let chatId = utils.getChatId(msg);
+            let messageId = utils.getMessageId(msg);
+            let template = MessageTemplate(msg, node);
 
             // check transport compatibility
             if (!utils.matchTransport(node, msg)) {

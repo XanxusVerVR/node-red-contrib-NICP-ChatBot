@@ -1,19 +1,19 @@
-var request = require("request");
+const request = require("request");
 
 module.exports = function (RED) {
     function PullService(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
         node.URL = config.URL;
 
         this.on("input", function (msg) {
 
-            var headers = {
+            let headers = {
                 "Content-Type": "application/json;charset=utf-8"
             };
 
-            var options = {
+            let options = {
                 url: node.URL,
                 method: "POST",
                 headers: headers,

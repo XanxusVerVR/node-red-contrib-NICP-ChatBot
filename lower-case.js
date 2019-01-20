@@ -1,10 +1,10 @@
 module.exports = function (RED) {
     function LowerCaseNode(config) {
         RED.nodes.createNode(this, config);
-        var node = this;
-        node.on("input", function (msg) {
+        // var node = this;
+        this.on("input", function (msg) {
             msg.payload = msg.payload.toLowerCase();
-            node.send(msg);
+            this.send(msg);
         });
     }
     RED.nodes.registerType("lower-case", LowerCaseNode);

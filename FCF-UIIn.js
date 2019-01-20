@@ -16,18 +16,18 @@
 
 module.exports = function (RED) {
     "use strict";
-    var bodyParser = require("body-parser");
-    var multer = require("multer");
-    var cookieParser = require("cookie-parser");
-    var getBody = require("raw-body");
-    var cors = require("cors");
-    var jsonParser = bodyParser.json();
-    var urlencParser = bodyParser.urlencoded({ extended: true });
-    var onHeaders = require("on-headers");
-    var typer = require("media-typer");
-    var isUtf8 = require("is-utf8");
-    var hashSum = require("hash-sum");
-    var moment = require("moment");
+    const bodyParser = require("body-parser");
+    const multer = require("multer");
+    const cookieParser = require("cookie-parser");
+    const getBody = require("raw-body");
+    const cors = require("cors");
+    const jsonParser = bodyParser.json();
+    const urlencParser = bodyParser.urlencoded({ extended: true });
+    const onHeaders = require("on-headers");
+    const typer = require("media-typer");
+    const isUtf8 = require("is-utf8");
+    const hashSum = require("hash-sum");
+    const moment = require("moment");
 
     function rawBodyParser(req, res, next) {
         if (req.skipRawBodyParser) { next(); } // don"t parse this if told to skip
@@ -37,11 +37,11 @@ module.exports = function (RED) {
         req.body = "";
         req._body = true;
 
-        var isText = true;
-        var checkUTF = false;
+        let isText = true;
+        let checkUTF = false;
 
         if (req.headers["content-type"]) {
-            var parsedType = typer.parse(req.headers["content-type"]);
+            let parsedType = typer.parse(req.headers["content-type"]);
             if (parsedType.type === "text") {
                 isText = true;
             } else if (parsedType.subtype === "xml" || parsedType.suffix === "xml") {
@@ -71,7 +71,7 @@ module.exports = function (RED) {
         });
     }
 
-    var corsHandler = function (req, res, next) {
+    let corsHandler = function (req, res, next) {
         next();
     };
 
@@ -87,7 +87,7 @@ module.exports = function (RED) {
         if (RED.settings.httpNodeRoot !== false) {
 
             this.method = n.method;
-            var node = this;
+            let node = this;
             node.webhookConfig = RED.nodes.getNode(n.webhookConfig);
 
             this.errorHandler = function (err, req, res, next) {
@@ -111,7 +111,7 @@ module.exports = function (RED) {
                 }
             };
 
-            var postCallback = function (req, res) {
+            let postCallback = function (req, res) {
                 let msgid = RED.util.generateId();
                 res._msgid = msgid;
                 let body = req.body;
@@ -144,7 +144,7 @@ module.exports = function (RED) {
                 }
             };
 
-            var httpMiddleware = function (req, res, next) {
+            let httpMiddleware = function (req, res, next) {
                 next();
             };
 
@@ -154,20 +154,20 @@ module.exports = function (RED) {
                 }
             }
 
-            var metricsHandler = function (req, res, next) {
+            let metricsHandler = function (req, res, next) {
                 next();
             };
 
             if (this.metric()) {
                 console.log("metric");
                 metricsHandler = function (req, res, next) {
-                    var startAt = process.hrtime();
+                    let startAt = process.hrtime();
                     onHeaders(res, function () {
                         if (res._msgid) {
-                            var diff = process.hrtime(startAt);
-                            var ms = diff[0] * 1e3 + diff[1] * 1e-6;
-                            var metricResponseTime = ms.toFixed(3);
-                            var metricContentLength = res._headers["content-length"];
+                            let diff = process.hrtime(startAt);
+                            let ms = diff[0] * 1e3 + diff[1] * 1e-6;
+                            let metricResponseTime = ms.toFixed(3);
+                            let metricContentLength = res._headers["content-length"];
                             //assuming that _id has been set for res._metrics in uiOut node!
                             node.metric("response.time.millis", { _msgid: res._msgid }, metricResponseTime);
                             node.metric("response.content-length.bytes", { _msgid: res._msgid }, metricContentLength);
@@ -181,7 +181,7 @@ module.exports = function (RED) {
             RED.httpNode.post("/webhook", cookieParser(), httpMiddleware, corsHandler, metricsHandler, jsonParser, urlencParser, rawBodyParser, postCallback, this.errorHandler);
 
             this.on("close", function () {
-                var node = this;
+                let node = this;
                 RED.httpNode._router.stack.forEach(function (route, i, routes) {
                     if (route.route && route.route.path === node.url && route.route.methods[node.method]) {
                         routes.splice(i, 1);

@@ -1,18 +1,18 @@
-var request = require("request");
+const request = require("request");
 module.exports = function (RED) {
     function uiOut(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
         node.webhookConfig = RED.nodes.getNode(config.webhookConfig);
 
         this.on("input", function (msg) {
 
-            var headers = {
+            let headers = {
                 "Content-Type": "application/json;charset=utf-8"
             };
 
-            var options = {
+            let options = {
                 url: `https://graph.facebook.com/v2.6/me/messages?access_token=${node.webhookConfig.credentials.pageAccessToken}`,
                 method: "POST",
                 headers: headers,
