@@ -1,0 +1,30 @@
+<script type="text/javascript">
+	RED.nodes.registerType("FCF-Command", {
+		category: "FCF",
+		color: "#a6bbcf",
+		defaults: {
+			name: {
+				value: ""
+			}
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: "file.png",
+		label: function () {
+            return this.name || "Command";
+        }
+	});
+</script>
+
+<!-- 定義此節點的表單元件 -->
+<script type="text/x-red" data-template-name="FCF-Command">
+	<div class="form-row">
+		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+</script>
+
+<!-- 定義節點的右邊資訊欄的輔助說明文字 -->
+<script type="text/x-red" data-help-name="FCF-Command">
+	<p>可以在Command節點設置要傳送給裝置的控制指令，指令將儲存在msg.payload屬性中</p>
+</script>
