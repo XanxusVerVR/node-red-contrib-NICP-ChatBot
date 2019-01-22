@@ -1,0 +1,59 @@
+<!--這幾個新節點的色票 https://coolors.co/479b4d-ffea32-ff9f4c-ce5eed-5998ff -->
+<script type="text/javascript">
+    RED.nodes.registerType("FCF-Status", {
+        category: "FCF",
+        color: "#ffad86",
+        defaults: {
+            name: {
+                value: "",
+                required: false
+            },
+            property: {
+                value: "payload",
+                required: true,
+                validate: RED.validators.typedInput("propertyType")
+            },
+            propertyType: {
+                value: "msg"
+            },
+        },
+        inputs: 1,
+        outputs: 1,
+        paletteLabel: "Status",
+        icon: "file.png",
+        label: function () {
+            return this.name || "Status";
+        },
+        oneditprepare: function () {
+            $("#node-input-property").typedInput({
+                default: this.propertyType || "msg",
+                types: ["msg", "flow", "global"]
+            });
+            console.log("oneditprepareoneditprepareoneditprepare");
+        },
+        // oneditsave: function () {
+        //     this.propertyType = $("#node-input-property").typedInput("type");
+        // }
+    });
+</script>
+
+<!-- 定義此節點的表單元件 -->
+<script type="text/x-red" data-template-name="FCF-Status">
+	<div class="form-row">
+        <!-- 節點名稱 -->
+		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <!-- property欄位 -->
+    <div class="form-row">
+        <label data-i18n="switch.label.property"></label>
+        <input type="text" id="node-input-property" style="width: 70%"/>
+        <input type="hidden" id="node-input-outputs"/>
+    </div>
+</script>
+
+<!-- 定義節點的右邊資訊欄的輔助說明文字 -->
+<script type="text/x-red" data-help-name="FCF-Status">
+    <p>此節點用來呈現某物件的狀態。</p>
+    <p>您可以於此節點設置要存取的物件屬性，並可再設置當此屬性變成某個值的時候，它要呈現什麼狀態。</p>
+</script>

@@ -1,27 +1,40 @@
+<!--這幾個新節點的色票 https://coolors.co/479b4d-ffea32-ff9f4c-ce5eed-5998ff -->
 <script type="text/javascript">
-	RED.nodes.registerType("FCF-Command", {
-		category: "FCF",
-		color: "#a6bbcf",
-		defaults: {
-			name: {
-				value: ""
-			}
-		},
-		inputs: 1,
-		outputs: 1,
-		icon: "file.png",
-		label: function () {
+    RED.nodes.registerType("FCF-Command", {
+        category: "FCF",
+        color: "#FF9F4C",
+        defaults: {
+            name: {
+                value: "",
+                required: false
+            },
+            command: {
+                value: "",
+                required: false
+            }
+        },
+        inputs: 1,
+        outputs: 1,
+        paletteLabel: "Command",
+        icon: "file.png",
+        label: function () {
             return this.name || "Command";
         }
-	});
+    });
 </script>
 
 <!-- 定義此節點的表單元件 -->
 <script type="text/x-red" data-template-name="FCF-Command">
 	<div class="form-row">
+        <!-- 節點名稱 -->
 		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
-	</div>
+    </div>
+    <div class="form-row">
+        <!-- 指令 -->
+        <label for="node-input-command">Commnad</label>
+        <input type="text" id="node-input-command" placeholder="請填寫指令">
+    </div>
 </script>
 
 <!-- 定義節點的右邊資訊欄的輔助說明文字 -->

@@ -1,9 +1,9 @@
 module.exports = function (RED) {
     function Command(config) {
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
         node.on("input", function (msg) {
-            msg.payload = msg.payload.toLowerCase();
+            msg.payload = config.command.trim().toString();
             node.send(msg);
         });
     }

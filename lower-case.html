@@ -15,9 +15,17 @@
 		//一開始是幾個輸出
 		outputs: 1,
 		icon: "file.png",
-		//節點在編輯器中，節點上所顯示的名字串
+		//定義節點拉出來的時候，預設顯示的字串
 		label: function () {
-			return "label-test";
+			return this.name || "lower case";
+		},
+		// 定義節點在左邊時的字串(還沒拉出來的時候)
+		paletteLabel: "Lower Case",
+		oneditprepare: function () {
+			console.log("123");
+		},
+		oneditsave: function () {
+			console.log("567");
 		}
 	});
 </script>
