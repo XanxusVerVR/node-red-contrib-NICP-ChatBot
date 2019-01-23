@@ -23,6 +23,14 @@
 		paletteLabel: "Lower Case",
 		// 定義在編輯表單開啟前，要做的事
 		oneditprepare: function () {
+			$("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+				addItem: function (container, i, opt) {
+					let row2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
+					$("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
+						.text(to)
+						.appendTo(row2);
+				}
+			})
 
 		},
 		// 定義將編輯表單儲存時，要做的事
@@ -37,6 +45,9 @@
 	<div class="form-row">
 		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+	<div class="form-row" style="margin-bottom:0;">
+		<label><i class="fa fa-list"></i> <span data-i18n="change.label.rules"></   ></label>
 	</div>
 	<div class="form-row node-input-rule-container-row">
 		<ol id="node-input-rule-container"></ol>

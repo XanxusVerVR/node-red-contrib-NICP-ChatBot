@@ -181,18 +181,20 @@
                     for (let i = 0; i < 4; i++) {
                         selectField.append($("<option></option>").val(selectOptions[i].v).text(selectOptions[i].l));
                     }
-                    //定義第一列右邊的下拉選單(屬性名稱)msg,flow,global
-                    let propertyName = $("<input/>", { class: "node-input-rule-property-name", type: "text" })
+
+                    //定義第一列右邊的輸入表單(屬性的值)msg, flow, global, str, num, bool, json, bin, date, jsonata, env
+                    let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
                         .appendTo(row1)
-                        .typedInput({ types: ["msg", "flow", "global"] });
+                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json", "bin", "date", "jsonata", "env"] });
+
                     //這個div是set選項的to區塊
                     $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
                         .text(to)
                         .appendTo(row2);
-                    //定義第一列右邊的輸入表單(屬性的值)msg, flow, global, str, num, bool, json, bin, date, jsonata, env
-                    let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
+                    //定義第一列右邊的下拉選單(屬性名稱)msg,flow,global
+                    let propertyName = $("<input/>", { class: "node-input-rule-property-name", type: "text" })
                         .appendTo(row2)
-                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json", "bin", "date", "jsonata", "env"] });
+                        .typedInput({ types: ["msg", "flow", "global"] });
 
                     let row3_1 = $("<div/>").appendTo(row3);
                     //這個div是change選項的Search for區塊
