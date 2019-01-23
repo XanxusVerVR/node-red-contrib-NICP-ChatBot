@@ -27,11 +27,11 @@
             return this.name || "Message";
         },
         oneditsave: function () {
-            var messages = $("#node-input-message-container").editableList("items");
-            var node = this;
+            let messages = $("#node-input-message-container").editableList("items");
+            let node = this;
             node.message = [];
 
-            var idx;
+            let idx;
             for (idx = 0; idx < messages.length; idx++) {
                 node.message.push({
                     message: messages[idx].find("textarea").val()
@@ -46,8 +46,8 @@
                 .editableList({
                     addButton: "Add",
                     addItem: function (container, i, item) {
-                        var row = $("<div/>").appendTo(container);
-                        var content = "";
+                        let row = $("<div/>").appendTo(container);
+                        let content = "";
                         if (typeof item == "string") {
                             content = item;
                         } else if (item.message != null) {
@@ -64,11 +64,11 @@
                     sortable: true
                 });
 
-            var message = this.message;
+            let message = this.message;
             if (typeof message == "string") {
                 message = [message];
             }
-            var idx;
+            let idx;
             for (idx = 0; idx < message.length; idx++) {
                 $("#node-input-message-container").editableList("addItem", message[idx]);
             }

@@ -679,3 +679,28 @@ let REDProperty = [
     "server",
     "_"
 ];
+
+//transformation(原change節點)的Config物件裡的資料
+let transformationConfig = {
+    id: "30df5900.e78696",
+    type: "FCF-Transformation",
+    z: "8f8a71ea.ab8d6",
+    name: "",
+    rules:
+        [{
+            t: "set",
+            p: "yyy",
+            pt: "flow",
+            to: "payload",
+            tot: "msg",
+            fromt: "str"
+        }],
+    action: "",
+    property: "",
+    from: "",
+    to: "",
+    reg: false,
+    x: 350,
+    y: 280,
+    wires: [["6d068677.44d5d8"]]
+};

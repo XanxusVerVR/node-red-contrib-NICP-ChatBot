@@ -25,12 +25,12 @@
             return "Dispatcher";
         },
         oneditsave: function () {//當它Ok的時候存起來
-            var rules = $("#node-input-rule-container").editableList("items");//editableList的用法請見http://bit.ly/2u7kewg
-            var node = this;
+            let rules = $("#node-input-rule-container").editableList("items");//editableList的用法請見http://bit.ly/2u7kewg
+            let node = this;
             node.rules = [];
             rules.each(function (i) {
-                var rule = $(this);
-                var topic = rule.find("input").val();
+                let rule = $(this);
+                let topic = rule.find("input").val();
                 if (topic != null && topic != "") {
                     node.rules.push({
                         topic: topic
@@ -40,12 +40,12 @@
             this.outputs = node.rules.length;//增加了幾個Action，就有幾個輸出？
         },
         oneditprepare: function () {//在現在這個狀態，要做的事情。oneditprepare官方說明請見http://bit.ly/2uHbmAZ
-            var node = this;
+            let node = this;
             $("#node-input-rule-container").css("min-height", "250px").css("min-width", "450px").editableList({
                 addItem: function (container, i, opt) {//新增項目。http://bit.ly/2uBgKVp
-                    var rule = opt;
-                    var row = $("<div/>").appendTo(container);//http://api.jquery.com/appendto/
-                    var selectField = $("<input/>", {
+                    let rule = opt;
+                    let row = $("<div/>").appendTo(container);//http://api.jquery.com/appendto/
+                    let selectField = $("<input/>", {
                         style: "width:80%; margin-left: 5px; text-align: left;"
                     })
                         .attr("placeholder", "Action Value")
@@ -54,19 +54,19 @@
                     if (rule.topic != null) {
                         selectField.val(rule.topic);
                     }
-                    var finalspan = $("<span/>", {
+                    let finalspan = $("<span/>", {
                         style: "float: right;margin-top: 6px;"
                     }).appendTo(row);
                     finalspan.append("&nbsp;&#8594; <span class=\"node - input - rule - index\">" + (i + 1) + "</span>");
                 },
                 removeItem: function (opt) {//刪除項目
-                    var rules = $("#node-input-rule-container").editableList("items");
+                    let rules = $("#node-input-rule-container").editableList("items");
                     rules.each(function (i) {
                         $(this).find(".node-input-rule-index").html(i + 1);
                     });
                 },
                 sortItems: function () {//可手動移動項目的順序
-                    var rules = $("#node-input-rule-container").editableList("items");
+                    let rules = $("#node-input-rule-container").editableList("items");
                     rules.each(function (i) {
                         $(this).find(".node-input-rule-index").html(i + 1);//這裡是抓rule這個字
                     });
@@ -74,8 +74,8 @@
                 sortable: true,
                 removable: true
             });
-            for (var i = 0; i < node.rules.length; i++) {
-                var rule = this.rules[i];
+            for (let i = 0; i < node.rules.length; i++) {
+                let rule = this.rules[i];
                 $("#node-input-rule-container").editableList("addItem", rule);
             }
         }

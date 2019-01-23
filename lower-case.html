@@ -21,9 +21,11 @@
 		},
 		// 定義節點在左邊時的字串(還沒拉出來的時候)
 		paletteLabel: "Lower Case",
+		// 定義在編輯表單開啟前，要做的事
 		oneditprepare: function () {
-			console.log("123");
+
 		},
+		// 定義將編輯表單儲存時，要做的事
 		oneditsave: function () {
 			console.log("567");
 		}
@@ -35,6 +37,9 @@
 	<div class="form-row">
 		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+	<div class="form-row node-input-rule-container-row">
+		<ol id="node-input-rule-container"></ol>
 	</div>
 </script>
 

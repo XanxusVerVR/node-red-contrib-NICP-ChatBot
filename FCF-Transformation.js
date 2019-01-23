@@ -17,24 +17,24 @@
 module.exports = function (RED) {
     "use strict";
 
-    function Transformation(n) {
-        RED.nodes.createNode(this, n);
+    function Transformation(config) {
+        RED.nodes.createNode(this, config);
         let node = this;
 
-        this.rules = n.rules;
+        this.rules = config.rules;
         let rule;
         if (!this.rules) {
             rule = {
-                t: (n.action == "replace" ? "set" : n.action),
-                p: n.property || ""
+                t: (config.action == "replace" ? "set" : config.action),
+                p: config.property || ""
             };
 
             if ((rule.t === "set") || (rule.t === "move")) {
-                rule.to = n.to || "";
+                rule.to = config.to || "";
             } else if (rule.t === "change") {
-                rule.from = n.from || "";
-                rule.to = n.to || "";
-                rule.re = (n.reg === null || n.reg);
+                rule.from = config.from || "";
+                rule.to = config.to || "";
+                rule.re = (config.reg === null || config.reg);
             }
             this.rules = [rule];
         }
@@ -320,8 +320,13 @@ module.exports = function (RED) {
         }
         if (valid) {
             this.on("input", function (msg) {
+                console.log(config);
                 applyRules(msg, 0)
-                    .then(msg => { if (msg) { node.send(msg); } })
+                    .then(msg => {
+                        if (msg) {
+                            node.send(msg);
+                        }
+                    })
                     .catch(err => node.error(err, msg));
             });
         }
