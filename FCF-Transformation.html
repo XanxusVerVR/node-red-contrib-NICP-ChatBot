@@ -268,30 +268,6 @@
                 sortable: true
             });
 
-            if (!this.rules) {
-                let rule = {
-                    t: (this.action == "replace" ? "set" : this.action),
-                    p: this.property,
-                    pt: "msg"
-                };
-
-                if ((rule.t === "set") || (rule.t === "move")) {
-                    rule.to = this.to;
-                } else if (rule.t === "change") {
-                    rule.from = this.from;
-                    rule.to = this.to;
-                    rule.re = this.reg;
-                }
-
-                delete this.to;
-                delete this.from;
-                delete this.reg;
-                delete this.action;
-                delete this.property;
-
-                this.rules = [rule];
-            }
-
             for (let i = 0; i < this.rules.length; i++) {
                 let rule = this.rules[i];
                 $("#node-input-rule-container").editableList("addItem", rule);
