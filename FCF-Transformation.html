@@ -186,7 +186,6 @@
                     let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
                         .appendTo(row1)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json", "bin", "date", "jsonata", "env"] });
-
                     //這個div是set選項的to區塊
                     $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
                         .text(to)
@@ -226,6 +225,7 @@
 
                     selectField.change(function () {
                         let width = $("#node-input-rule-container").width();
+                        //$(this).val()會印出set或change或delete或move
                         let type = $(this).val();
                         if (type == "set") {
                             row2.show();

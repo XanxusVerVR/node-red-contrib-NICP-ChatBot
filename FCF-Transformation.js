@@ -320,7 +320,6 @@ module.exports = function (RED) {
         }
         if (valid) {
             this.on("input", function (msg) {
-                console.log(config);
                 applyRules(msg, 0)
                     .then(msg => {
                         if (msg) {
