@@ -15,8 +15,13 @@
             propertyType: {//物件
                 value: ""
             },
-            fill: {
-                value: "red",
+            rules: {
+                value: [{
+                    comparisonOperator: "eq",//用來儲存條件運算子：== >= <= !=
+                    fill: "red",
+                    shape: "ring",
+                    text: "disconnected"
+                }]
             }
         },
         inputs: 1,
@@ -27,12 +32,116 @@
             return this.name || "Status";
         },
         oneditprepare: function () {
+            console.log(this.rules.length);
             $("#node-input-property").typedInput({
                 default: this.propertyType || "msg",
                 types: ["msg", "flow", "global"]
             });
-            if (this.fill === undefined) {
-                $("#node-input-fill").val("red");
+            function resizeRule(rule) {
+                let newWidth = rule.width();
+                rule.find(".red-ui-typedInput").typedInput("width", newWidth - 130);
+            }
+
+            $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+                addItem: function (container, i, opt) {
+                    let rule = opt;
+                    container.css({
+                        overflow: "hidden",
+                        whiteSpace: "nowrap"
+                    });
+                    let row1 = $("<div/>").appendTo(container);
+                    let row2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
+                    let row3 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
+                    let row4 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
+
+                    //定義運算子下拉選單
+                    let selectFieldOperator = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-right:10px;" }).appendTo(row1);
+                    let selectOptionsOperator = [{
+                        v: "set",
+                        l: "set"
+                    },
+                    {
+                        v: "change",
+                        l: "change"
+                    },
+                    {
+                        v: "delete",
+                        l: "delete"
+                    },
+                    {
+                        v: "move",
+                        l: "move"
+                    }];
+                    for (let i = 0; i < 4; i++) {
+                        selectFieldOperator.append($("<option></option>").val(selectOptionsOperator[i].v).text(selectOptionsOperator[i].l));
+                    }
+                    let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
+                        .appendTo(row1)
+                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
+
+                    //定義status的fill的下拉選單
+                    let spanFill = $("<span/>", { text: "Fill" ,style:"text-align: right;"}).appendTo(row2);
+                    let selectFieldFill = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-left:48px;" }).appendTo(row2);
+                    let selectOptionsFill = [{
+                        v: "set",
+                        l: "set"
+                    },
+                    {
+                        v: "change",
+                        l: "change"
+                    },
+                    {
+                        v: "delete",
+                        l: "delete"
+                    },
+                    {
+                        v: "move",
+                        l: "move"
+                    }];
+                    for (let i = 0; i < 4; i++) {
+                        selectFieldFill.append($("<option></option>").val(selectOptionsFill[i].v).text(selectOptionsFill[i].l));
+                    }
+
+                    //定義status的shape的下拉選單
+                    let spanShape = $("<span/>", { text: "Shape" ,style:"text-align: right;"}).appendTo(row3);
+                    let selectFieldShape = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-left:25px;" }).appendTo(row3);
+                    let selectOptionsShape = [{
+                        v: "set",
+                        l: "set"
+                    },
+                    {
+                        v: "change",
+                        l: "change"
+                    },
+                    {
+                        v: "delete",
+                        l: "delete"
+                    },
+                    {
+                        v: "move",
+                        l: "move"
+                    }];
+                    for (let i = 0; i < 4; i++) {
+                        selectFieldShape.append($("<option></option>").val(selectOptionsShape[i].v).text(selectOptionsShape[i].l));
+                    }
+
+                    // 定義status的text的input
+                    let spanStatusText = $("<span/>", { text: "Text" ,style:"text-align: right;"}).appendTo(row4);
+                    let statusText = $("<input/>", { class: "node-input-rule-property-value", type: "text" ,style: "margin-left:40px;"}).appendTo(row4);
+
+                    //rule.comparisonOperator會印出eq
+                    // selectField.val(rule.comparisonOperator);
+
+                    let newWidth = $("#node-input-rule-container").width();
+                    resizeRule(container);
+                },
+                resizeItem: resizeRule,
+                removable: true,
+                sortable: true
+            })
+            for (let i = 0; i < this.rules.length; i++) {
+                let rule = this.rules[i];
+                $("#node-input-rule-container").editableList("addItem", rule);
             }
         },
         oneditsave: function () {
@@ -53,16 +162,9 @@
         <label data-i18n="switch.label.property"></label>
         <input type="text" id="node-input-property" style="width: 70%"/>
     </div>
-    <!-- 給開發者定義fill欄位的值 -->
-    <div class="form-row">
-        <label for="node-input-fill">Fill</label>
-        <select id="node-input-fill" style="width:125px !important">
-            <option value="red">red</option>
-            <option value="green">green</option>
-            <option value="yellow">yellow</option>
-            <option value="blue">blue</option>
-            <option value="grey">grey</option>
-        </select>
+    <!-- 定義項目容器? -->
+        <div class="form-row node-input-rule-container-row">
+        <ol id="node-input-rule-container"></ol>
     </div>
 </script>
 

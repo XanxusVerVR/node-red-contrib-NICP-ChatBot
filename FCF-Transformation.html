@@ -94,8 +94,10 @@
                     return this._("change.label.delete", { property: "msg." + this.property });
                 }
             } else {
+                //當此節點拉出來時，這裡會呼叫兩次！
                 if (this.rules.length == 1) {
                     if (this.rules[0].t === "set") {
+                        //下面這行會回傳類似set msg.payload這樣的字串
                         return this._("change.label.set", { property: prop2name((this.rules[0].pt || "msg"), this.rules[0].p) });
                     } else if (this.rules[0].t === "change") {
                         return this._("change.label.change", { property: prop2name((this.rules[0].pt || "msg"), this.rules[0].p) });
@@ -126,9 +128,11 @@
             function resizeRule(rule) {
                 let newWidth = rule.width();
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 130);
-
             }
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+                //當加入新項目時，會呼叫的方法
+                //i:如果目前已經存在3個項目，addItem似乎會呼叫3次，每次i會加1，所以有三個i會是0~2
+                //opt:這個項目儲存的物件，{t: "set", p: "payload", pt: "msg", to: "", tot: "str"}
                 addItem: function (container, i, opt) {
                     let rule = opt;
                     //設定，當節點一開始拉出來時，他的預設值
@@ -159,7 +163,7 @@
                     let row3 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
                     let row4 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
 
-                    //定義set change del move表單元件
+                    // 定義set change del move表單元件
                     let selectField = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-right:10px;" }).appendTo(row1);
                     let selectOptions = [{
                         v: "set",
@@ -267,7 +271,7 @@
                 removable: true,
                 sortable: true
             });
-
+            //當此節點一拉出來時，this.rules.length就是1了
             for (let i = 0; i < this.rules.length; i++) {
                 let rule = this.rules[i];
                 $("#node-input-rule-container").editableList("addItem", rule);
