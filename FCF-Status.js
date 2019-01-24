@@ -2,7 +2,6 @@ module.exports = function (RED) {
     function Status(config) {
         RED.nodes.createNode(this, config);
         let node = this;
-        console.log(config);
         node.on("input", function (msg) {
             let propertyType = config.propertyType;//取得物件(msg、flow、global)
             let property = config.property;//取得屬性

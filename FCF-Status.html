@@ -8,13 +8,12 @@
                 value: "",
                 required: false
             },
-            property: {
+            property: {//屬性
                 value: "payload",
                 required: true,
-                validate: RED.validators.typedInput("propertyType")
             },
-            propertyType: {
-                value: "msg"
+            propertyType: {//物件
+                value: ""
             },
         },
         inputs: 1,
@@ -29,11 +28,10 @@
                 default: this.propertyType || "msg",
                 types: ["msg", "flow", "global"]
             });
-            console.log("oneditprepareoneditprepareoneditprepare");
         },
-        // oneditsave: function () {
-        //     this.propertyType = $("#node-input-property").typedInput("type");
-        // }
+        oneditsave: function () {
+            this.propertyType = $("#node-input-property").typedInput("type");
+        }
     });
 </script>
 
