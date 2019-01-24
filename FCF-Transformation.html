@@ -193,29 +193,29 @@
                     //定義第一列右邊的輸入表單(屬性的值)msg, flow, global, str, num, bool, json, bin, date, jsonata, env
                     let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
                         .appendTo(row2)
-                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json", "bin", "date", "jsonata", "env"] });
+                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
 
                     let row3_1 = $("<div/>").appendTo(row3);
                     //這個div是change選項的Search for區塊
-                    $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box; background-color:rgb(84, 233, 15);" })
+                    $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
                         .text(search)
                         .appendTo(row3_1);
                     //定義change選項的搜尋欄位的下拉選單的值
                     let fromValue = $("<input/>", { class: "node-input-rule-property-search-value", type: "text" })
                         .appendTo(row3_1)
-                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "re", "num", "bool", "env"] });
+                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool"] });
 
                     let row3_2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(row3);
                     //這個div是change選項的Replace with區塊
-                    $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box; background-color:rgb(9, 139, 245);" })
+                    $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
                         .text(replace)
                         .appendTo(row3_2);
                     //定義change選項的Replace with區塊的下拉選單的值
                     let toValue = $("<input/>", { class: "node-input-rule-property-replace-value", type: "text" })
                         .appendTo(row3_2)
-                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json", "bin", "env"] });
+                        .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
                     //這個div是move選項的to區塊
-                    $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;background-color:rgb(155, 23, 167);" })
+                    $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
                         .text(to)
                         .appendTo(row4);
                     // 定義move選項的第二列的下拉選單的屬性名
