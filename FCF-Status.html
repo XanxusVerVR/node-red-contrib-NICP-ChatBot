@@ -15,6 +15,9 @@
             propertyType: {//物件
                 value: ""
             },
+            fill: {
+                value: "red",
+            }
         },
         inputs: 1,
         outputs: 1,
@@ -28,17 +31,20 @@
                 default: this.propertyType || "msg",
                 types: ["msg", "flow", "global"]
             });
+            if (this.fill === undefined) {
+                $("#node-input-fill").val("red");
+            }
         },
         oneditsave: function () {
-            this.propertyType = $("#node-input-property").typedInput("type");
+            this.propertyType = $("#node-input-property").typedInput("type");//type就是["msg", "flow", "global"]這些東西
         }
     });
 </script>
 
 <!-- 定義此節點的表單元件 -->
 <script type="text/x-red" data-template-name="FCF-Status">
+    <!-- 節點名稱 -->
 	<div class="form-row">
-        <!-- 節點名稱 -->
 		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
     </div>
@@ -46,7 +52,17 @@
     <div class="form-row">
         <label data-i18n="switch.label.property"></label>
         <input type="text" id="node-input-property" style="width: 70%"/>
-        <input type="hidden" id="node-input-outputs"/>
+    </div>
+    <!-- 給開發者定義fill欄位的值 -->
+    <div class="form-row">
+        <label for="node-input-fill">Fill</label>
+        <select id="node-input-fill" style="width:125px !important">
+            <option value="red">red</option>
+            <option value="green">green</option>
+            <option value="yellow">yellow</option>
+            <option value="blue">blue</option>
+            <option value="grey">grey</option>
+        </select>
     </div>
 </script>
 
