@@ -8,16 +8,18 @@
                 value: "",
                 required: false
             },
-            property: {//屬性
-                value: "payload",
-                required: true,
+            propertyType: {//物件(型態)
+                value: "msg"
             },
-            propertyType: {//物件
-                value: ""
+            property: {//屬性
+                value: "payload",//這個值一定要保留，這樣拉出來才會有預設值
+                required: true,
             },
             rules: {
                 value: [{
                     comparisonOperator: "eq",//用來儲存條件運算子：== >= <= !=
+                    beingComparedPropertyType: "str",//被比較的物件(型態)
+                    beingComparedProperty: "DefaultString",//被比較的屬性
                     fill: "red",
                     shape: "ring",
                     text: "disconnected"
@@ -32,6 +34,7 @@
             return this.name || "Status";
         },
         oneditprepare: function () {
+            //設置item外的Property
             $("#node-input-property").typedInput({
                 default: this.propertyType || "msg",
                 types: ["msg", "flow", "global"]
@@ -40,9 +43,10 @@
                 let newWidth = rule.width();
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 130);
             }
-
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 addItem: function (container, i, opt) {
+                    //會印出{comparisonOperator: ""fill: "",shape: "",text: ""}這樣的物件
+                    // console.log(rule);
                     let rule = opt;
                     container.css({
                         overflow: "hidden",
@@ -53,8 +57,8 @@
                     let row3 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
                     let row4 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
 
-                    //定義運算子下拉選單和物件屬性的表單
-                    let selectFieldOperator = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-right:10px;" }).appendTo(row1);
+                    //定義運算子下拉選單
+                    let selectFieldOperator = $("<select/>", { class: "node-input-rule-property-operator", style: "width:110px; margin-right:10px;" }).appendTo(row1);
                     let selectOptionsOperator = [
                         { v: "eq", l: "==" },
                         { v: "neq", l: "!=" },
@@ -66,13 +70,14 @@
                     for (let i = 0; i < selectOptionsOperator.length; i++) {
                         selectFieldOperator.append($("<option></option>").val(selectOptionsOperator[i].v).text(selectOptionsOperator[i].l));
                     }
-                    let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
+                    // 定義要被比較的物件屬性的表單
+                    let propertyValue = $("<input/>", { class: "node-input-rule-property-beingCompared-component", type: "text", value: "DefaultString" })
                         .appendTo(row1)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
 
                     //定義status的fill的下拉選單
                     let spanFill = $("<span/>", { text: "Fill", style: "text-align: right;" }).appendTo(row2);
-                    let selectFieldFill = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-left:48px;" }).appendTo(row2);
+                    let selectFieldFill = $("<select/>", { class: "node-input-rule-property-fill", style: "width:110px; margin-left:48px;" }).appendTo(row2);
                     let selectOptionsFill = [{
                         v: "red",
                         l: "red"
@@ -99,7 +104,7 @@
 
                     //定義status的shape的下拉選單
                     let spanShape = $("<span/>", { text: "Shape", style: "text-align: right;" }).appendTo(row3);
-                    let selectFieldShape = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-left:25px;" }).appendTo(row3);
+                    let selectFieldShape = $("<select/>", { class: "node-input-rule-property-shape", style: "width:110px; margin-left:25px;" }).appendTo(row3);
                     let selectOptionsShape = [{
                         v: "ring",
                         l: "ring"
@@ -114,10 +119,9 @@
 
                     // 定義status的text的input
                     let spanStatusText = $("<span/>", { text: "Text", style: "text-align: right;" }).appendTo(row4);
-                    let statusText = $("<input/>", { class: "node-input-rule-property-value", type: "text", style: "margin-left:40px;", value: "disconnected" }).appendTo(row4);
+                    let statusText = $("<input/>", { class: "node-input-rule-property-statusText", type: "text", style: "margin-left:40px;", value: "disconnected" }).appendTo(row4);
 
-                    //rule.comparisonOperator會印出eq
-                    // selectField.val(rule.comparisonOperator);
+                    // propertyName.typedInput("value", rule.p);
 
                     let newWidth = $("#node-input-rule-container").width();
                     resizeRule(container);
@@ -132,7 +136,34 @@
             }
         },
         oneditsave: function () {
+            let rules = $("#node-input-rule-container").editableList("items");
+            let node = this;
+            node.rules = [];
             this.propertyType = $("#node-input-property").typedInput("type");//type就是["msg", "flow", "global"]這些東西
+            this.property = $("#node-input-property").typedInput("value");
+            rules.each(function (i){
+                let rule = $(this);
+                let r = {
+                    comparisonOperator: rule.find(".node-input-rule-property-operator").val(),//用來儲存條件運算子：== >= <= !=
+                    beingComparedPropertyType: rule.find(".node-input-rule-property-beingCompared-component").typedInput("type"),//被比較的物件(型態)
+                    beingComparedProperty: rule.find(".node-input-rule-property-beingCompared-component").typedInput("value"),//被比較的屬性
+                    fill: rule.find(".node-input-rule-property-fill").val(),
+                    shape: rule.find(".node-input-rule-property-shape").val(),
+                    text: rule.find(".node-input-rule-property-statusText").val()
+                };
+                node.rules.push(r);
+            });
+        },
+        oneditresize: function (size) {
+            let rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
+            let height = size.height;
+            for (let i = 0; i < rows.size(); i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            let editorRow = $("#dialog-form>div.node-input-rule-container-row");
+            height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+
+            $("#node-input-rule-container").editableList("height", height);
         }
     });
 </script>

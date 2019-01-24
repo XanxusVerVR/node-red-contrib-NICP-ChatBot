@@ -251,6 +251,8 @@
                         resizeRule(container);
                     });
 
+                    //把於defaults物件裡的那些屬性的值，設定進這些表單元件，也就是在做設定初始預設值的動作
+                    //經測試，把以下幾行拿掉，即使不手動設定節點，於上面定義的預設值還是可以傳到js那邊
                     selectField.val(rule.t);
                     propertyName.typedInput("value", rule.p);
                     propertyName.typedInput("type", rule.pt);
@@ -262,6 +264,7 @@
                     fromValue.typedInput("type", rule.fromt);
                     toValue.typedInput("value", rule.to);
                     toValue.typedInput("type", rule.tot);
+
                     selectField.change();
 
                     let newWidth = $("#node-input-rule-container").width();
@@ -277,9 +280,9 @@
                 $("#node-input-rule-container").editableList("addItem", rule);
             }
         },
+        //此方法除了定義當儲存時要做的事，還有把item表單保存起來，這樣下次打開才會有上次輸入的東西
         oneditsave: function () {
             let rules = $("#node-input-rule-container").editableList("items");
-            let ruleset;
             let node = this;
             node.rules = [];
             rules.each(function (i) {

@@ -3,6 +3,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         let node = this;
         node.on("input", function (msg) {
+            console.log(config);
             let propertyType = config.propertyType;//取得物件(msg、flow、global)
             let property = config.property;//取得屬性
             switch (propertyType) {
