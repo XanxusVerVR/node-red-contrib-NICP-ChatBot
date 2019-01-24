@@ -32,7 +32,6 @@
             return this.name || "Status";
         },
         oneditprepare: function () {
-            console.log(this.rules.length);
             $("#node-input-property").typedInput({
                 default: this.propertyType || "msg",
                 types: ["msg", "flow", "global"]
@@ -54,25 +53,17 @@
                     let row3 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
                     let row4 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
 
-                    //定義運算子下拉選單
+                    //定義運算子下拉選單和物件屬性的表單
                     let selectFieldOperator = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-right:10px;" }).appendTo(row1);
-                    let selectOptionsOperator = [{
-                        v: "set",
-                        l: "set"
-                    },
-                    {
-                        v: "change",
-                        l: "change"
-                    },
-                    {
-                        v: "delete",
-                        l: "delete"
-                    },
-                    {
-                        v: "move",
-                        l: "move"
-                    }];
-                    for (let i = 0; i < 4; i++) {
+                    let selectOptionsOperator = [
+                        { v: "eq", l: "==" },
+                        { v: "neq", l: "!=" },
+                        { v: "lt", l: "<" },
+                        { v: "lte", l: "<=" },
+                        { v: "gt", l: ">" },
+                        { v: "gte", l: ">=" }
+                    ];
+                    for (let i = 0; i < selectOptionsOperator.length; i++) {
                         selectFieldOperator.append($("<option></option>").val(selectOptionsOperator[i].v).text(selectOptionsOperator[i].l));
                     }
                     let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
@@ -80,54 +71,50 @@
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
 
                     //定義status的fill的下拉選單
-                    let spanFill = $("<span/>", { text: "Fill" ,style:"text-align: right;"}).appendTo(row2);
+                    let spanFill = $("<span/>", { text: "Fill", style: "text-align: right;" }).appendTo(row2);
                     let selectFieldFill = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-left:48px;" }).appendTo(row2);
                     let selectOptionsFill = [{
-                        v: "set",
-                        l: "set"
+                        v: "red",
+                        l: "red"
                     },
                     {
-                        v: "change",
-                        l: "change"
+                        v: "green",
+                        l: "green"
                     },
                     {
-                        v: "delete",
-                        l: "delete"
+                        v: "yellow",
+                        l: "yellow"
                     },
                     {
-                        v: "move",
-                        l: "move"
+                        v: "blue",
+                        l: "blue"
+                    },
+                    {
+                        v: "grey",
+                        l: "grey"
                     }];
-                    for (let i = 0; i < 4; i++) {
+                    for (let i = 0; i < selectOptionsFill.length; i++) {
                         selectFieldFill.append($("<option></option>").val(selectOptionsFill[i].v).text(selectOptionsFill[i].l));
                     }
 
                     //定義status的shape的下拉選單
-                    let spanShape = $("<span/>", { text: "Shape" ,style:"text-align: right;"}).appendTo(row3);
+                    let spanShape = $("<span/>", { text: "Shape", style: "text-align: right;" }).appendTo(row3);
                     let selectFieldShape = $("<select/>", { class: "node-input-rule-type", style: "width:110px; margin-left:25px;" }).appendTo(row3);
                     let selectOptionsShape = [{
-                        v: "set",
-                        l: "set"
+                        v: "ring",
+                        l: "ring"
                     },
                     {
-                        v: "change",
-                        l: "change"
-                    },
-                    {
-                        v: "delete",
-                        l: "delete"
-                    },
-                    {
-                        v: "move",
-                        l: "move"
+                        v: "dot",
+                        l: "dot"
                     }];
-                    for (let i = 0; i < 4; i++) {
+                    for (let i = 0; i < selectOptionsShape.length; i++) {
                         selectFieldShape.append($("<option></option>").val(selectOptionsShape[i].v).text(selectOptionsShape[i].l));
                     }
 
                     // 定義status的text的input
-                    let spanStatusText = $("<span/>", { text: "Text" ,style:"text-align: right;"}).appendTo(row4);
-                    let statusText = $("<input/>", { class: "node-input-rule-property-value", type: "text" ,style: "margin-left:40px;"}).appendTo(row4);
+                    let spanStatusText = $("<span/>", { text: "Text", style: "text-align: right;" }).appendTo(row4);
+                    let statusText = $("<input/>", { class: "node-input-rule-property-value", type: "text", style: "margin-left:40px;", value: "disconnected" }).appendTo(row4);
 
                     //rule.comparisonOperator會印出eq
                     // selectField.val(rule.comparisonOperator);
