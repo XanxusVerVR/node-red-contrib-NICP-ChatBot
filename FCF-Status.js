@@ -1,5 +1,7 @@
 module.exports = function (RED) {
+
     function Status(config) {
+
         RED.nodes.createNode(this, config);
 
         this.name = config.name;
@@ -12,7 +14,7 @@ module.exports = function (RED) {
             console.log(this);
             let propertyType = config.propertyType;//取得物件(msg、flow、global)
             let property = config.property;//取得屬性
-            setStatus(config.rules[0].fill,config.rules[0].shape,config.rules[0].text);
+            setStatus(config.rules[0].fill, config.rules[0].shape, config.rules[0].text);
             switch (propertyType) {
                 case "msg":
                     console.log(msg[property]);
@@ -29,13 +31,14 @@ module.exports = function (RED) {
             }
             node.send(msg);
         });
-        function setStatus(_fill,_shape,_text) {
-            node.status({
+        // 使用Arrow Function來綁定this.status的this
+        let setStatus = (_fill, _shape, _text) => {
+            this.status({
                 fill: _fill,
                 shape: _shape,
                 text: _text
             });
-        }
+        };
     }
     RED.nodes.registerType("FCF-Status", Status);
 };
