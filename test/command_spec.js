@@ -1,10 +1,9 @@
 const should = require("should");
 const chai = require("chai");
 const helper = require("node-red-node-test-helper");
-const commnadNode = require("../FCF-Command");
-helper.init(require.resolve("node-red"));//不確定這樣有沒有抓到node-red
+const commnadNode = require("../FCF-Command.js");
 
-describe("Command節點測試", function () {//Command節點helper框架無法測試
+describe("Command節點測試", function () {
 
     beforeEach(function (done) {
         helper.startServer(done);
@@ -14,25 +13,24 @@ describe("Command節點測試", function () {//Command節點helper框架無法�
         helper.stopServer(done);
     });
     it("節點是否有叫command的屬性，有的話，值是否為KEY_POWER", function (done) {
-        let flow = [
+        let testFlows = [
             {
-                "id": "50f94e06.574fa",
+                "id": "cf6f4bbe.6afff8",
                 "type": "FCF-Command",
-                "z": "d87ce6a6.851728",
-                "name": "aaaa",
-                "command": "KEY_POWER",
-                "x": 440,
-                "y": 260,
+                "z": "8f8a71ea.ab8d6",
+                "name": "aaa",
+                "command": "KEY_POWERS",
+                "x": 500,
+                "y": 200,
                 "wires": [
                     [
-                        "n2"
+
                     ]
                 ]
-            },
-            { id: "n2", type: "helper" }
+            }
         ];
-        helper.load(commnadNode, flow, function () {
-            let n1 = helper.getNode(flow[0].id);
+        helper.load(commnadNode, testFlows, function () {
+            let n1 = helper.getNode(testFlows[0].id);
             n1.should.have.property("command", "KEY_POWER");
             done();
         });
