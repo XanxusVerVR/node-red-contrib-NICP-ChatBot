@@ -6,6 +6,7 @@ module.exports = function (RED) {
             console.log(config);
             let propertyType = config.propertyType;//取得物件(msg、flow、global)
             let property = config.property;//取得屬性
+            setStatus(config.rules[0].fill,config.rules[0].shape,config.rules[0].text);
             switch (propertyType) {
                 case "msg":
                     console.log(msg[property]);
@@ -22,6 +23,13 @@ module.exports = function (RED) {
             }
             node.send(msg);
         });
+        function setStatus(_fill,_shape,_text) {
+            node.status({
+                fill: _fill,
+                shape: _shape,
+                text: _text
+            });
+        }
     }
     RED.nodes.registerType("FCF-Status", Status);
 };
