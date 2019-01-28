@@ -45,8 +45,8 @@
             }
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 addItem: function (container, i, opt) {
-                    //會印出{comparisonOperator: ""fill: "",shape: "",text: ""}這樣的物件
                     // console.log(rule);
+                    //會印出{comparisonOperator: ""fill: "",shape: "",text: ""}這樣的物件
                     let rule = opt;
                     container.css({
                         overflow: "hidden",
@@ -121,7 +121,12 @@
                     let spanStatusText = $("<span/>", { text: "Text", style: "text-align: right;" }).appendTo(row4);
                     let statusText = $("<input/>", { class: "node-input-rule-property-statusText", type: "text", style: "margin-left:40px;", value: "disconnected" }).appendTo(row4);
 
-                    // propertyName.typedInput("value", rule.p);
+                    selectFieldOperator.val(rule.comparisonOperator);
+                    propertyValue.typedInput("type", rule.beingComparedPropertyType);
+                    propertyValue.typedInput("value", rule.beingComparedProperty);
+                    selectFieldFill.val(rule.fill);
+                    selectFieldShape.val(rule.shape);
+                    statusText.val(rule.text);
 
                     let newWidth = $("#node-input-rule-container").width();
                     resizeRule(container);

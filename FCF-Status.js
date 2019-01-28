@@ -1,9 +1,15 @@
 module.exports = function (RED) {
     function Status(config) {
         RED.nodes.createNode(this, config);
+
+        this.name = config.name;
+        this.propertyType = config.propertyType;
+        this.property = config.property;
+        this.rules = config.rules;
+
         let node = this;
         node.on("input", function (msg) {
-            console.log(config);
+            console.log(this);
             let propertyType = config.propertyType;//取得物件(msg、flow、global)
             let property = config.property;//取得屬性
             setStatus(config.rules[0].fill,config.rules[0].shape,config.rules[0].text);
