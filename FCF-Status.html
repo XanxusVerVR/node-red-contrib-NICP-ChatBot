@@ -15,6 +15,9 @@
                 value: "payload",//這個值一定要保留，這樣拉出來才會有預設值
                 required: true,
             },
+            mode: {
+                value: "displayStatus"
+            },
             rules: {
                 value: [{
                     comparisonOperator: "eq",//用來儲存條件運算子：== >= <= !=
@@ -33,6 +36,7 @@
         label: function () {
             return this.name || "Status";
         },
+
         oneditprepare: function () {
             //設置item外的Property
             $("#node-input-property").typedInput({
@@ -43,6 +47,16 @@
                 let newWidth = rule.width();
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 130);
             }
+            $("#node-input-mode").change(function () {
+                let value = $(this).val();
+                if (value == "displayStatus") {
+                    $(".node-input-rule-container-row").show();
+                } else if (value == "displayVal") {
+                    $(".node-input-rule-container-row").hide();
+                }
+            });
+            $("#node-input-mode").change();
+
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 addItem: function (container, i, opt) {
                     // console.log(rule);
@@ -180,18 +194,20 @@
 		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
     </div>
+    <!-- 設置模式表單，一種是根據使用者定義的條件來顯示狀態，一種是直接顯示某個值或變數 -->
+    <div class="form-row">
+        <label for=""> Mode </label>
+        <select id="node-input-mode">
+                <!-- 根據使用者定義的條件來顯示狀態 -->
+            <option value="displayStatus">display status according to conditions</option>
+                <!-- 直接顯示某個值或變數 -->
+            <option value="displayVal">display a value or variable</option>
+        </select>
+    </div>
     <!-- property欄位 -->
     <div class="form-row">
         <label data-i18n="switch.label.property"></label>
         <input type="text" id="node-input-property" style="width: 70%"/>
-    </div>
-    <!-- 設置模式表單，一種是根據使用者定義的條件來顯示狀態，一種是直接顯示某個值或變數 -->
-    <div class="form-row">
-        <label for=""> Mode </label>
-        <select id="node-select-mode">
-            <option value="displayStatus">display status according to conditions</option>
-            <option value="displayVal">display a value or variable</option>
-        </select>
     </div>
     <!-- 定義裝表單項目的容器? -->
         <div class="form-row node-input-rule-container-row">

@@ -69,6 +69,7 @@ module.exports = function (RED) {
         this.name = config.name;
         this.propertyType = config.propertyType;
         this.property = config.property;
+        this.mode = config.mode;
         this.rules = config.rules;
 
         let node = this;

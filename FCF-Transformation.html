@@ -137,27 +137,21 @@
                     let rule = opt;
                     //設定，當節點一開始拉出來時，他的預設值
                     if (!rule.hasOwnProperty("t")) {
-                        console.log(1);
                         rule = { t: "set", p: "payload", to: "", tot: "str" };
                     }
                     if (rule.t === "change" && rule.re) {
-                        console.log(2);
                         rule.fromt = "re";
                         delete rule.re;
                     }
                     if (rule.t === "set" && !rule.tot) {
-                        console.log(3);
                         if (rule.to.indexOf("msg.") === 0 && !rule.tot) {
-                            console.log(4);
                             rule.to = rule.to.substring(4);
                             rule.tot = "msg";
                         } else {
-                            console.log(5);
                             rule.tot = "str";
                         }
                     }
                     if (rule.t === "move" && !rule.tot) {
-                        console.log(6);
                         rule.tot = "msg";
                     }
                     container.css({
