@@ -1,3 +1,65 @@
+const operators = {
+    "eq": function (a, b) { return a == b; },
+    "neq": function (a, b) { return a != b; },
+    "lt": function (a, b) { return a < b; },
+    "lte": function (a, b) { return a <= b; },
+    "gt": function (a, b) { return a > b; },
+    "gte": function (a, b) { return a >= b; },
+    "btwn": function (a, b, c) { return a >= b && a <= c; },
+    "cont": function (a, b) { return (a + "").indexOf(b) != -1; },
+    "regex": function (a, b, c, d) { return (a + "").match(new RegExp(b, d ? "i" : "")); },
+    "true": function (a) { return a === true; },
+    "false": function (a) { return a === false; },
+    "null": function (a) { return (typeof a == "undefined" || a === null); },
+    "nnull": function (a) { return (typeof a != "undefined" && a !== null); },
+    "empty": function (a) {
+        if (typeof a === "string" || Array.isArray(a) || Buffer.isBuffer(a)) {
+            return a.length === 0;
+        } else if (typeof a === "object" && a !== null) {
+            return Object.keys(a).length === 0;
+        }
+        return false;
+    },
+    "nempty": function (a) {
+        if (typeof a === "string" || Array.isArray(a) || Buffer.isBuffer(a)) {
+            return a.length !== 0;
+        } else if (typeof a === "object" && a !== null) {
+            return Object.keys(a).length !== 0;
+        }
+        return false;
+    },
+
+    "istype": function (a, b) {
+        if (b === "array") { return Array.isArray(a); }
+        else if (b === "buffer") { return Buffer.isBuffer(a); }
+        else if (b === "json") {
+            try { JSON.parse(a); return true; }   // or maybe ??? a !== null; }
+            catch (e) { return false; }
+        }
+        else if (b === "null") { return a === null; }
+        else { return typeof a === b && !Array.isArray(a) && !Buffer.isBuffer(a) && a !== null; }
+    },
+    "head": function (a, b, c, d, parts) {
+        var count = Number(b);
+        return (parts.index < count);
+    },
+    "tail": function (a, b, c, d, parts) {
+        var count = Number(b);
+        return (parts.count - count <= parts.index);
+    },
+    "index": function (a, b, c, d, parts) {
+        var min = Number(b);
+        var max = Number(c);
+        var index = parts.index;
+        return ((min <= index) && (index <= max));
+    },
+    "jsonata_exp": function (a, b) { return (b === true); },
+    "else": function (a) { return a === true; }
+};
+const math_it_up = {
+    "+": function (x, y) { return x + y; },
+    "-": function (x, y) { return x - y; }
+};
 module.exports = function (RED) {
 
     function Status(config) {
@@ -10,24 +72,20 @@ module.exports = function (RED) {
         this.rules = config.rules;
 
         let node = this;
+
         node.on("input", function (msg) {
-            console.log(this);
-            let propertyType = config.propertyType;//取得物件(msg、flow、global)
-            let property = config.property;//取得屬性
-            setStatus(config.rules[0].fill, config.rules[0].shape, config.rules[0].text);
-            switch (propertyType) {
-                case "msg":
-                    console.log(msg[property]);
-                    break;
-                case "flow":
-                    let flowContext = this.context().flow;
-                    console.log(flowContext.get(property));//可以取出值了
-                    break;
-                case "global":
-                    let globalContext = this.context().global;
-                    console.log(globalContext.get(property));//可以取出值了
-                    break;
-                default:
+            let property = getProperty(msg, node.propertyType, node.property);
+            let rules = node.rules;
+            let count = 0;//紀錄條件成立幾次，用來提醒使用者定義的條件可能成立多次
+            for (let i = 0; i < rules.length; i++) {
+                let beingComparedPropertyValue = getProperty(null, rules[i].beingComparedPropertyType, rules[i].beingComparedProperty);
+                if (operators[rules[i].comparisonOperator](property, beingComparedPropertyValue)) {
+                    count++;
+                    setStatus(rules[i].fill, rules[i].shape, rules[i].text);
+                }
+            }
+            if (count >= 2) {
+                node.warn("您有一個以上的條件成立!");
             }
             node.send(msg);
         });
@@ -38,6 +96,31 @@ module.exports = function (RED) {
                 shape: _shape,
                 text: _text
             });
+        };
+        // 取得item外面那個屬性物件
+        // 使用Arrow Function來綁定this.status的this
+        let getProperty = (msg = null, propertyType, property) => {
+            let obj = null;
+            switch (propertyType) {
+                case "msg":
+                    obj = msg[property];
+                    break;
+                case "flow":
+                    let flowContext = this.context().flow;
+                    obj = flowContext.get(property);
+                    break;
+                case "global":
+                    let globalContext = this.context().global;
+                    obj = globalContext.get(property);
+                    break;
+                case "str":
+                case "num":
+                case "bool":
+                    obj = property;
+                    break;
+                default:
+            }
+            return obj;
         };
     }
     RED.nodes.registerType("FCF-Status", Status);

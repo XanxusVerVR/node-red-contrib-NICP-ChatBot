@@ -146,7 +146,7 @@
             node.rules = [];
             this.propertyType = $("#node-input-property").typedInput("type");//type就是["msg", "flow", "global"]這些東西
             this.property = $("#node-input-property").typedInput("value");
-            rules.each(function (i){
+            rules.each(function (i) {
                 let rule = $(this);
                 let r = {
                     comparisonOperator: rule.find(".node-input-rule-property-operator").val(),//用來儲存條件運算子：== >= <= !=
@@ -185,7 +185,15 @@
         <label data-i18n="switch.label.property"></label>
         <input type="text" id="node-input-property" style="width: 70%"/>
     </div>
-    <!-- 定義項目容器? -->
+    <!-- 設置模式表單，一種是根據使用者定義的條件來顯示狀態，一種是直接顯示某個值或變數 -->
+    <div class="form-row">
+        <label for=""> Mode </label>
+        <select id="node-select-mode">
+            <option value="displayStatus">display status according to conditions</option>
+            <option value="displayVal">display a value or variable</option>
+        </select>
+    </div>
+    <!-- 定義裝表單項目的容器? -->
         <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
     </div>
