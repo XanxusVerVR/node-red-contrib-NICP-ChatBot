@@ -47,11 +47,17 @@
                 let newWidth = rule.width();
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 130);
             }
+            //切換模式，根據不同的模式看要顯示什麼表單
             $("#node-input-mode").change(function () {
                 let value = $(this).val();
                 if (value == "displayStatus") {
                     $(".node-input-rule-container-row").show();
+                    resizeRule($("div.red-ui-editableList-item-content"));//讓node-input-rule-property-beingCompared-component又出現，不會消失
+                    $(".node-input-big-rule-property-fill").hide();
+                    $(".node-input-big-rule-property-shape").hide();
                 } else if (value == "displayVal") {
+                    $(".node-input-big-rule-property-fill").show();
+                    $(".node-input-big-rule-property-shape").show();
                     $(".node-input-rule-container-row").hide();
                 }
             });
@@ -209,6 +215,27 @@
         <label data-i18n="switch.label.property"></label>
         <input type="text" id="node-input-property" style="width: 70%"/>
     </div>
+    <!-- 定義Status的Fill欄位 -->
+    <span style="text-align: right;" class="node-input-big-rule-property-fill" >Fill</span>
+    <select class="node-input-big-rule-property-fill" style="width:110px; margin-left:48px;">
+        <option value="red">red</option>
+        <option value="green">green</option>
+        <option value="yellow">yellow</option>
+        <option value="blue">blue</option>
+        <option value="grey">grey</option>
+    </select>
+    <p></p>
+    <!-- 定義Status的Shape欄位 -->
+    <span style="text-align: right;">Shape</span>
+    <select class="node-input-big-rule-property-shape" style="width:110px; margin-left:25px;">
+        <option value="ring">ring</option>
+        <option value="dot">dot</option>
+    </select>
+    <!-- 定義Status的文字欄位 -->
+	<!-- <div class="form-row">
+		<label for="node-input-big-rule-property-text">Text</label>
+		<input type="text" id="node-input-big-rule-property-text" placeholder="Text">
+    </div> -->
     <!-- 定義裝表單項目的容器? -->
         <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
