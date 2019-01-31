@@ -65,9 +65,18 @@
 
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 addItem: function (container, i, opt) {
-                    // console.log(rule);
-                    //會印出{comparisonOperator: ""fill: "",shape: "",text: ""}這樣的物件
                     let rule = opt;
+                    // 讓當加入新項目時，表單會有初始值
+                    if (!rule.comparisonOperator || !rule.beingComparedProperty) {
+                        rule = {
+                            comparisonOperator: "eq",//用來儲存條件運算子：== >= <= !=
+                            beingComparedPropertyType: "str",//被比較的物件(型態)
+                            beingComparedProperty: "DefaultString",//被比較的屬性
+                            fill: "red",
+                            shape: "ring",
+                            text: "disconnected"
+                        };
+                    }
                     container.css({
                         overflow: "hidden",
                         whiteSpace: "nowrap"
@@ -141,6 +150,7 @@
                     let spanStatusText = $("<span/>", { text: "Text", style: "text-align: right;" }).appendTo(row4);
                     let statusText = $("<input/>", { class: "node-input-rule-property-statusText", type: "text", style: "margin-left:40px;", value: "disconnected" }).appendTo(row4);
 
+                    // 有這幾行才可以將使用者填的表單的值存起來
                     selectFieldOperator.val(rule.comparisonOperator);
                     propertyValue.typedInput("type", rule.beingComparedPropertyType);
                     propertyValue.typedInput("value", rule.beingComparedProperty);

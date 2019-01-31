@@ -135,7 +135,7 @@
                 //opt:這個項目儲存的物件，{t: "set", p: "payload", pt: "msg", to: "", tot: "str"}
                 addItem: function (container, i, opt) {
                     let rule = opt;
-                    //設定，當節點一開始拉出來時，他的預設值
+                    // 讓當加入新項目時，表單會有初始值
                     if (!rule.hasOwnProperty("t")) {
                         rule = { t: "set", p: "payload", to: "", tot: "str" };
                     }
