@@ -69,24 +69,34 @@ module.exports = function (RED) {
         this.name = config.name;
         this.propertyType = config.propertyType;
         this.property = config.property;
+        this.propertyType2 = config.propertyType2;
+        this.property2 = config.property2;
         this.mode = config.mode;
         this.rules = config.rules;
+        this.bigFill = config.bigFill;
+        this.bigShape = config.bigShape;
 
         let node = this;
 
         node.on("input", function (msg) {
-            let property = getProperty(msg, node.propertyType, node.property);
-            let rules = node.rules;
             let count = 0;//紀錄條件成立幾次，用來提醒使用者定義的條件可能成立多次
-            for (let i = 0; i < rules.length; i++) {
-                let beingComparedPropertyValue = getProperty(null, rules[i].beingComparedPropertyType, rules[i].beingComparedProperty);
-                if (operators[rules[i].comparisonOperator](property, beingComparedPropertyValue)) {
-                    count++;
-                    setStatus(rules[i].fill, rules[i].shape, rules[i].text);
+            if (node.mode == "displayStatus") {
+                let property = getProperty(node.propertyType, node.property, msg);
+                let rules = node.rules;
+                for (let i = 0; i < rules.length; i++) {
+                    let beingComparedPropertyValue = getProperty(null, rules[i].beingComparedPropertyType, rules[i].beingComparedProperty);
+                    if (operators[rules[i].comparisonOperator](property, beingComparedPropertyValue)) {
+                        count++;
+                        setStatus(rules[i].fill, rules[i].shape, rules[i].text);
+                    }
+                }
+                if (count >= 2) {
+                    node.warn("您有一個以上的條件成立!");
                 }
             }
-            if (count >= 2) {
-                node.warn("您有一個以上的條件成立!");
+            else {
+                let property = getProperty(node.propertyType2, node.property2, msg);
+                setStatus(node.bigFill, node.bigShape, property);
             }
             node.send(msg);
         });
@@ -100,7 +110,7 @@ module.exports = function (RED) {
         };
         // 取得item外面那個屬性物件
         // 使用Arrow Function來綁定this.status的this
-        let getProperty = (msg = null, propertyType, property) => {
+        let getProperty = (propertyType, property, msg = null) => {
             let obj = null;
             switch (propertyType) {
                 case "msg":

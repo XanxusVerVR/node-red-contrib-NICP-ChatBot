@@ -15,6 +15,13 @@
                 value: "payload",//這個值一定要保留，這樣拉出來才會有預設值
                 required: true,
             },
+            propertyType2: {//用在displayVal模式
+                value: "msg"
+            },
+            property2: {//用在displayVal模式
+                value: "payload",
+                required: true,
+            },
             mode: {
                 value: "displayStatus"
             },
@@ -27,6 +34,12 @@
                     shape: "ring",
                     text: "disconnected"
                 }]
+            },
+            bigFill: {//用來存放displayVal模式的狀態資料
+                value: "red"
+            },
+            bigShape: {
+                value: "ring"
             }
         },
         inputs: 1,
@@ -38,9 +51,13 @@
         },
 
         oneditprepare: function () {
-            //設置item外的Property
+            //設置item外displayStatus模式的Property
             $("#node-input-property").typedInput({
                 default: this.propertyType || "msg",
+                types: ["msg", "flow", "global"]
+            });
+            $("#node-input-property2").typedInput({
+                default: this.propertyType2 || "msg",
                 types: ["msg", "flow", "global"]
             });
             function resizeRule(rule) {
@@ -51,14 +68,18 @@
             $("#node-input-mode").change(function () {
                 let value = $(this).val();
                 if (value == "displayStatus") {
-                    $(".node-input-rule-container-row").show();
+                    $(".node-input-rule-container-row").show();//讓那個item項目表單列表顯示
                     resizeRule($("div.red-ui-editableList-item-content"));//讓node-input-rule-property-beingCompared-component又出現，不會消失
                     $(".node-input-big-rule-property-fill").hide();
                     $(".node-input-big-rule-property-shape").hide();
+                    $(".prop").show();
+                    $(".prop2").hide();
                 } else if (value == "displayVal") {
                     $(".node-input-big-rule-property-fill").show();
                     $(".node-input-big-rule-property-shape").show();
-                    $(".node-input-rule-container-row").hide();
+                    $(".node-input-rule-container-row").hide();//讓那個item項目表單列表隱藏
+                    $(".prop").hide();
+                    $(".prop2").show();
                 }
             });
             $("#node-input-mode").change();
@@ -176,6 +197,8 @@
             node.rules = [];
             this.propertyType = $("#node-input-property").typedInput("type");//type就是["msg", "flow", "global"]這些東西
             this.property = $("#node-input-property").typedInput("value");
+            this.propertyType2 = $("#node-input-property2").typedInput("type");
+            this.property2 = $("#node-input-property2").typedInput("value");
             rules.each(function (i) {
                 let rule = $(this);
                 let r = {
@@ -220,32 +243,36 @@
             <option value="displayVal">display a value or variable</option>
         </select>
     </div>
-    <!-- property欄位 -->
-    <div class="form-row">
+    <!-- property欄位，在displayStatus模式用的 -->
+    <div id="bigPropertyForm" class="form-row prop">
         <label data-i18n="switch.label.property"></label>
         <input type="text" id="node-input-property" style="width: 70%"/>
     </div>
     <!-- 定義Status的Fill欄位 -->
-    <span style="text-align: right;" class="node-input-big-rule-property-fill" >Fill</span>
-    <select class="node-input-big-rule-property-fill" style="width:110px; margin-left:48px;">
-        <option value="red">red</option>
-        <option value="green">green</option>
-        <option value="yellow">yellow</option>
-        <option value="blue">blue</option>
-        <option value="grey">grey</option>
-    </select>
+    <div class="form-row node-input-big-rule-property-fill">
+        <label for="node-input-big-rule-property-fill"> Fill </label>
+        <select id="node-input-bigFill" class="node-input-big-rule-property-fill">
+            <option value="red">red</option>
+            <option value="green">green</option>
+            <option value="yellow">yellow</option>
+            <option value="blue">blue</option>
+            <option value="grey">grey</option>
+        </select>
+    </div>
     <p></p>
     <!-- 定義Status的Shape欄位 -->
-    <span style="text-align: right;">Shape</span>
-    <select class="node-input-big-rule-property-shape" style="width:110px; margin-left:25px;">
-        <option value="ring">ring</option>
-        <option value="dot">dot</option>
-    </select>
-    <!-- 定義Status的文字欄位 -->
-	<!-- <div class="form-row">
-		<label for="node-input-big-rule-property-text">Text</label>
-		<input type="text" id="node-input-big-rule-property-text" placeholder="Text">
-    </div> -->
+    <div id="bigShapeForm" class="form-row node-input-big-rule-property-shape">
+        <label for="node-input-big-rule-property-shape"> Shape </label>
+        <select id="node-input-bigShape" class="node-input-big-rule-property-shape">
+            <option value="ring">ring</option>
+            <option value="dot">dot</option>
+        </select>
+    </div>
+    <!-- property欄位，在displayVal模式用的 -->
+    <div class="form-row prop2"">
+        <label for="node-input-property2">Property</label>
+        <input type="text" id="node-input-property2" style="width: 70%"/>
+    </div>
     <!-- 定義裝表單項目的容器? -->
         <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
