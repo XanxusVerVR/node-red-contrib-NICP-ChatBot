@@ -25,6 +25,9 @@
             mode: {
                 value: "displayStatus"
             },
+            isInputAndOutput: {
+                value: true
+            },
             rules: {
                 value: [{
                     comparisonOperator: "eq",//用來儲存條件運算子：== >= <= !=
@@ -192,8 +195,17 @@
             }
         },
         oneditsave: function () {
-            let rules = $("#node-input-rule-container").editableList("items");
             let node = this;
+            let isInputAndOutput = $("#node-input-isInputAndOutput").is(":checked");
+            if (!isInputAndOutput === true) {
+                this.inputs = 0;
+                this.outputs = 0;
+            }
+            else {
+                this.inputs = 1;
+                this.outputs = 1;
+            }
+            let rules = $("#node-input-rule-container").editableList("items");
             node.rules = [];
             this.propertyType = $("#node-input-property").typedInput("type");//type就是["msg", "flow", "global"]這些東西
             this.property = $("#node-input-property").typedInput("value");
@@ -243,6 +255,15 @@
             <option value="displayVal">display a value or variable</option>
         </select>
     </div>
+    <!-- 設置是否要有輸入輸出 -->
+    <!-- <div class="form-row">
+        <label for="node-input-isInputAndOutput"><i class=""></i>Is there an input and output?</label>
+        <input type="checkbox" value="true" id="node-input-isInputAndOutput">
+    </div> -->
+    <div class="form-row">
+    <label></label>
+        <input type="checkbox" id="node-input-isInputAndOutput" style="margin-left: 0px; vertical-align: top; width: auto !important;"> <label style="width:auto !important;" for="node-input-isInputAndOutput">Is there an input and output?</label>
+    </div>
     <!-- property欄位，在displayStatus模式用的 -->
     <div id="bigPropertyForm" class="form-row prop">
         <label data-i18n="switch.label.property"></label>
@@ -270,7 +291,7 @@
     </div>
     <!-- property欄位，在displayVal模式用的 -->
     <div class="form-row prop2"">
-        <label for="node-input-property2">Property</label>
+        <label for="node-input-property2">Text</label>
         <input type="text" id="node-input-property2" style="width: 70%"/>
     </div>
     <!-- 定義裝表單項目的容器? -->
