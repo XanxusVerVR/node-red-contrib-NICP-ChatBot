@@ -43,6 +43,9 @@
             },
             bigShape: {
                 value: "ring"
+            },
+            valStatusUnit: {
+                value: "度"
             }
         },
         inputs: 1,
@@ -70,6 +73,7 @@
             //切換模式，根據不同的模式看要顯示什麼表單
             $("#node-input-mode").change(function () {
                 let value = $(this).val();
+                //cUnit
                 if (value == "displayStatus") {
                     $(".node-input-rule-container-row").show();//讓那個item項目表單列表顯示
                     resizeRule($("div.red-ui-editableList-item-content"));//讓node-input-rule-property-beingCompared-component又出現，不會消失
@@ -77,12 +81,14 @@
                     $(".node-input-big-rule-property-shape").hide();
                     $(".prop").show();
                     $(".prop2").hide();
+                    $(".cUnit").hide();
                 } else if (value == "displayVal") {
                     $(".node-input-big-rule-property-fill").show();
                     $(".node-input-big-rule-property-shape").show();
                     $(".node-input-rule-container-row").hide();//讓那個item項目表單列表隱藏
                     $(".prop").hide();
                     $(".prop2").show();
+                    $(".cUnit").show();
                 }
             });
             $("#node-input-mode").change();
@@ -290,9 +296,14 @@
         </select>
     </div>
     <!-- property欄位，在displayVal模式用的 -->
-    <div class="form-row prop2"">
+    <div class="form-row prop2">
         <label for="node-input-property2">Text</label>
         <input type="text" id="node-input-property2" style="width: 70%"/>
+    </div>
+    <!-- 定義單位欄位 -->
+    <div class="form-row cUnit">
+        <label for="node-input-valStatusUnit">Unit</label>
+        <input type="text" id="node-input-valStatusUnit" style="width: 70%"/>
     </div>
     <!-- 定義裝表單項目的容器? -->
         <div class="form-row node-input-rule-container-row">

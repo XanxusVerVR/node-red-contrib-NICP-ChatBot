@@ -75,10 +75,12 @@ module.exports = function (RED) {
         this.rules = config.rules;
         this.bigFill = config.bigFill;
         this.bigShape = config.bigShape;
+        this.valStatusUnit = config.valStatusUnit.trim();
 
         let node = this;
 
-        node.on("input", function (msg) {
+        //定義input事件的Callback Function
+        const inputCallback = function (msg) {
             let count = 0;//紀錄條件成立幾次，用來提醒使用者定義的條件可能成立多次
             if (node.mode == "displayStatus") {
                 let property = getProperty(node.propertyType, node.property, msg);
@@ -95,10 +97,31 @@ module.exports = function (RED) {
                 }
             }
             else {
+
+                let statusText = "";
                 let property = getProperty(node.propertyType2, node.property2, msg);
-                setStatus(node.bigFill, node.bigShape, property);
+                if (!property) {
+                    statusText = "數值不存在";
+                }
+                else {
+                    statusText = property + node.valStatusUnit;
+                }
+                setStatus(node.bigFill, node.bigShape, statusText);
             }
             node.send(msg);
+        };
+        //將Callback Function註冊到input事件
+        node.on("input", inputCallback);
+        //當displayVal模式時，就持續觸發input事件來更新狀態數值
+        if (node.mode == "displayVal") {
+            setInterval(function () {
+                //觸發input事件
+                node.emit("input", {});
+            }, 2000);
+        }
+        //當重新部署時，要移除上次的input事件，否則重新部署一次會多觸發一次input事件
+        node.on("close", function () {
+            node.removeListener("input", inputCallback);
         });
         // 使用Arrow Function來綁定this.status的this
         let setStatus = (_fill, _shape, _text) => {
