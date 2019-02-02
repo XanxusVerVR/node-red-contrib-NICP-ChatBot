@@ -28,6 +28,12 @@
             isInputAndOutput: {
                 value: true
             },
+            inputs: {//將inputs、outputs定義在這也可
+				value: 1
+			},
+			outputs: {
+				value: 1
+			},
             rules: {
                 value: [{
                     comparisonOperator: "eq",//用來儲存條件運算子：== >= <= !=
@@ -48,8 +54,6 @@
                 value: "度"
             }
         },
-        inputs: 1,
-        outputs: 1,
         paletteLabel: "Status",
         icon: "file.png",
         label: function () {
@@ -82,6 +86,7 @@
                     $(".prop").show();
                     $(".prop2").hide();
                     $(".cUnit").hide();
+                    $(".cNode-input-isInputAndOutput").hide();
                 } else if (value == "displayVal") {
                     $(".node-input-big-rule-property-fill").show();
                     $(".node-input-big-rule-property-shape").show();
@@ -89,6 +94,7 @@
                     $(".prop").hide();
                     $(".prop2").show();
                     $(".cUnit").show();
+                    $(".cNode-input-isInputAndOutput").show();
                 }
             });
             $("#node-input-mode").change();
@@ -262,11 +268,7 @@
         </select>
     </div>
     <!-- 設置是否要有輸入輸出 -->
-    <!-- <div class="form-row">
-        <label for="node-input-isInputAndOutput"><i class=""></i>Is there an input and output?</label>
-        <input type="checkbox" value="true" id="node-input-isInputAndOutput">
-    </div> -->
-    <div class="form-row">
+    <div class="form-row cNode-input-isInputAndOutput">
     <label></label>
         <input type="checkbox" id="node-input-isInputAndOutput" style="margin-left: 0px; vertical-align: top; width: auto !important;"> <label style="width:auto !important;" for="node-input-isInputAndOutput">Is there an input and output?</label>
     </div>
