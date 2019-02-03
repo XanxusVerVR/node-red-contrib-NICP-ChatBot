@@ -4,6 +4,11 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
+    <ol id="results">
+        <li class="propertyli"><span class="searchterm">flow.aaa</span></li>
+        <li class="propertyli"><span class="searchterm">flow.bbb</span></li>
+        <li class="propertyli"><span class="searchterm">global.ccc</span></li>
+    </ol>
     <!-- 沒有這個表單似乎沒影響 -->
     <div class="form-row" style="margin-bottom:0;">
         <label><i class="fa fa-list"></i> <span data-i18n="change.label.rules"></   ></label>
@@ -127,8 +132,13 @@
 
             function resizeRule(rule) {
                 let newWidth = rule.width();
-                rule.find(".red-ui-typedInput").typedInput("width", newWidth - 130);
+                rule.find(".red-ui-typedInput").typedInput("width", newWidth - 240);
             }
+            let texts = [];
+            $("#results .searchterm").each(function () {
+                texts.push($(this).text());
+            });
+
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 //當加入新項目時，會呼叫的方法
                 //i:如果目前已經存在3個項目，addItem似乎會呼叫3次，每次i會加1，所以有三個i會是0~2
@@ -190,6 +200,24 @@
                     let propertyName = $("<input/>", { class: "node-input-rule-property-name", type: "text" })
                         .appendTo(row1)
                         .typedInput({ types: ["msg", "flow", "global"] });
+                    let selectField2 = $("<select/>", { class: "selectNumber", style: "width:35px;" }).appendTo(row1);
+                    let selectOptions2 = [{
+                        v: "1",
+                        l: "1"
+                    },
+                    {
+                        v: "2",
+                        l: "2"
+                    },
+                    {
+                        v: "3",
+                        l: "3"
+                    }];
+                    selectField2.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+                    for (let i = 0; i < selectOptions2.length; i++) {
+                        selectField2.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                    }
+
                     //這個div是set選項的to區塊
                     $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
                         .text(to)
@@ -251,6 +279,13 @@
                         resizeRule(container);
                     });
 
+                    $(".selectNumber").on("change", function () {
+                        let index = this.value - 1;
+                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        propertyName.typedInput("type", objPropertyArray[0]);
+                        propertyName.typedInput("value", objPropertyArray[1]);
+                    });
+
                     //把於defaults物件裡的那些屬性的值，設定進這些表單元件，也就是在做設定初始預設值的動作
                     //經測試，把以下幾行拿掉，即使不手動設定節點，於上面定義的預設值還是可以傳到js那邊
                     selectField.val(rule.t);
@@ -278,6 +313,14 @@
             for (let i = 0; i < this.rules.length; i++) {
                 let rule = this.rules[i];
                 $("#node-input-rule-container").editableList("addItem", rule);
+            }
+            function getSplitObjProperty(objProperty) {
+                let objPropertyArray = [];
+                objPropertyArray = objProperty.split(".");
+                for (let i = 0; i < objPropertyArray.length; i++) {
+                    objPropertyArray[i] = objPropertyArray[i].trim();
+                }
+                return objPropertyArray;
             }
         },
         //此方法除了定義當儲存時要做的事，還有把item表單保存起來，這樣下次打開才會有上次輸入的東西
