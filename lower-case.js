@@ -1,4 +1,3 @@
-const fs = require("fs");
 module.exports = function (RED) {
     function LowerCaseNode(config) {
         RED.nodes.createNode(this, config);
