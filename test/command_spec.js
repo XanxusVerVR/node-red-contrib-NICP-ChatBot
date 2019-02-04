@@ -12,23 +12,23 @@ describe("Command節點測試", function () {
         helper.unload();
         helper.stopServer(done);
     });
-    it("節點是否有叫command的屬性，有的話，值是否為KEY_POWER", function (done) {
-        let testFlows = [
+    it("測試command屬性", function (done) {
+        let testFlows = JSON.parse(`[
             {
-                "id": "cf6f4bbe.6afff8",
-                "type": "FCF-Command",
-                "z": "8f8a71ea.ab8d6",
-                "name": "aaa",
-                "command": "KEY_POWERS",
-                "x": 500,
-                "y": 200,
-                "wires": [
+                "id":"a9d90022.19126",
+                "type":"FCF-Command",
+                "z":"c957d368.ea1e3",
+                "name":"",
+                "command":"KEY_POWER",
+                "x":500,
+                "y":560,
+                "wires":[
                     [
 
                     ]
                 ]
             }
-        ];
+        ]`);
         helper.load(commnadNode, testFlows, function () {
             let n1 = helper.getNode(testFlows[0].id);
             n1.should.have.property("command", "KEY_POWER");
