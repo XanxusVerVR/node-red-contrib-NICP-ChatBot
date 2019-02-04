@@ -200,7 +200,7 @@
                     let propertyName = $("<input/>", { class: "node-input-rule-property-name", type: "text" })
                         .appendTo(row1)
                         .typedInput({ types: ["msg", "flow", "global"] });
-                    let selectField2 = $("<select/>", { class: "selectNumber", style: "width:35px;" }).appendTo(row1);
+                    let selectContextNumber = $("<select/>", { class: "selectNumber1", style: "width:35px;" }).appendTo(row1);
                     let selectOptions2 = [{
                         v: "1",
                         l: "1"
@@ -213,9 +213,9 @@
                         v: "3",
                         l: "3"
                     }];
-                    selectField2.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+                    selectContextNumber.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
-                        selectField2.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                        selectContextNumber.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
                     }
 
                     //這個div是set選項的to區塊
@@ -226,6 +226,11 @@
                     let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
                         .appendTo(row2)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
+                    let selectContextNumber2 = $("<select/>", { class: "selectNumber2", style: "width:35px;" }).appendTo(row2);
+                    selectContextNumber2.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+                    for (let i = 0; i < selectOptions2.length; i++) {
+                        selectContextNumber2.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                    }
 
                     let row3_1 = $("<div/>").appendTo(row3);
                     //這個div是change選項的Search for區塊
@@ -236,6 +241,11 @@
                     let fromValue = $("<input/>", { class: "node-input-rule-property-search-value", type: "text" })
                         .appendTo(row3_1)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool"] });
+                    let selectContextNumber3_1 = $("<select/>", { class: "selectNumber3_1", style: "width:35px;" }).appendTo(row3_1);
+                    selectContextNumber3_1.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+                    for (let i = 0; i < selectOptions2.length; i++) {
+                        selectContextNumber3_1.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                    }
 
                     let row3_2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(row3);
                     //這個div是change選項的Replace with區塊
@@ -246,6 +256,12 @@
                     let toValue = $("<input/>", { class: "node-input-rule-property-replace-value", type: "text" })
                         .appendTo(row3_2)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
+                    let selectContextNumber3_2 = $("<select/>", { class: "selectNumber3_2", style: "width:35px;" }).appendTo(row3_2);
+                    selectContextNumber3_2.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+                    for (let i = 0; i < selectOptions2.length; i++) {
+                        selectContextNumber3_2.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                    }
+
                     //這個div是move選項的to區塊
                     $("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
                         .text(to)
@@ -254,6 +270,11 @@
                     let moveValue = $("<input/>", { class: "node-input-rule-property-move-value", type: "text" })
                         .appendTo(row4)
                         .typedInput({ default: "msg", types: ["msg", "flow", "global"] });
+                    let selectContextNumber4 = $("<select/>", { class: "selectNumber4", style: "width:35px;" }).appendTo(row4);
+                    selectContextNumber4.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+                    for (let i = 0; i < selectOptions2.length; i++) {
+                        selectContextNumber4.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                    }
 
                     selectField.change(function () {
                         let width = $("#node-input-rule-container").width();
@@ -279,11 +300,35 @@
                         resizeRule(container);
                     });
 
-                    $(".selectNumber").on("change", function () {
+                    $(".selectNumber1").on("change", function () {
                         let index = this.value - 1;
                         let objPropertyArray = getSplitObjProperty(texts[index]);
                         propertyName.typedInput("type", objPropertyArray[0]);
                         propertyName.typedInput("value", objPropertyArray[1]);
+                    });
+                    $(".selectNumber2").on("change", function () {
+                        let index = this.value - 1;
+                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        propertyValue.typedInput("type", objPropertyArray[0]);
+                        propertyValue.typedInput("value", objPropertyArray[1]);
+                    });
+                    $(".selectNumber3_1").on("change", function () {
+                        let index = this.value - 1;
+                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        fromValue.typedInput("type", objPropertyArray[0]);
+                        fromValue.typedInput("value", objPropertyArray[1]);
+                    });
+                    $(".selectNumber3_2").on("change", function () {
+                        let index = this.value - 1;
+                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        toValue.typedInput("type", objPropertyArray[0]);
+                        toValue.typedInput("value", objPropertyArray[1]);
+                    });
+                    $(".selectNumber4").on("change", function () {
+                        let index = this.value - 1;
+                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        moveValue.typedInput("type", objPropertyArray[0]);
+                        moveValue.typedInput("value", objPropertyArray[1]);
                     });
 
                     //把於defaults物件裡的那些屬性的值，設定進這些表單元件，也就是在做設定初始預設值的動作
