@@ -4,10 +4,8 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
+    <!-- Context List清單 -->
     <ol id="results">
-        <li class="propertyli"><span class="searchterm">flow.aaa</span></li>
-        <li class="propertyli"><span class="searchterm">flow.bbb</span></li>
-        <li class="propertyli"><span class="searchterm">global.ccc</span></li>
     </ol>
     <!-- 沒有這個表單似乎沒影響 -->
     <div class="form-row" style="margin-bottom:0;">
@@ -134,11 +132,85 @@
                 let newWidth = rule.width();
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 240);
             }
+
+            function getContextKeys(data, contextType) {
+                let sortedData = {};
+                for (let store in data) {
+                    if (data.hasOwnProperty(store)) {
+                        for (let key in data[store]) {
+                            if (data[store].hasOwnProperty(key)) {
+                                if (!sortedData.hasOwnProperty(key)) {
+                                    sortedData[key] = [];
+                                }
+                                data[store][key].store = store;
+                                sortedData[key].push(data[store][key])
+                            }
+                        }
+                    }
+                }
+                let keys = Object.keys(sortedData);
+                keys.sort();
+                let contextObject = [];//存放flow.www or global.ccc這樣的東西
+                for (let i = 0; i < keys.length; i++) {
+                    contextObject.push(contextType + "." + keys[i]);
+                }
+                return contextObject;
+            }
+
             let texts = [];
             $("#results .searchterm").each(function () {
                 texts.push($(this).text());
             });
 
+            $.when(
+                $.getJSON(`context/flow/${this.z}`),
+                $.getJSON(`context/global`)
+				/*
+				data1(Array):
+					0: {memory: {…}}
+					1: "success"
+					2:
+						abort: ƒ (a)
+						always: ƒ ()
+						complete: ƒ ()
+						done: ƒ ()
+						error: ƒ ()
+						fail: ƒ ()
+						getAllResponseHeaders: ƒ ()
+						getResponseHeader: ƒ (a)
+						overrideMimeType: ƒ (a)
+						pipe: ƒ ()
+						progress: ƒ ()
+						promise: ƒ (a)
+						readyState: 4
+						responseJSON: {memory: {…}}
+						responseText: "{"memory":{"aaa":{"msg":"123","format":"string[3]"}}}"
+						setRequestHeader: ƒ (a,b)
+						state: ƒ ()
+						status: 200
+						statusCode: ƒ (a)
+						statusText: "OK"
+						success: ƒ ()
+						then: ƒ ()
+				*/
+            ).then(function (data1, data2) {
+                let contextFlowObject = getContextKeys(data1[0], "flow");//回傳型態是Array
+                let contextGlobalObject = getContextKeys(data2[0], "global");
+                let contextObjectArray = contextFlowObject.concat(contextGlobalObject);
+                window.contextObjectArray = contextObjectArray;
+                for (let i = 0; i < contextObjectArray.length; i++) {
+                    let spanTag = $("<apan/>", {
+                        "class": "searchterm",
+                        "text": contextObjectArray[i],
+                    });
+                    let liTag = $("<li/>", {
+                        "class": "propertyli"
+                    });
+                    $(liTag).append(spanTag).appendTo("#results");
+                }
+            }).fail(function (problem) {
+                console.log(problem);
+            });
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 //當加入新項目時，會呼叫的方法
                 //i:如果目前已經存在3個項目，addItem似乎會呼叫3次，每次i會加1，所以有三個i會是0~2
@@ -201,18 +273,17 @@
                         .appendTo(row1)
                         .typedInput({ types: ["msg", "flow", "global"] });
                     let selectContextNumber = $("<select/>", { class: "selectNumber1", style: "width:35px;" }).appendTo(row1);
-                    let selectOptions2 = [{
-                        v: "1",
-                        l: "1"
-                    },
-                    {
-                        v: "2",
-                        l: "2"
-                    },
-                    {
-                        v: "3",
-                        l: "3"
-                    }];
+                    // 動態生成option
+                    let selectOptions2 = [];
+                    for (let i = 0; i < window.contextObjectArray.length; i++) {
+                        let value = (i + 1).toString();
+                        let optionObject = {
+                            v: value,
+                            l: value
+                        }
+                        selectOptions2.push(optionObject);
+                    }
+
                     selectContextNumber.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
                         selectContextNumber.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
@@ -302,31 +373,31 @@
 
                     $(".selectNumber1").on("change", function () {
                         let index = this.value - 1;
-                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        let objPropertyArray = getSplitObjProperty(window.contextObjectArray[index]);
                         propertyName.typedInput("type", objPropertyArray[0]);
                         propertyName.typedInput("value", objPropertyArray[1]);
                     });
                     $(".selectNumber2").on("change", function () {
                         let index = this.value - 1;
-                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        let objPropertyArray = getSplitObjProperty(window.contextObjectArray[index]);
                         propertyValue.typedInput("type", objPropertyArray[0]);
                         propertyValue.typedInput("value", objPropertyArray[1]);
                     });
                     $(".selectNumber3_1").on("change", function () {
                         let index = this.value - 1;
-                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        let objPropertyArray = getSplitObjProperty(window.contextObjectArray[index]);
                         fromValue.typedInput("type", objPropertyArray[0]);
                         fromValue.typedInput("value", objPropertyArray[1]);
                     });
                     $(".selectNumber3_2").on("change", function () {
                         let index = this.value - 1;
-                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        let objPropertyArray = getSplitObjProperty(window.contextObjectArray[index]);
                         toValue.typedInput("type", objPropertyArray[0]);
                         toValue.typedInput("value", objPropertyArray[1]);
                     });
                     $(".selectNumber4").on("change", function () {
                         let index = this.value - 1;
-                        let objPropertyArray = getSplitObjProperty(texts[index]);
+                        let objPropertyArray = getSplitObjProperty(window.contextObjectArray[index]);
                         moveValue.typedInput("type", objPropertyArray[0]);
                         moveValue.typedInput("value", objPropertyArray[1]);
                     });

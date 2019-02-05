@@ -9,7 +9,7 @@
 			name: {
 				value: ""
 			},
-			name2:{
+			name2: {
 				value: ""
 			},
 			inputs: {
@@ -32,6 +32,63 @@
 		paletteLabel: "Lower Case",
 		// 定義在編輯表單開啟時，要做的事
 		oneditprepare: function () {
+			function getContextKeys(data) {
+				let sortedData = {};
+				for (let store in data) {
+					if (data.hasOwnProperty(store)) {
+						for (let key in data[store]) {
+							if (data[store].hasOwnProperty(key)) {
+								if (!sortedData.hasOwnProperty(key)) {
+									sortedData[key] = [];
+								}
+								data[store][key].store = store;
+								sortedData[key].push(data[store][key])
+							}
+						}
+					}
+				}
+				let keys = Object.keys(sortedData);
+				keys.sort();
+				return keys;
+			}
+			$.when(
+				$.getJSON(`context/flow/${this.z}`),
+				$.getJSON(`context/global`)
+				/*
+				data1(Array):
+					0: {memory: {…}}
+					1: "success"
+					2:
+						abort: ƒ (a)
+						always: ƒ ()
+						complete: ƒ ()
+						done: ƒ ()
+						error: ƒ ()
+						fail: ƒ ()
+						getAllResponseHeaders: ƒ ()
+						getResponseHeader: ƒ (a)
+						overrideMimeType: ƒ (a)
+						pipe: ƒ ()
+						progress: ƒ ()
+						promise: ƒ (a)
+						readyState: 4
+						responseJSON: {memory: {…}}
+						responseText: "{"memory":{"aaa":{"msg":"123","format":"string[3]"}}}"
+						setRequestHeader: ƒ (a,b)
+						state: ƒ ()
+						status: 200
+						statusCode: ƒ (a)
+						statusText: "OK"
+						success: ƒ ()
+						then: ƒ ()
+				*/
+			).then(function (data1, data2) {
+				console.log(getContextKeys(data1[0]));
+				console.log(getContextKeys(data2[0]));
+			}).fail(function (problem) {
+				console.log(problem);
+			});
+
 			$("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
 				addItem: function (container, i, opt) {
 					let row2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
