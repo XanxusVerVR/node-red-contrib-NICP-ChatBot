@@ -1,3 +1,4 @@
+
 module.exports = function (RED) {
     function DataCollection(config) {
 

@@ -40,29 +40,26 @@
         },
 
         oneditprepare: function () {
-            $("#node-input-message-container")
-                .css("min-height", "300px")
-                .css("min-width", "450px")
-                .editableList({
-                    addButton: "Add",
-                    addItem: function (container, i, item) {
-                        let row = $("<div/>").appendTo(container);
-                        let content = "";
-                        if (typeof item == "string") {
-                            content = item;
-                        } else if (item.message != null) {
-                            content = item.message;
-                        }
-                        $("<textarea placeholder=\"Message Content\">" + content + "</textarea>")
-                            .css({
-                                width: "93%",
-                                height: "100px"
-                            })
-                            .appendTo(row);
-                    },
-                    removable: true,
-                    sortable: true
-                });
+            $("#node-input-message-container").css("min-height", "300px").css("min-width", "450px").editableList({
+                addButton: "Add",
+                addItem: function (container, i, item) {
+                    let row = $("<div/>").appendTo(container);
+                    let content = "";
+                    if (typeof item == "string") {
+                        content = item;
+                    } else if (item.message != null) {
+                        content = item.message;
+                    }
+                    $(`<textarea placeholder="Message Content">${content}</textarea>`)
+                        .css({
+                            width: "93%",
+                            height: "100px"
+                        })
+                        .appendTo(row);
+                },
+                removable: true,
+                sortable: true
+            });
 
             let message = this.message;
             if (typeof message == "string") {

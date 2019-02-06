@@ -2,11 +2,12 @@ const _ = require("underscore");
 const utils = require("./lib/helpers/utils");
 const MessageTemplate = require("./lib/message-template");
 const emoji = require("node-emoji");
+const colors = require("colors");
 
 module.exports = function (RED) {
 
     function Message(config) {
-
+        console.log(colors.green(config));
         RED.nodes.createNode(this, config);
         let node = this;
         this.message = config.message;
