@@ -1,7 +1,7 @@
 const should = require("should");
 const chai = require("chai");
 const helper = require("node-red-node-test-helper");
-const commnadNode = require("../FCF-Command.js");
+const fcfCommnadNode = require("../FCF-Command.js");
 
 describe("Command節點測試", function () {
 
@@ -13,7 +13,7 @@ describe("Command節點測試", function () {
         helper.stopServer(done);
     });
     it("測試command屬性", function (done) {
-        let testFlows = JSON.parse(`[
+        let commnadNode = JSON.parse(`[
             {
                 "id":"a9d90022.19126",
                 "type":"FCF-Command",
@@ -29,8 +29,8 @@ describe("Command節點測試", function () {
                 ]
             }
         ]`);
-        helper.load(commnadNode, testFlows, function () {
-            let n1 = helper.getNode(testFlows[0].id);
+        helper.load(fcfCommnadNode, commnadNode, function () {
+            let n1 = helper.getNode(commnadNode[0].id);
             n1.should.have.property("command", "KEY_POWER");
             done();
         });

@@ -1,3 +1,4 @@
+const colors = require("colors");
 const operators = {
     "eq": function (a, b) { return a == b; },
     "neq": function (a, b) { return a != b; },
@@ -86,7 +87,7 @@ module.exports = function (RED) {
                 let property = getProperty(node.propertyType, node.property, msg);
                 let rules = node.rules;
                 for (let i = 0; i < rules.length; i++) {
-                    let beingComparedPropertyValue = getProperty(null, rules[i].beingComparedPropertyType, rules[i].beingComparedProperty);
+                    let beingComparedPropertyValue = getProperty(rules[i].beingComparedPropertyType, rules[i].beingComparedProperty, msg);
                     if (operators[rules[i].comparisonOperator](property, beingComparedPropertyValue)) {
                         count++;
                         setStatus(rules[i].fill, rules[i].shape, rules[i].text);
@@ -97,7 +98,6 @@ module.exports = function (RED) {
                 }
             }
             else {
-
                 let statusText = "";
                 let property = getProperty(node.propertyType2, node.property2, msg);
                 if (!property) {

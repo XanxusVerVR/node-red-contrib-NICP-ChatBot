@@ -1,4 +1,5 @@
-// 測試之前要請安裝相關模組: npm install node-red-node-test-helper should node-red --no-save
+// 測試之前要請安裝相關模組: npm install node-red-node-test-helper should sinon node-red --no-save
+const colors = require("colors");
 const _ = require("underscore");
 const should = require("should");
 const helper = require("node-red-node-test-helper");
@@ -15,7 +16,7 @@ describe("lower-case節點測試", function () {
     });
 
     it("測試name屬性", function (done) {
-        let theNode = JSON.parse(`[
+        let toLowerCaseNode = JSON.parse(`[
             {
                 "id": "c013f273.98d3a",
                 "type": "lower-case",
@@ -29,15 +30,15 @@ describe("lower-case節點測試", function () {
                 "wires": []
             }
         ]`);
-        helper.load(lowerNode, theNode, function () {
-            let n1 = helper.getNode(theNode[0].id);
+        helper.load(lowerNode, toLowerCaseNode, function () {
+            let n1 = helper.getNode(toLowerCaseNode[0].id);
             n1.should.have.property("name", "XanxusLowerCase");
             done();
         });
     });
 
     it("測試name2(自定義的)屬性", function (done) {
-        let theNode = JSON.parse(`[
+        let toLowerCaseNode = JSON.parse(`[
             {
                 "id": "c013f273.98d3a",
                 "type": "lower-case",
@@ -54,8 +55,8 @@ describe("lower-case節點測試", function () {
 
 
 
-        helper.load(lowerNode, theNode, function () {
-            let n1 = helper.getNode(theNode[0].id);
+        helper.load(lowerNode, toLowerCaseNode, function () {
+            let n1 = helper.getNode(toLowerCaseNode[0].id);
             n1.should.have.property("name2", "Xanxus");
             done();
         });
@@ -63,7 +64,7 @@ describe("lower-case節點測試", function () {
 
     it("IO測試:是否有正確轉換成小寫", function (done) {
 
-        let theNode = JSON.parse(`[
+        let toLowerCaseNode = JSON.parse(`[
             {
                 "id": "c013f273.98d3a",
                 "type": "lower-case",
@@ -83,12 +84,12 @@ describe("lower-case節點測試", function () {
             type: "helper"
         };
 
-        theNode.push(helperNode);
+        toLowerCaseNode.push(helperNode);
 
-        helper.load(lowerNode, theNode, function () {
-            let n2 = helper.getNode("n2");
-            let n1 = helper.getNode(theNode[0].id);
-            n2.on("input", function (msg) {
+        helper.load(lowerNode, toLowerCaseNode, function () {
+            let helperNode = helper.getNode("n2");
+            let n1 = helper.getNode(toLowerCaseNode[0].id);
+            helperNode.on("input", function (msg) {
                 msg.should.have.property("payload", "uppercase");//send出去的msg是否有個屬性a，並且值為轉成小寫的uppercase
                 done();
             });

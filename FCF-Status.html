@@ -77,7 +77,6 @@
             //切換模式，根據不同的模式看要顯示什麼表單
             $("#node-input-mode").change(function () {
                 let value = $(this).val();
-                //cUnit
                 if (value == "displayStatus") {
                     $(".node-input-rule-container-row").show();//讓那個item項目表單列表顯示
                     resizeRule($("div.red-ui-editableList-item-content"));//讓node-input-rule-property-beingCompared-component又出現，不會消失
@@ -86,7 +85,6 @@
                     $(".prop").show();
                     $(".prop2").hide();
                     $(".cUnit").hide();
-                    $(".cNode-input-isInputAndOutput").hide();
                 } else if (value == "displayVal") {
                     $(".node-input-big-rule-property-fill").show();
                     $(".node-input-big-rule-property-shape").show();
@@ -94,7 +92,6 @@
                     $(".prop").hide();
                     $(".prop2").show();
                     $(".cUnit").show();
-                    $(".cNode-input-isInputAndOutput").show();
                 }
             });
             $("#node-input-mode").change();
