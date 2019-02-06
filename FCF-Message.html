@@ -50,12 +50,10 @@
                     } else if (item.message != null) {
                         content = item.message;
                     }
-                    $(`<textarea placeholder="Message Content">${content}</textarea>`)
-                        .css({
-                            width: "93%",
-                            height: "100px"
-                        })
-                        .appendTo(row);
+                    $(`<textarea placeholder="Message Content">${content}</textarea>`).css({
+                        width: "93%",
+                        height: "100px"
+                    }).appendTo(row);
                 },
                 removable: true,
                 sortable: true
