@@ -79,21 +79,11 @@ module.exports = function (RED) {
     };
 
     function Message(config) {
-        /*
-        config:
-            { id: '2fc2ff63.9a4f5',
-            type: 'FCF-Message',
-            z: '9fdb8a20.7c04d8',
-            name: '',
-            message: [ { message: '111' }, { message: '222' } ],
-            answer: false,
-            track: false,
-            parse_mode: '',
-            x: 340,
-            y: 620,
-            wires: [ [ 'b43f223e.3261f' ] ] } */
+
         RED.nodes.createNode(this, config);
+
         let node = this;
+
         this.message = config.message;
         this.answer = config.answer;
         this.parse_mode = config.parse_mode;
@@ -140,43 +130,23 @@ module.exports = function (RED) {
                 node.error("Empty message");
             }
 
-            /* tokens:
-                Set { 'flow.aaa', 'global.ccc' }
-                Set { 'msg.payload' }
-            */
             let promises = [];
             let tokens = extractTokens(mustache.parse(message));
             let resolvedTokens = {};
+
             tokens.forEach(function (name) {
-                // context:
-                // { type: 'flow', store: undefined, field: 'aaa' }
-                // 當是msg.payload的時候是 undefined
                 let context = parseContext(name);
                 if (context) {
                     let type = context.type;
                     let store = context.store;
                     let field = context.field;
-                    /* target:
-                        {}
-                    */
                     let target = node.context()[type];
                     if (target) {
                         let promise = new Promise((resolve, reject) => {
-                            /*
-                            field:
-                                aaa
-                            store:
-                                undefined
-                            val:
-                                321
-                            */
                             target.get(field, store, (err, val) => {
                                 if (err) {
                                     reject(err);
                                 } else {
-                                    /* resolvedTokens:
-                                        { 'flow.aaa': 321 }
-                                    */
                                     resolvedTokens[name] = val;
                                     resolve();
                                 }
