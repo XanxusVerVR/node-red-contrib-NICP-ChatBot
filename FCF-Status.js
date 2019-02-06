@@ -57,10 +57,6 @@ const operators = {
     "jsonata_exp": function (a, b) { return (b === true); },
     "else": function (a) { return a === true; }
 };
-const math_it_up = {
-    "+": function (x, y) { return x + y; },
-    "-": function (x, y) { return x - y; }
-};
 module.exports = function (RED) {
 
     function Status(config) {
@@ -119,6 +115,12 @@ module.exports = function (RED) {
                 node.emit("input", {});
             }, 2000);
         }
+        else if (node.mode == "displayStatus" && node.propertyType == "flow" || node.propertyType == "global") {
+            setInterval(function () {
+                //觸發input事件
+                node.emit("input", {});
+            }, 2000);
+        }
         //當重新部署時，要移除上次的input事件，否則重新部署一次會多觸發一次input事件
         node.on("close", function () {
             node.removeListener("input", inputCallback);
@@ -131,7 +133,6 @@ module.exports = function (RED) {
                 text: _text
             });
         };
-        // 取得item外面那個屬性物件
         // 使用Arrow Function來綁定this.status的this
         let getProperty = (propertyType, property, msg = null) => {
             let obj = null;

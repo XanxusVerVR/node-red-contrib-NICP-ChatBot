@@ -1,5 +1,6 @@
 // 測試之前要請安裝相關模組: npm install node-red-node-test-helper should sinon node-red --no-save
 const colors = require("colors");
+// console.log(colors.green("hello"));
 const _ = require("underscore");
 const should = require("should");
 const helper = require("node-red-node-test-helper");
