@@ -121,6 +121,7 @@
             return this.name ? "node_label_italic" : "Xanxus";
         },
         oneditprepare: function () {
+
             let node = this;
             let set = this._("change.action.set");//此set用typeof set看，是字串型態，印出"Set"
             let change = this._("change.action.change");
@@ -160,10 +161,10 @@
                 return contextObject;
             }
 
-            let texts = [];
-            $("#results .searchterm").each(function () {
-                texts.push($(this).text());
-            });
+            // let texts = [];
+            // $("#results .searchterm").each(function () {
+            //     texts.push($(this).text());
+            // });
 
             $.when(
                 $.getJSON(`context/flow/${this.z}`),
@@ -243,6 +244,7 @@
                         overflow: "hidden",
                         whiteSpace: "nowrap"
                     });
+
                     let row1 = $("<div/>").appendTo(container);
                     let row2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
                     let row3 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
@@ -266,7 +268,6 @@
                         v: "move",
                         l: move
                     }];
-
                     for (let i = 0; i < 4; i++) {
                         selectField.append($("<option></option>").val(selectOptions[i].v).text(selectOptions[i].l));
                     }
@@ -278,6 +279,9 @@
                     let selectContextNumber = $("<select/>", { class: "selectNumber1", style: "width:35px;" }).appendTo(row1);
                     // 動態生成option
                     let selectOptions2 = [];
+                    if (!window.contextObjectArray) {
+                        window.contextObjectArray = [];
+                    }
                     for (let i = 0; i < window.contextObjectArray.length; i++) {
                         let value = (i + 1).toString();
                         let optionObject = {
@@ -286,7 +290,6 @@
                         }
                         selectOptions2.push(optionObject);
                     }
-
                     selectContextNumber.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
                         selectContextNumber.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));

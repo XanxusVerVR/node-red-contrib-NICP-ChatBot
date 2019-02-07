@@ -87,11 +87,10 @@ module.exports = function (RED) {
         if (RED.settings.httpNodeRoot !== false) {
 
             this.method = config.method;
-            let node = this;
-            node.webhookConfig = RED.nodes.getNode(config.webhookConfig);
 
-            console.log("看一下node.webhookConfig：");
-            console.log(node.webhookConfig);
+            let node = this;
+
+            node.webhookConfig = RED.nodes.getNode(config.webhookConfig);
 
             this.errorHandler = function (err, req, res, next) {
                 node.warn(err);
@@ -122,6 +121,7 @@ module.exports = function (RED) {
                     body.entry.forEach(function (entry) {
                         let webhook_event = entry.messaging[0];
                         if (webhook_event.message) {
+                            console.log(webhook_event.message.text);
                             node.send({
                                 payload: {
                                     chatId: webhook_event.sender.id,

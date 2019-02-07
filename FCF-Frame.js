@@ -37,6 +37,7 @@ module.exports = function (RED) {
                 });
             }
             if (msg.userData != null) {
+                console.log(msg.userData);
                 Object.keys(msg.userData).map(function (objectKey, index) {
                     let value = msg.userData[objectKey];
                     frame[name].UserData[objectKey] = value;

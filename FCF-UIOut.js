@@ -31,15 +31,15 @@ module.exports = function (RED) {
                     console.log(error);
                 }
             });
-            // if (config.track) {
-            //     msg.originalMessage = {
-            //         transport: "facebook",
-            //         chat: {
-            //             id: msg.payload.chatId
-            //         }
-            //     };
-            //     node.send(msg);
-            // }
+            if (config.track) {
+                msg.originalMessage = {
+                    transport: "facebook",
+                    chat: {
+                        id: msg.payload.chatId
+                    }
+                };
+                node.send(msg);
+            }
         });
     }
     RED.nodes.registerType("UI-Out", uiOut);
