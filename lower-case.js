@@ -8,30 +8,21 @@ module.exports = function (RED) {
 
         let node = this;
 
-        node.on("input", function (msg) {
-            let resolvedTokens = {};
-            let type = "flow";
-            let target = node.context()["global"];
-            console.log(target);
-            let field = "aaa";
-            let name = "flow.aaa";
-            let store = undefined;
-            target.get(field, store, (err, val) => {
-                if (err) {
-                    console.log(err);
-                    // reject(err);
-                } else {
-                    /* resolvedTokens:
-                        { 'flow.aaa': 321 }
-                    */
-                    resolvedTokens[name] = val;
-                    // resolve();
-                }
-            });
-            console.log(resolvedTokens);
-            msg.payload = msg.payload.toLowerCase();
+        let inputCallback = function (msg) {
+            msg.payload = msg.payload + "111";
             node.send(msg);
-        });
+        };
+
+        let inputCallback2 = function (msg) {
+            msg.payload = msg.payload + "222";
+            node.send(msg);
+        };
+        if (node.name == "aaa") {
+            node.on("input", inputCallback);
+        }
+        else {
+            node.on("input", inputCallback2);
+        }
 
     }
     RED.nodes.registerType("lower-case", LowerCaseNode);

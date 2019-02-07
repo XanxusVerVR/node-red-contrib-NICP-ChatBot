@@ -80,15 +80,18 @@ module.exports = function (RED) {
         RED.httpNode.options("*", corsHandler);
     }
 
-    function uiIn(n) {
+    function uiIn(config) {
 
-        RED.nodes.createNode(this, n);
+        RED.nodes.createNode(this, config);
 
         if (RED.settings.httpNodeRoot !== false) {
 
-            this.method = n.method;
+            this.method = config.method;
             let node = this;
-            node.webhookConfig = RED.nodes.getNode(n.webhookConfig);
+            node.webhookConfig = RED.nodes.getNode(config.webhookConfig);
+
+            console.log("看一下node.webhookConfig：");
+            console.log(node.webhookConfig);
 
             this.errorHandler = function (err, req, res, next) {
                 node.warn(err);
