@@ -123,6 +123,51 @@
 
 <script type="text/x-red" data-help-name="FCF-DataCollection">
     <p>
-        用來收集使用者所輸入的資料
+        用來收集使用者所輸入的資料。
     </p>
+    <p>
+        此節點提供兩種存放資料的物件，Query通常用來儲存要查詢的人事物的特性，如商品的特性...
+        User Data通常用來儲存使用者或是一些個人資料。
+    </p>
+    <p>
+        您可以在此節點定義詢問(請求)使用者的"訊息內容"，用來取得某物件的特性或其他問題訊息
+        和定義此物件的特性要存放在什麼樣的"變數名稱"裡，如於訊息內容設置"請問你想找什麼樣的衣服呢?"、變數名稱設置"style"
+        則此節點在執行時，會將設置的訊息內容輸出，以便給下個節點做處理，通常後面會接Message節點來把訊息格式化成傳送給通訊平台的訊息格式，這時使用者會收到剛剛定義的"請問你想找什麼樣的衣服呢?"的訊息，當使用者回應"舒適好穿"之類的，則藉由通訊平台的Track Conversation功能再把使用者回應的訊息導到此節點中，這時"舒適好穿"這個資料會被儲存於前面定義的style變數中。
+        當資料收集完畢時，此節點會將資料彙整，並將資料輸出到另一個分支。
+    </p>
+    <p>
+        您可以定義多個訊息和變數，來向使用者取得更多的資料，以供後續處理。
+    </p>
+    <h3>Input(開始收集資料):config</h3>
+    <dl class="message-properties">
+        <dt>rules[context.get("dataCount")].messageContent<span class="property-type">string</span></dt>
+        <dd>隨機取一筆於此節點定義的訊息，使用者第一次將會收到這筆訊息</dd>
+    </dl>
+    <h3>Output(開始收集資料):msg</h3>
+    <dl class="message-properties">
+        <dt>payload<span class="property-type">string</span></dt>
+        <dd>將這筆訊息輸出給使用者</dd>
+    </dl>
+    <br/>
+    <h3>Input(進行中，資料還未完成):msg</h3>
+    <dl class="message-properties">
+        <dt>payload.content<span class="property-type">string</span></dt>
+        <dd>取得使用者回應的資料，並儲存於此屬性中</dd>
+    </dl>
+    <h3>Output(進行中，資料還未完成):config</h3>
+    <dl class="message-properties">
+        <dt>rules[context.get("dataCount")].messageContent<span class="property-type">string</span></dt>
+        <dd>將剩下未詢問使用者的訊息繼續輸出，訊息將儲存於此屬性中</dd>
+    </dl>
+    <br/>
+    <h3>Input(收集完畢):msg</h3>
+    <dl class="message-properties">
+        <dt>payload.content<span class="property-type">string</span></dt>
+        <dd>取得使用者回應的資料，並儲存於此屬性中</dd>
+    </dl>
+    <h3>Output(收集完畢):msg</h3>
+    <dl class="message-properties">
+        <dt>query or userData<span class="property-type">object</span></dt>
+        <dd>將使用者回應的資料集儲存於此物件中，並輸出給另一個分支</dd>
+    </dl>
 </script>

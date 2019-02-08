@@ -39,5 +39,15 @@
 
 <!-- 定義節點的右邊資訊欄的輔助說明文字 -->
 <script type="text/x-red" data-help-name="FCF-Command">
-	<p>可以在Command節點設置要傳送給裝置的控制指令，指令將儲存在msg.payload屬性中</p>
+    <p>可以在Command節點設置要傳送給裝置的控制指令</p>
+    <h3>Input:config</h3>
+    <dl class="message-properties">
+        <dt>command <span class="property-type">string</span></dt>
+        <dd>於此節點設置的指令將存放於此屬性中</dd>
+    </dl>
+    <h3>Output:msg</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt>
+        <dd>輸出的訊息將會存放在此屬性中</dd>
+    </dl>
 </script>

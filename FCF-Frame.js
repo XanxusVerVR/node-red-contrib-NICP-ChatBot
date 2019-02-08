@@ -6,20 +6,21 @@ module.exports = function (RED) {
         let node = this;
         let context = this.context().flow;//建立並取得context物件
         node.name = config.name;//取得使用者為這節點取的名稱
+        node.className = config.className;//取得使用者於此節點定義的類別屬性名稱
 
         this.on("input", function (msg) {
 
             let frame = {};
-            let name;//用來當frame物件的屬性
-            if (node.name) {//如果開發者有填節點的名稱，就存到name裡
-                name = node.name;
+            let className;//用來當frame物件的屬性
+            if (node.className) {//如果開發者有填節點的名稱，就存到name裡
+                className = node.className;
             }
             else {
-                name = 1;
+                className = 1;
             }
 
             if (_.isUndefined(context.get("frame")) || _.isNull(context.get("frame"))) {
-                frame[name] = {//將此name設成frame的屬性名稱
+                frame[className] = {//將此className設成frame的屬性名稱
                     Query: {},
                     UserData: {},
                     Result: {}
@@ -33,24 +34,23 @@ module.exports = function (RED) {
             if (msg.query != null) {
                 Object.keys(msg.query).map(function (objectKey, index) {
                     let value = msg.query[objectKey];
-                    frame[name].Query[objectKey] = value;
+                    frame[className].Query[objectKey] = value;
                 });
             }
             if (msg.userData != null) {
-                console.log(msg.userData);
                 Object.keys(msg.userData).map(function (objectKey, index) {
                     let value = msg.userData[objectKey];
-                    frame[name].UserData[objectKey] = value;
+                    frame[className].UserData[objectKey] = value;
                 });
             }
             if (msg.result != null) {
                 Object.keys(msg.result).map(function (objectKey, index) {
                     let value = msg.result[objectKey];
-                    frame[name].Result[objectKey] = value;
+                    frame[className].Result[objectKey] = value;
                 });
             }
             context.set("frame", frame);
-            msg.frame = context.get("frame")[name];
+            msg.frame = context.get("frame")[className];
             node.send(msg);
         });
     }

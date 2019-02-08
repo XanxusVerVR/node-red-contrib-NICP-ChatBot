@@ -3,15 +3,10 @@
         category: "FCF",
         color: "#DAC4B4",
         defaults: {
-            rules: {
-                value: [{
-                    topic: ""
-                }]
-            },
             name: {
                 value: ""
             },
-            token: {
+            className: {
                 value: ""
             },
             outputs: {
@@ -23,8 +18,8 @@
         paletteLabel: "Frame",
         icon: "debug.png",
         label: function () {
-            if (this.name)
-                return "Frame: " + this.name;
+            if (this.className)
+                return "Frame: " + this.className;
             else
                 return "Frame";
         }
@@ -33,13 +28,39 @@
 
 <script type="text/x-red" data-template-name="FCF-Frame">
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Frame Class</label>
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-className"><i class="icon-tag"></i> Frame Class</label>
+        <input type="text" id="node-input-className" placeholder="Class Name">
     </div>
 </script>
 
 <script type="text/x-red" data-help-name="FCF-Frame">
     <p>
-        用來紀錄 Data Collection 以及 Pull Service 所取得的資料
+        用來紀錄 Data Collection 或 Pull Service 或 KeywordExtraction 節點所取得的資料，並做資料的格式化，以供後續的處理。
     </p>
+    <p>
+        Frame Class欄位用來設置此節點要存放Data Collection和Pull Service節點的Context Flow物件的屬性名稱
+        如填寫school，那儲存資料的Context Flow物件會被存放在frame.school屬性中
+    </p>
+    <h3>Input:msg</h3>
+    <dl class="message-properties">
+        <dt>query <span class="property-type">string | object</span></dt>
+        <dd>儲存要查詢的物件的特性，如商品的特性等等...</dd>
+        <dt>userData <span class="property-type">string | object</span></dt>
+        <dd>儲存一些個人資料...</dd>
+        <dt>result <span class="property-type">string | object</span></dt>
+        <dd>儲存查詢完畢的結果</dd>
+    </dl>
+    <h3>Output:msg</h3>
+    <dl class="message-properties">
+        <dt>query <span class="property-type">string | object</span></dt>
+        <dd>如Input的描述</dd>
+        <dt>userData <span class="property-type">string | object</span></dt>
+        <dd>如Input的描述</dd>
+        <dt>result <span class="property-type">string | object</span></dt>
+        <dd>如Input的描述</dd>
+    </dl>
 </script>
