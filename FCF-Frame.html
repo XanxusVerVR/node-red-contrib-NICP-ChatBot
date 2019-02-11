@@ -18,10 +18,13 @@
         paletteLabel: "Frame",
         icon: "debug.png",
         label: function () {
-            if (this.className)
-                return "Frame: " + this.className;
-            else
-                return "Frame";
+            let labelName = "Frame";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         }
     });
 </script>
@@ -32,8 +35,8 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-className"><i class="icon-tag"></i> Frame Class</label>
-        <input type="text" id="node-input-className" placeholder="Class Name">
+        <label for="node-input-className"><i class="icon-tag"></i> Frame Class Name</label>
+        <input type="text" id="node-input-className" placeholder="Frame Class Name">
     </div>
 </script>
 
