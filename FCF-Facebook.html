@@ -68,9 +68,46 @@
 </script>
 
 <script type="text/x-red" data-help-name="FCF-facebook-node">
-  <p>
-    Facebook 機器人設定
-  </p>
+    <p>
+        設置Facebook Messenger Webhook驗證的資料
+    </p>
+    <h3>Details</h3>
+    <dl class="message-properties">
+        <dt>Bot-Name</dt>
+        <dd>您要給這個機器人(粉絲專頁)的名稱</dd>
+        <dt>Token</dt>
+        <dd>Token必須從Facebook開發者頁面取得。取得步驟為：
+            <ul>
+                <li>至您在Facebook開發者頁面創造的Facebook App</li>
+                <li>至左邊列表的PRODUCTS的Messenger的Settings</li>
+                <li>在Token Generation部分中的Page選擇您要連結的APP</li>
+                <li>Page Access Token將會產生Token</li>
+            </ul>
+        </dd>
+        <dt>App Secret(非必填)</dt>
+        <dd>App Secret也是須從Facebook開發者頁面取得。取得步驟為：
+            <ul>
+                <li>至您在Facebook開發者頁面創造的Facebook App</li>
+                <li>至左邊列表的Settings的Basic</li>
+                <li>App Secret通常位於App ID的右邊，它會以密碼的形式呈現。點擊Show，您需輸入您的Facebook密碼來取得他</li>
+            </ul>
+        </dd>
+        <dt>Verify</dt>
+        <dd>Verify為您自定義的驗證碼，通常會定義一串字串，它將被作為Facebook平台對您的Webhook做的一的驗證手段。您需至Facebook開發者頁面的Webhook頁面放置此驗證碼，Webhook頁面位於：
+            <ul>
+                <li>Facebook開發者頁面創造的Facebook App</li>
+                <li>至左邊列表的PRODUCTS的Messenger的Webhooks</li>
+                <li>於上方下拉選單選擇Page(通常預設就是Page)，點擊Edit Subscription</li>
+                <li>於彈出的視窗中下方的Verify Token欄位填寫您自定義的驗證碼</li>
+            </ul>
+            驗證碼填寫完畢記得同時設置Callback URL
+        </dd>
+        <dt>Webhook URL</dt>
+        <dd>Webhook URL為您自定義的Webhook Service URL的後綴，填寫格式為/${urlname}，範例：/phonebot，設置完畢後，FCF會幫您啟動一個Webhook Service，
+            完整URL為http://localhost:1880/redbot/facebook/phonebot(此完整URL僅供參考，Facebook平台規定Webhook需為公開網址且要有Https，請自行架設)
+            ，這段完整URL填寫的位置和Verify驗證碼設置的位置一樣，請將它設置在Verify Token上面那個Callback URL欄位中，而Callback URL欄位的位置請參考上述Verify的說明。
+        </dd>
+    </dl>
 </script>
 <!--FCF-facebook-node結束-->
 
@@ -80,6 +117,9 @@
         category: "FCF",
         color: "#FFCC66",
         defaults: {
+            name:{
+                value: "",
+            },
             bot: {//此物件存的是facebook的設置節點(就是在config頁籤的節點)的Node的ID，所以最後存的是像這樣的字串:98bd3fe8.c4eb5
                 value: "",
                 type: "FCF-facebook-node",
@@ -91,17 +131,28 @@
         icon: "chatbot-receiver.png",
         paletteLabel: "Facebook In",
         label: function () {
-            return "Facebook In";
+            let labelName = "Facebook In";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         }
     });
 
 </script>
 
 <script type="text/x-red" data-template-name="FCF-facebook-receive"><!-- Facebook In第二部分 -->
-  <div class="form-row">
-    <label for="node-input-bot"><i class="icon-bookmark"></i> Bot</label>
-    <input type="text" id="node-input-bot" placeholder="Bot">
-  </div>
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bot"><i class="icon-bookmark"></i> Bot</label>
+        <input type="text" id="node-input-bot" placeholder="Bot">
+    </div>
 </script>
 
 <script type="text/x-red" data-help-name="FCF-facebook-receive">
@@ -116,6 +167,9 @@
         category: "FCF",
         color: "#FFCC66",
         defaults: {
+            name: {
+                value: ""
+            },
             bot: {
                 value: "",
                 type: "FCF-facebook-node",
@@ -133,7 +187,13 @@
         icon: "chatbot-sender.png",
         paletteLabel: "Facebook Out",
         label: function () {
-            return "Facebook Out";
+            let labelName = "Facebook Out";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         },
         oneditsave: function () {
             let track = $("#node-input-track").is(":checked");
@@ -144,6 +204,11 @@
 </script>
 
 <script type="text/x-red" data-template-name="FCF-facebook-send"><!-- Facebook Out第二部分 -->
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
     <div class="form-row">
         <label for="node-input-bot"><i class="icon-bookmark"></i> Bot</label>
         <input type="text" id="node-input-bot" placeholder="Bot">

@@ -309,9 +309,12 @@ module.exports = function (RED) {
     function FacebookInNode(config) {
 
         RED.nodes.createNode(this, config);
-        let node = this;
+
+        this.name = config.name || "My Facebook In Node";
         this.bot = config.bot;//config.bot是一個類似98bd3fe8.c4eb5這樣的字串
         this.config = RED.nodes.getNode(this.bot);
+
+        let node = this;
 
         if (this.config) {
             this.status({
@@ -351,12 +354,15 @@ module.exports = function (RED) {
 
     function FacebookOutNode(config) {
         RED.nodes.createNode(this, config);
-        let node = this;
+
+        this.name = config.name || "My Facebook Out Node";
         this.bot = config.bot;
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
-
         //這段主要在設置節點顯示的狀態
         this.config = RED.nodes.getNode(this.bot);
+
+        let node = this;
+
         if (this.config) {
             this.status({
                 fill: "red",
