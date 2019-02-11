@@ -6,7 +6,7 @@ module.exports = function (RED) {
         this.name2 = config.name2;
 
         let node = this;
-        console.log(this);
+
         node.on("input", function (msg) {
             msg.payload = msg.payload.toLowerCase();
             node.send(msg);
