@@ -1,26 +1,23 @@
-const _ = require("underscore");
-module.exports = function (RED) {
+module.exports = function(RED) {
+    //Frame的功能為把所有資料存起來，並作格式化，以便傳給其他服務
     function Frame(config) {
 
         RED.nodes.createNode(this, config);
-        let node = this;
-        let context = this.context().flow;//建立並取得context物件
-        node.name = config.name;//取得使用者為這節點取的名稱
-        node.className = config.className;//取得使用者於此節點定義的類別屬性名稱
+        var node = this;
+        var context = this.context().flow;
+        node.name = config.name;
 
-        this.on("input", function (msg) {
+        this.on('input', function(msg) {
 
-            let frame = {};
-            let className;//用來當frame物件的屬性
-            if (node.className) {//如果開發者有填節點的名稱，就存到name裡
-                className = node.className;
-            }
-            else {
-                className = 1;
-            }
+            var frame = {};
 
-            if (_.isUndefined(context.get("frame")) || _.isNull(context.get("frame"))) {
-                frame[className] = {//將此className設成frame的屬性名稱
+            if (node.name)
+                var name = node.name;
+            else
+                var name = 1;
+
+            if (context.get("frame") == null) {
+                frame[name] = {
                     Query: {},
                     UserData: {},
                     Result: {}
@@ -30,29 +27,36 @@ module.exports = function (RED) {
 
             frame = context.get("frame");
 
-            //如果前一個節點的msg物件的query、userData、result不是空，就個別把這幾個屬性的值取出來，放到frame物件的name屬性裡
+            if (!frame[name])
+                frame[name] = {
+                    Query: {},
+                    UserData: {},
+                    Result: {}
+                };
+
             if (msg.query != null) {
-                Object.keys(msg.query).map(function (objectKey, index) {
-                    let value = msg.query[objectKey];
-                    frame[className].Query[objectKey] = value;
+                Object.keys(msg.query).map(function(objectKey, index) {
+                    var value = msg.query[objectKey];
+                    frame[name].Query[objectKey] = value;
                 });
             }
             if (msg.userData != null) {
-                Object.keys(msg.userData).map(function (objectKey, index) {
-                    let value = msg.userData[objectKey];
-                    frame[className].UserData[objectKey] = value;
+                Object.keys(msg.userData).map(function(objectKey, index) {
+                    var value = msg.userData[objectKey];
+                    frame[name].UserData[objectKey] = value;
                 });
             }
             if (msg.result != null) {
-                Object.keys(msg.result).map(function (objectKey, index) {
-                    let value = msg.result[objectKey];
-                    frame[className].Result[objectKey] = value;
+                Object.keys(msg.result).map(function(objectKey, index) {
+                    var value = msg.result[objectKey];
+                    frame[name].Result[objectKey] = value;
                 });
             }
+
             context.set("frame", frame);
-            msg.frame = context.get("frame")[className];
+            msg.frame = context.get("frame")[name];
             node.send(msg);
         });
     }
-    RED.nodes.registerType("FCF-Frame", Frame);
+    RED.nodes.registerType('FCF-Frame', Frame);
 };
