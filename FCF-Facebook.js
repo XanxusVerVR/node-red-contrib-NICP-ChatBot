@@ -358,11 +358,12 @@ module.exports = function (RED) {
         this.name = config.name || "My Facebook Out Node";
         this.bot = config.bot;
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
+        this.targetUserID = config.targetUserID;
         //這段主要在設置節點顯示的狀態
         this.config = RED.nodes.getNode(this.bot);
 
         let node = this;
-
+        console.log(node);
         if (this.config) {
             this.status({
                 fill: "red",

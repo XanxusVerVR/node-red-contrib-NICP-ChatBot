@@ -117,7 +117,7 @@
         category: "FCF",
         color: "#FFCC66",
         defaults: {
-            name:{
+            name: {
                 value: "",
             },
             bot: {//此物件存的是facebook的設置節點(就是在config頁籤的節點)的Node的ID，所以最後存的是像這樣的字串:98bd3fe8.c4eb5
@@ -178,6 +178,9 @@
             track: {
                 value: false
             },
+            targetUserID: {
+                value: ""
+            },
             outputs: {
                 value: 0
             }
@@ -208,6 +211,11 @@
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <!-- 填寫要傳送給特定Messenger使用者的表單(填寫使用者的ID) -->
+        <label for="node-input-targetUserID"><i class="icon-tag"></i> targetUserID</label>
+        <input type="text" id="node-input-targetUserID" placeholder="請填寫要傳送給特定Messenger使用者的使用者ID">
     </div>
     <div class="form-row">
         <label for="node-input-bot"><i class="icon-bookmark"></i> Bot</label>
