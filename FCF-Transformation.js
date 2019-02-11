@@ -19,6 +19,9 @@ module.exports = function (RED) {
 
     function Transformation(config) {
         RED.nodes.createNode(this, config);
+
+        this.name = config.name || "My Transformation Node";
+
         let node = this;
 
         this.rules = config.rules;

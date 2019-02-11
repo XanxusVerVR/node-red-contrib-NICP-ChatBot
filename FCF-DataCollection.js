@@ -3,11 +3,14 @@ module.exports = function (RED) {
     function DataCollection(config) {
 
         RED.nodes.createNode(this, config);
-        let node = this;
+
         let context = this.context();
-        node.rules = config.rules;
-        node.collect = config.collect;
-        node.whetherToSendLocation = config.whetherToSendLocation;
+        this.name = config.name || "My Data Collection Node";
+        this.rules = config.rules;
+        this.collect = config.collect;
+        this.whetherToSendLocation = config.whetherToSendLocation;
+
+        let node = this;
 
         if (node.whetherToSendLocation) {
             node.rules.push({
@@ -23,7 +26,7 @@ module.exports = function (RED) {
             let collect = node.collect;
             let output = [];
 
-            if (collect == "query"){
+            if (collect == "query") {
                 if (context.get("dataCount") == null) {
 
                     rules.reverse();
@@ -58,13 +61,13 @@ module.exports = function (RED) {
                     context.set("query", query);
                     msg.query = context.get("query");
                     context.set("dataCount", null);
-                    if(msg.query.coordinate){
+                    if (msg.query.coordinate) {
                         msg.whetherToSendLocation = false;
                     }
                     node.send(output);
                 }
             }
-            if (collect == "userData"){
+            if (collect == "userData") {
                 if (context.get("dataCount") == null) {
 
                     rules.reverse();

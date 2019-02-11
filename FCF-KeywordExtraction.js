@@ -12,11 +12,13 @@ module.exports = function (RED) {
     function KeywordExtraction(config) {
 
         RED.nodes.createNode(this, config);
+
+        this.agentCredentials = RED.nodes.getNode(config.agentCredentials);
+        let projectID = this.agentCredentials.credentials.projectID.trim();
+        let email = this.agentCredentials.credentials.email.trim();
+        let privateKey = this.agentCredentials.credentials.privateKey.replace(/\\n/g, "\n").trim();
+
         let node = this;
-        node.agentCredentials = RED.nodes.getNode(config.agentCredentials);
-        let projectID = node.agentCredentials.credentials.projectID.trim();
-        let email = node.agentCredentials.credentials.email.trim();
-        let privateKey = node.agentCredentials.credentials.privateKey.replace(/\\n/g, "\n").trim();
 
         this.on("input", function (msg) {
 

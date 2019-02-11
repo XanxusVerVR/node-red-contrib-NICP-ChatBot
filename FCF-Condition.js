@@ -326,6 +326,8 @@ module.exports = function (RED) {
 
     function SwitchNode(n) {
         RED.nodes.createNode(this, n);
+
+        this.name = n.name || "My Condition Node";
         this.rules = n.rules || [];
         this.property = n.property;
         this.propertyType = n.propertyType || "msg";

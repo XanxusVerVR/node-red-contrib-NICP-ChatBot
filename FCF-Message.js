@@ -82,8 +82,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        let node = this;
-
+        this.name = config.name || "My Message Node";
         this.message = config.message;
         this.answer = config.answer;
         this.parse_mode = config.parse_mode;
@@ -100,6 +99,8 @@ module.exports = function (RED) {
                 return _.isEmpty(message);
             });
         };
+
+        let node = this;
 
         this.on("input", function (msg) {
 

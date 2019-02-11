@@ -3,7 +3,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         // 將config的屬性設給這的this做參考，這樣測試才看得到自定義的屬性
-        this.name = config.name;
+        this.name = config.name || "My Command Node";
         this.command = config.command;
 
         let node = this;

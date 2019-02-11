@@ -5,6 +5,9 @@ module.exports = function (RED) {
     function FacebookNotification(config) {
 
         RED.nodes.createNode(this, config);
+
+        this.name = config.name || "My Facebook Notification Node";
+
         let node = this;
 
         this.on("input", function (msg) {

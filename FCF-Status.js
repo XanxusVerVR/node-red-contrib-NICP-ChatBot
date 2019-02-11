@@ -63,7 +63,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name;
+        this.name = config.name || "My Status Node";
         this.propertyType = config.propertyType;
         this.property = config.property;
         this.propertyType2 = config.propertyType2;

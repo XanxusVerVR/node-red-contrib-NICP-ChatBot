@@ -4,8 +4,11 @@ module.exports = function (RED) {
     function PullService(config) {
 
         RED.nodes.createNode(this, config);
+
+        this.name = config.name || "My Pull Service Node";
+        this.URL = config.URL;
+
         let node = this;
-        node.URL = config.URL;
 
         this.on("input", function (msg) {
 
