@@ -3,6 +3,9 @@
         category: "FCF",
         color: "#FFCC66",
         defaults: {
+            name: {
+                value: ""
+            },
             outputs: {
                 value: 0
             }
@@ -17,12 +20,23 @@
         paletteLabel: "Facebook Notification",
         icon: "arrow-in.png",
         label: function () {
-            return "Facebook Notification";
+            let labelName = "Facebook Notification";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         }
     });
 </script>
 
 <script type="text/x-red" data-template-name="FCF-FacebookNotification">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
     <div class="form-row">
         <label for="node-input-pageAccessToken" style="width:100%;"><i class="icon-tag"></i> 粉絲專頁存取權杖：</label>
         <input type="text" id="node-input-pageAccessToken">

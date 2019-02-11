@@ -18,7 +18,13 @@
         paletteLabel: "Command",
         icon: "file.png",
         label: function () {
-            return this.name || "Command";
+            let labelName = "Command";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         }
     });
 </script>

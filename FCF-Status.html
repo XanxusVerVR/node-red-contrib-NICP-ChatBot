@@ -59,7 +59,13 @@
         paletteLabel: "Status",
         icon: "file.png",
         label: function () {
-            return this.name || "Status";
+            let labelName = "Status";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         },
 
         oneditprepare: function () {

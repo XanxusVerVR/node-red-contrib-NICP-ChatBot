@@ -3,6 +3,9 @@
         category: "FCF",
         color: "#A6BBCF",
         defaults: {
+            name: {
+                value: ""
+            },
             agentCredentials: {
                 value: "",
                 type: "FCF-DialogflowConfig",
@@ -22,7 +25,13 @@
         paletteLabel: "Dispatcher",
         icon: "template.png",
         label: function () {
-            return "Dispatcher";
+            let labelName = "Dispatcher";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         },
         oneditprepare: function () {//在現在這個狀態，要做的事情。oneditprepare官方說明請見http://bit.ly/2uHbmAZ
             let node = this;
@@ -94,6 +103,11 @@
 </script>
 
 <script type="text/x-red" data-template-name="FCF-Dispatcher">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
     <div class="form-row">
         <label for="node-input-agentCredentials" style="width:100%;"><i class="icon-bookmark"></i>Dialogflow Agent Credentials：</label>
         <input type="text" id="node-input-agentCredentials" placeholder="Agent">

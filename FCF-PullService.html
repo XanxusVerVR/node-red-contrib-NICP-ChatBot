@@ -3,6 +3,9 @@
         category: "FCF",
         color: "#E7E7AE",
         defaults: {
+            name: {
+                value: ""
+            },
             rules: {
                 value: [{
                     topic: ""
@@ -20,12 +23,23 @@
         paletteLabel: "Pull Service",
         icon: "bridge-dash.png",
         label: function () {
-            return "Pull Service";
+            let labelName = "Pull Service";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         }
     });
 </script>
 
 <script type="text/x-red" data-template-name="FCF-PullService">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
     <div class="form-row">
         <label for="node-input-URL"><i class="icon-tag"></i>Service URL</label>
         <input type="text" id="node-input-URL">

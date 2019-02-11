@@ -3,6 +3,9 @@
         category: "FCF",
         color: "#FDF0C2",
         defaults: {
+            name: {
+                value: ""
+            },
             rules: {
                 value: [{
                     messageContent: "",
@@ -21,7 +24,13 @@
         paletteLabel: "Data Collection",
         icon: "db.png",
         label: function () {
-            return "Data Collection";
+            let labelName = "Data Collection";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         },
         oneditsave: function () {
             var rules = $("#node-input-rule-container").editableList("items");
@@ -98,6 +107,11 @@
 
 <script type="text/x-red" data-template-name="FCF-DataCollection">
     <div class="form-row">
+        <!-- 節點名稱 -->
+		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
         <label for="node-input-collect">
             <i class="fa fa-tasks"></i> Data Type</span>
         </label>
@@ -107,8 +121,7 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-name" style="width:100%;">
-            <i class="fa fa-tag"></i> Message Content and Variable Name：</label>
+        <i class="fa-th-list"></i> Message Content and Variable Name：</label>
     </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>

@@ -3,6 +3,9 @@
         category: "FCF",
         color: "#E7E7AE",
         defaults: {
+            name: {
+                value: ""
+            },
             url: {
                 value: ""
             },
@@ -15,12 +18,23 @@
         paletteLabel: "Push Service",
         icon: "bridge.png",
         label: function () {
-            return "Push Service";
+            let labelName = "Push Service";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         }
     });
 </script>
 
 <script type="text/x-red" data-template-name="FCF-PushService">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
     <div class="form-row">
         <label for="node-input-url"><i class="icon-tag"></i>Service URL</label>
         <input type="text" id="node-input-url" placeholder="/url">

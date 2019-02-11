@@ -24,7 +24,13 @@
         paletteLabel: "Message",
         icon: "envelope.png",
         label: function () {
-            return this.name || "Message";
+            let labelName = "Message";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         },
         oneditsave: function () {
             let messages = $("#node-input-message-container").editableList("items");
@@ -73,6 +79,7 @@
 
 <script type="text/x-red" data-template-name="FCF-Message">
     <div class="form-row">
+        <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
