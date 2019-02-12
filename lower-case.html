@@ -11,17 +11,11 @@
 			},
 			name2: {
 				value: ""
-			},
-			inputs: {
-				value: 1
-			},
-			outputs: {
-				value: 1
-			},
-			server: {//設置config節點至這裡的屬性
-				value: "",
-				type: "remote-server"//remote-server為那個config節點的名稱
-			},
+			}
+		},
+		credentials: {//要用credential的話要在這額外新增一個credentials屬性
+			username: { type: "text" },
+			password: { type: "password" }
 		},
 		//一開始是幾個輸入
 		inputs: 1,
@@ -114,15 +108,19 @@
 		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
 	</div>
-	<!-- 自定義的表單，用來當作測試時新定義的屬性 -->
+	<!-- 自定義的name2表單，用來當作測試時新定義的屬性 -->
 	<div class="form-row">
 		<label for="node-input-name2"><i class="icon-tag"></i> Name2 Xanxus Xanxus</label>
 		<input type="text" id="node-input-name2" placeholder="Name2">
 	</div>
-	<!-- 自定義config節點的表單 -->
+	<!-- 自定義的credentials表單，注意id一樣是node-input-開頭-->
 	<div class="form-row">
-		<label for="node-input-server"><i class="icon-tag"></i> server</label>
-		<input type="text" id="node-input-server" placeholder="server">
+		<label for="node-input-username"><i class="icon-tag"></i> Username</label>
+		<input type="text" id="node-input-username">
+	</div>
+	<div class="form-row">
+		<label for="node-input-password"><i class="icon-tag"></i> Password</label>
+		<input type="password" id="node-input-password">
 	</div>
 	<div class="form-row" style="margin-bottom:0;">
 		<label><i class="fa fa-list"></i> <span data-i18n="change.label.rules"></   ></label>
