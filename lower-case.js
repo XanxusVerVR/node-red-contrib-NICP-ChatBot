@@ -9,11 +9,14 @@ module.exports = function (RED) {
         this.name = config.name || "To Lower Case";//當config的name沒定義時，值就是To Lower Case，這樣this的name永遠都會存在了，而且都有值
         this.name2 = config.name2;
 
+        this.myCredentials = RED.nodes.getNode(config.myCredentials);//取得credentials物件
+
         let node = this;
 
-        if (this.credentials) {
-            console.log(this.credentials.username);//存取credential的屬性
-            console.log(this.credentials.password);
+        //myCredentials是在Lower Case節點的html定義的，還要再透過一層credentials才能拿到值
+        if (this.myCredentials) {
+            console.log(this.myCredentials.credentials.username);//存取credential屬性
+            console.log(this.myCredentials.credentials.password);
         }
         else {
             console.log("credentials不存在");

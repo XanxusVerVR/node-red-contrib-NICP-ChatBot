@@ -11,11 +11,12 @@
 			},
 			name2: {
 				value: ""
+			},
+			myCredentials: {
+				value: "",
+				type: "config-credential-node",
+				required: true
 			}
-		},
-		credentials: {//要用credential的話要在這額外新增一個credentials屬性
-			username: { type: "text" },
-			password: { type: "password" }
 		},
 		//一開始是幾個輸入
 		inputs: 1,
@@ -113,15 +114,11 @@
 		<label for="node-input-name2"><i class="icon-tag"></i> Name2 Xanxus Xanxus</label>
 		<input type="text" id="node-input-name2" placeholder="Name2">
 	</div>
-	<!-- 自定義的credentials表單，注意id一樣是node-input-開頭-->
+	<!-- 這裡要放置一個input表單來當設置Credentials資料的進入點 -->
 	<div class="form-row">
-		<label for="node-input-username"><i class="icon-tag"></i> Username</label>
-		<input type="text" id="node-input-username">
-	</div>
-	<div class="form-row">
-		<label for="node-input-password"><i class="icon-tag"></i> Password</label>
-		<input type="password" id="node-input-password">
-	</div>
+        <label for="node-input-myCredentials" style="width:100%;"><i class="icon-bookmark"></i>My Credentials</label>
+        <input type="text" id="node-input-myCredentials">
+    </div>
 	<div class="form-row" style="margin-bottom:0;">
 		<label><i class="fa fa-list"></i> <span data-i18n="change.label.rules"></   ></label>
 	</div>
