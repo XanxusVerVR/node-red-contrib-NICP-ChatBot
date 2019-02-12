@@ -8,9 +8,17 @@ module.exports = function (RED) {
         //故this config node物件的參考可能用以下程式碼設置:
         this.name = config.name || "To Lower Case";//當config的name沒定義時，值就是To Lower Case，這樣this的name永遠都會存在了，而且都有值
         this.name2 = config.name2;
+        this.server = RED.nodes.getNode(config.server);//取得在config節點設置的物件資料
 
         let node = this;
 
+        if (node.server) {
+            console.log(node.server.host);
+            console.log(node.server.port);
+        }
+        else {
+
+        }
         node.on("input", function (msg) {
             msg.payload = msg.payload.toLowerCase();
             node.send(msg);

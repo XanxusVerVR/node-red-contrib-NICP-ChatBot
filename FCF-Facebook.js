@@ -161,7 +161,7 @@ module.exports = function (RED) {
                     console.log("");
                     // mount endpoints on local express
                     this.bot.expressMiddleware(RED.httpNode);
-
+                    //觸發點疑似在 lib/facebook/messenger-bot.js
                     this.bot.on("message", this.handleMessage);
                     this.bot.on("postback", this.handleMessage);
                     this.bot.on("account_linking", this.handleMessage);

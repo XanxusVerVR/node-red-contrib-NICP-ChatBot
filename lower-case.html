@@ -17,7 +17,11 @@
 			},
 			outputs: {
 				value: 1
-			}
+			},
+			server: {//設置config節點至這裡的屬性
+				value: "",
+				type: "remote-server"//remote-server為那個config節點的名稱
+			},
 		},
 		//一開始是幾個輸入
 		inputs: 1,
@@ -115,14 +119,11 @@
 		<label for="node-input-name2"><i class="icon-tag"></i> Name2 Xanxus Xanxus</label>
 		<input type="text" id="node-input-name2" placeholder="Name2">
 	</div>
-	<!-- <div class="form-row">
-		<label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="function.label.outputs"></span></label>
-		<input id="node-input-outputs" style="width: 60px;" value="1">
-	</div>
+	<!-- 自定義config節點的表單 -->
 	<div class="form-row">
-		<label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="function.label.inputs">Inputs</span></label>
-		<input id="node-input-inputs" style="width: 60px;" value="1">
-	</div> -->
+		<label for="node-input-server"><i class="icon-tag"></i> server</label>
+		<input type="text" id="node-input-server" placeholder="server">
+	</div>
 	<div class="form-row" style="margin-bottom:0;">
 		<label><i class="fa fa-list"></i> <span data-i18n="change.label.rules"></   ></label>
 	</div>
