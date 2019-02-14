@@ -9,12 +9,18 @@
 			format: {
 				value: "handlebars"
 			},
+			format2: {
+				value: "handlebars"
+			},
 			template: {
 				value: "This is the payload: {{payload}} !"
 			},
+			template2: {
+				value: "This is template2: {{payload}} !"
+			},
 			message: {
-                value: [""]
-            }
+				value: [""]
+			}
 		},
 		inputs: 1,
 		outputs: 1,
@@ -24,22 +30,123 @@
 		},
 		oneditprepare: function () {
 
-			let node = this;
+			function resizeRule(rule) {
+				let newWidth = rule.width();
+				rule.find(".red-ui-typedInput").typedInput("width", newWidth - 240);
+			}
+
+
 
 			this.editor = RED.editor.createEditor({
 				id: "node-input-template-editor",
 				mode: "ace/mode/html",
 				value: $("#node-input-template").val()//印出This is the payload: {{payload}} !
 			});
+			// this.editor.focus();
+			console.log(this.editor);
 
-			// 少了這個就沒有高亮度了
+			this.editor2 = RED.editor.createEditor({
+				id: "node-input-template-editor2",
+				mode: "ace/mode/html",
+				value: $("#node-input-template2").val()//印出This is the payload: {{payload}} !
+			});
+
+			console.log(this.editor2);
+
+			let node = this;
+
 			$("#node-input-format").change(function () {
+				console.log($("#node-input-format").val());
 				let mod = "ace/mode/" + $("#node-input-format").val();
 				node.editor.getSession().setMode({
 					path: mod,
 					v: Date.now()
 				});
 			});
+
+			$("#node-input-format2").change(function () {
+				console.log($("#node-input-format2").val());
+				let mod2 = "ace/mode/" + $("#node-input-format2").val();
+				node.editor2.getSession().setMode({
+					path: mod2,
+					v: Date.now()
+				});
+			});
+			// if (!this.message) {
+			// 	this.message = [];
+			// 	this.message.push("123");
+			// }
+
+
+			// $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+			// 	addItem: function (container, i, opt) {
+			// 		container.css({
+			// 			overflow: "hidden",
+			// 			whiteSpace: "nowrap"
+			// 		});
+			// 		let row1 = $("<div/>").appendTo(container);
+
+			// 		let htmlTagString = `<div class="form-row" style="position: relative; margin-bottom: 0px;">
+			// 			<label for="node-input-template"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
+			// 			<input type="hidden" id="node-input-template" autofocus="autofocus">
+			// 			<div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
+			// 				<span>Syntax Highlight</span>:
+			// 				<select id="node-input-format" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
+			// 					<option value="handlebars">mustache</option>
+			// 					<option value="html">HTML</option>
+			// 					<option value="json">JSON</option>
+			// 					<option value="javascript">Javascript</option>
+			// 					<option value="css">CSS</option>
+			// 					<option value="markdown">Markdown</option>
+			// 					<option value="yaml">YAML</option>
+			// 					<option value="text">Text</option>
+			// 				</select>
+			// 			</div>
+			// 		</div>
+			// 		<!-- 沒有這個div會沒有文字輸入區塊 -->
+			// 		<div class="form-row node-text-editor-row">
+			// 			<div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor" ></div>
+			// 		</div>`;
+			// 		let parsedHtmlObject = $.parseHTML(htmlTagString);
+			// 		$(parsedHtmlObject).appendTo(row1);
+
+			// 		//沒有這幾行就不能打字
+			// 		this.editor = RED.editor.createEditor({
+			// 			// id: "node-input-template-editor",
+			// 			class: "node-text-editor",
+			// 			mode: "ace/mode/html",
+			// 			value: "This is the payload: {{payload}}"//印出This is the payload: {{payload}} !
+			// 		});
+
+			// 		// 少了這個就沒有高亮度了
+			// 		// $("#node-input-format").change(function () {
+			// 		// 	let mod = "ace/mode/" + $("#node-input-format").val();
+			// 		// 	node.editor.getSession().setMode({
+			// 		// 		// path: mod,
+			// 		// 		path: "handlebars",
+			// 		// 		v: Date.now()
+			// 		// 	});
+			// 		// });
+			// 		let mod = "ace/mode/" + "handlebars";
+			// 		this.editor.getSession().setMode({
+			// 			path: mod,
+			// 			// path: "handlebars",
+			// 			v: Date.now()
+			// 		});
+
+			// 		let newWidth = $("#node-input-rule-container").width();
+			// 		resizeRule(container);
+			// 	},
+			// 	resizeItem: resizeRule,
+			// 	removable: true,
+			// 	sortable: true
+			// });
+
+
+			// for (let i = 0; i < this.message.length; i++) {
+			// 	let theMessage = this.message[i];
+			// 	$("#node-input-rule-container").editableList("addItem", theMessage);
+			// }
 		},
 		oneditsave: function () {
 			$("#node-input-template").val(this.editor.getValue());
@@ -60,6 +167,16 @@
 			height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
 			$(".node-text-editor").css("height", height + "px");
 			this.editor.resize();
+
+			let rowsFromTransformation = $("#dialog-form>div:not(.node-input-rule-container-row)");
+			let height2 = size.height;
+			for (let i = 0; i < rowsFromTransformation.size(); i++) {
+				height2 -= $(rowsFromTransformation[i]).outerHeight(true);
+			}
+			let editorRow2 = $("#dialog-form>div.node-input-rule-container-row");
+			height2 -= (parseInt(editorRow2.css("marginTop")) + parseInt(editorRow2.css("marginBottom")));
+
+			$("#node-input-rule-container").editableList("height2", height2);
 		}
 	});
 </script>
@@ -68,10 +185,10 @@
 <script type="text/x-red" data-template-name="lower-case">
 
     <div class="form-row" style="position: relative; margin-bottom: 0px;">
-        <label for="node-input-template"><i class="fa fa-file-code-o"></i> <span data-i18n="template.label.template"></span></label>
+        <label for="node-input-template"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
         <input type="hidden" id="node-input-template" autofocus="autofocus">
         <div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
-            <span data-i18n="template.label.format"></span>:
+            <span>Syntax Highlight</span>:
             <select id="node-input-format" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
                 <option value="handlebars">mustache</option>
                 <option value="html">HTML</option>
@@ -80,14 +197,41 @@
                 <option value="css">CSS</option>
                 <option value="markdown">Markdown</option>
                 <option value="yaml">YAML</option>
-                <option value="text" data-i18n="template.label.none"></option>
+                <option value="text">Text</option>
             </select>
         </div>
-    </div>
+	</div>
+	<!-- 沒有這個div會沒有文字輸入區塊 -->
     <div class="form-row node-text-editor-row">
         <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor" ></div>
-    </div>
+	</div>
 
+	<div class="form-row" style="position: relative; margin-bottom: 0px;">
+        <label for="node-input-template2"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
+        <input type="hidden" id="node-input-template2" autofocus="autofocus">
+        <div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
+            <span>Syntax Highlight</span>:
+            <select id="node-input-format2" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
+                <option value="handlebars">mustache</option>
+                <option value="html">HTML</option>
+                <option value="json">JSON</option>
+                <option value="javascript">Javascript</option>
+                <option value="css">CSS</option>
+                <option value="markdown">Markdown</option>
+                <option value="yaml">YAML</option>
+                <option value="text">Text</option>
+            </select>
+        </div>
+	</div>
+	<!-- 沒有這個div會沒有文字輸入區塊 -->
+    <div class="form-row node-text-editor-row">
+        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor2" ></div>
+	</div>
+
+	<!-- item容器的表單 -->
+	<!-- <div class="form-row node-input-rule-container-row">
+        <ol id="node-input-rule-container"></ol>
+    </div> -->
 </script>
 
 <!-- 定義節點的右邊資訊欄的輔助說明文字 -->
