@@ -12,7 +12,7 @@ module.exports = function (RED) {
         let node = this;
 
         node.on("input", function (msg) {
-            console.log(node.templateString);
+            console.log(config);
             // msg.payload = msg.payload.toLowerCase();
             node.send(msg);
         });
