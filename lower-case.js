@@ -7,34 +7,16 @@ module.exports = function (RED) {
         //而this的話，如使用者沒有定義name，則this將不存在name屬性，但只要有定義，就會跑出name屬性
         //故this config node物件的參考可能用以下程式碼設置:
         this.name = config.name || "To Lower Case";//當config的name沒定義時，值就是To Lower Case，這樣this的name永遠都會存在了，而且都有值
-        this.name2 = config.name2;
-
-        this.myCredentials = RED.nodes.getNode(config.myCredentials);//取得credentials物件
+        this.templateString = config.template;//template是存訊息的字串
 
         let node = this;
 
-        //myCredentials是在Lower Case節點的html定義的，還要再透過一層credentials才能拿到值
-        if (this.myCredentials) {
-            console.log(this.myCredentials.credentials.username);//存取credential屬性
-            console.log(this.myCredentials.credentials.password);
-        }
-        else {
-            console.log("credentials不存在");
-        }
         node.on("input", function (msg) {
-            msg.payload = msg.payload.toLowerCase();
+            console.log(node.templateString);
+            // msg.payload = msg.payload.toLowerCase();
             node.send(msg);
         });
 
     }
-    RED.nodes.registerType("lower-case", LowerCaseNode, {
-        credentials: {//這裡也要定義credentials物件
-            username: {
-                type: "text"
-            },
-            password: {
-                type: "password"
-            }
-        }
-    });
+    RED.nodes.registerType("lower-case", LowerCaseNode);
 };
