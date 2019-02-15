@@ -7,7 +7,7 @@ module.exports = function (RED) {
         //而this的話，如使用者沒有定義name，則this將不存在name屬性，但只要有定義，就會跑出name屬性
         //故this config node物件的參考可能用以下程式碼設置:
         this.name = config.name || "To Lower Case";//當config的name沒定義時，值就是To Lower Case，這樣this的name永遠都會存在了，而且都有值
-        this.templateString = config.template;//template是存訊息的字串
+        // this.templateString = config.template;//template是存訊息的字串
 
         let node = this;
 

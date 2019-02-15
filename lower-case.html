@@ -8,9 +8,9 @@
 			},
 			datas: {
 				value: [{
-					a: "str",
-					b: "Xanxus"
-				}]
+					format: "handlebars",
+					template: "This is the payload: {{payload}} !"
+				}]//這兩個屬性和editor物件都要個別創造
 			}
 		},
 		inputs: 1,
@@ -26,64 +26,105 @@
 				return labelName;
 			}
 		},
-
 		oneditprepare: function () {
-			function resizeRule(rule) {//這function不用也可
-				let newWidth = rule.width();
-				rule.find(".red-ui-typedInput").typedInput("width", newWidth - 130);
-			}
-			$("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+			let node = this;
+			$("#node-input-itemDatas-container").css("min-height", "300px").css("min-width", "450px").editableList({
 				addItem: function (container, i, data) {
-					if (!data.hasOwnProperty("a")) {
-						data.a = "str";
-						data.b = "Xanxus";
+					if (!data.hasOwnProperty("format")) {
+						data.format = "handlebars";
+						data.template = "This is the payload: {{payload}} !";
 					}
-					container.css({//這行不用也可
-						overflow: "hidden"
-						// whiteSpace: "nowrap"//設定是否換行
+					let htmlTagString = `
+						<div class="form-row" style="position: relative; margin-bottom: 0px;">
+							<label for="node-input-template"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
+								<!-- 模板字串存在這裡 -->
+							<input type="hidden" id="node-input-template${i}" autofocus="autofocus">
+								<!-- 模板字串該用什麼格式來顯示 -->
+							<div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
+								<span>Syntax Highlight</span>:
+								<select id="node-input-format${i}" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
+								<option value="handlebars">mustache</option>
+								<option value="html">HTML</option>
+								<option value="json">JSON</option>
+								<option value="javascript">Javascript</option>
+								<option value="css">CSS</option>
+								<option value="markdown">Markdown</option>
+								<option value="yaml">YAML</option>
+								<option value="text">Text</option>
+								</select>
+							</div>
+						</div>
+							<!-- 沒有這個div會沒有文字輸入區塊 -->
+						<div class="form-row node-text-editor-row"><!--  這個node-text-editor-row只有oneditresize用得到 -->
+							<div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor${i}" ></div>
+						</div>
+					`;
+					let parsedHtmlObject = $.parseHTML(htmlTagString);//將這段html字串轉成真的html物件
+					$(parsedHtmlObject).appendTo(container);//將此html元素物件加到item中
+
+					if (!$(`#node-input-template${i}`).val()) {
+						$(`#node-input-template${i}`).val(data.template);
+					}
+
+					let editorDivIdString = `editor${i}`;//editor0,editor1
+
+					node[editorDivIdString] = RED.editor.createEditor({
+						id: `node-input-template-editor${i}`,
+						mode: "ace/mode/html",
+						value: $(`#node-input-template${i}`).val()//印出This is the payload: {{payload}} !
 					});
-					// let row1 = $("<div/>").appendTo(container);
-					let propertyValue = $("<input/>", { class: "node-input-xanxusInput", type: "text", value: data.a })
-						.appendTo(container);
-					let propertyValue2 = $("<input/>", { class: "node-input-xanxusInput2", type: "text", value: data.b })
-						.appendTo(container);
-					propertyValue.val(data.a);
-					propertyValue2.val(data.b);
-					resizeRule(container);//這行不用也可
+
+					//讓模板字串輸入表單一開始就有高亮度，所以要直接呼叫設值
+					(function initEditorHighLight(node) {
+						let mod = "ace/mode/" + $(`#node-input-format${i}`).val();
+						node[editorDivIdString].getSession().setMode({
+							path: mod,
+							v: Date.now()
+						});
+					}(node));
+
+					$(`#node-input-format${i}`).change(function () {
+						let mod = "ace/mode/" + $(`#node-input-format${i}`).val();
+						node[editorDivIdString].getSession().setMode({
+							path: mod,
+							v: Date.now()
+						});
+					});
+
+					$(`#node-input-format${i}`).val(data.format);//這樣子有把值放進來了
 				},
-				resizeItem: resizeRule,//這行不用也可
 				removable: true,
 				sortable: true
-			})
+			});
+
 			for (let i = 0; i < this.datas.length; i++) {
 				let data = this.datas[i];
-				$("#node-input-rule-container").editableList("addItem", data);
+				$("#node-input-itemDatas-container").editableList("addItem", data);
 			}
 		},
 		oneditsave: function () {
-			let datas = $("#node-input-rule-container").editableList("items");
+			let datas = $("#node-input-itemDatas-container").editableList("items");
 			let node = this;
 			node.datas = [];
 			datas.each(function (i) {
 				let data = $(this);
-				let r = {
-					a: data.find(".node-input-xanxusInput").val(),
-					b: data.find(".node-input-xanxusInput2").val()
+				let editorDivIdString = `editor${i}`;//editor0,editor1
+				let d = {
+					format: data.find(`#node-input-format${i}`).val(),
+					template: node[editorDivIdString].getValue()
 				};
-				node.datas.push(r);
+				node.datas.push(d);
 			});
 		},
-		//裡面不用程式碼item也可以動
 		oneditresize: function (size) {
-			let rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
+			let rows = $("#dialog-form>div:not(.node-input-itemDatas-container-row)");
 			let height = size.height;
 			for (let i = 0; i < rows.size(); i++) {
 				height -= $(rows[i]).outerHeight(true);
 			}
-			let editorRow = $("#dialog-form>div.node-input-rule-container-row");
+			let editorRow = $("#dialog-form>div.node-input-itemDatas-container-row");
 			height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
-
-			$("#node-input-rule-container").editableList("height", height);
+			$("#node-input-itemDatas-container").editableList("height", height);
 		}
 	});
 </script>
@@ -97,63 +138,9 @@
     </div>
 
 	<!-- 定義裝表單項目的容器? -->
-	<div class="form-row node-input-rule-container-row">
-		<ol id="node-input-rule-container"></ol>
+	<div class="form-row node-input-itemDatas-container-row">
+		<ol id="node-input-itemDatas-container"></ol>
 	</div>
-
-
-
-
-
-    <!-- <div class="form-row" style="position: relative; margin-bottom: 0px;">
-        <label for="node-input-template"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
-        <input type="hidden" id="node-input-template" autofocus="autofocus">
-        <div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
-            <span>Syntax Highlight</span>:
-            <select id="node-input-format" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
-                <option value="handlebars">mustache</option>
-                <option value="html">HTML</option>
-                <option value="json">JSON</option>
-                <option value="javascript">Javascript</option>
-                <option value="css">CSS</option>
-                <option value="markdown">Markdown</option>
-                <option value="yaml">YAML</option>
-                <option value="text">Text</option>
-            </select>
-        </div>
-	</div> -->
-	<!-- 沒有這個div會沒有文字輸入區塊 -->
-    <!-- <div class="form-row node-text-editor-row">
-        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor" ></div>
-	</div> -->
-
-
-
-
-
-	<!-- <div class="form-row" style="position: relative; margin-bottom: 0px;">
-        <label for="node-input-template2"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
-        <input type="hidden" id="node-input-template2" autofocus="autofocus">
-        <div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
-            <span>Syntax Highlight</span>:
-            <select id="node-input-format2" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
-                <option value="handlebars">mustache</option>
-                <option value="html">HTML</option>
-                <option value="json">JSON</option>
-                <option value="javascript">Javascript</option>
-                <option value="css">CSS</option>
-                <option value="markdown">Markdown</option>
-                <option value="yaml">YAML</option>
-                <option value="text">Text</option>
-            </select>
-        </div>
-	</div> -->
-	<!-- 沒有這個div會沒有文字輸入區塊 -->
-    <!-- <div class="form-row node-text-editor-row">
-        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor2" ></div>
-	</div> -->
-
-	<!-- item容器的表單 -->
 </script>
 
 <!-- 定義節點的右邊資訊欄的輔助說明文字 -->
