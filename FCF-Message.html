@@ -6,9 +6,6 @@
             name: {
                 value: ""
             },
-            message: {
-                value: [""]
-            },
             answer: {
                 value: false
             },
@@ -17,6 +14,12 @@
             },
             parse_mode: {
                 value: ""
+            },
+            message: {
+                value: [{
+                    format: "handlebars",
+                    template: "This is the payload: {{payload}} !"
+                }]
             }
         },
         inputs: 1,
@@ -32,63 +35,124 @@
                 return labelName;
             }
         },
-        oneditsave: function () {
-            let messages = $("#node-input-message-container").editableList("items");
-            let node = this;
-            node.message = [];
-
-            let idx;
-            for (idx = 0; idx < messages.length; idx++) {
-                node.message.push({
-                    message: messages[idx].find("textarea").val()
-                });
-            }
-        },
-
         oneditprepare: function () {
-            $("#node-input-message-container").css("min-height", "300px").css("min-width", "450px").editableList({
-                addButton: "Add",
-                addItem: function (container, i, item) {
-                    let row = $("<div/>").appendTo(container);
-                    let content = "";
-                    if (typeof item == "string") {
-                        content = item;
-                    } else if (item.message != null) {
-                        content = item.message;
+            let node = this;
+            $("#node-input-itemDatas-container").css("min-height", "300px").css("min-width", "450px").editableList({
+                addItem: function (container, i, data) {
+                    if (!data.hasOwnProperty("format")) {
+                        data.format = "handlebars";
+                        data.template = "This is the payload: {{payload}} !";
                     }
-                    $(`<textarea placeholder="Message Content">${content}</textarea>`).css({
-                        width: "93%",
-                        height: "100px"
-                    }).appendTo(row);
+                    let htmlTagString = `
+						<div class="form-row" style="position: relative; margin-bottom: 0px;">
+							<label for="node-input-template"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
+								<!-- 模板字串存在這裡 -->
+							<input type="hidden" id="node-input-template${i}" autofocus="autofocus">
+								<!-- 模板字串該用什麼格式來顯示 -->
+							<div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
+								<span>Syntax Highlight</span>:
+								<select id="node-input-format${i}" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
+								<option value="handlebars">mustache</option>
+								<option value="html">HTML</option>
+								<option value="json">JSON</option>
+								<option value="javascript">Javascript</option>
+								<option value="css">CSS</option>
+								<option value="markdown">Markdown</option>
+								<option value="yaml">YAML</option>
+								<option value="text">Text</option>
+								</select>
+							</div>
+						</div>
+							<!-- 沒有這個div會沒有文字輸入區塊 -->
+						<div class="form-row node-text-editor-row"><!--  這個node-text-editor-row只有oneditresize用得到 -->
+							<div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor${i}" ></div>
+						</div>
+					`;
+                    let parsedHtmlObject = $.parseHTML(htmlTagString);//將這段html字串轉成真的html物件
+                    $(parsedHtmlObject).appendTo(container);//將此html元素物件加到item中
+
+
+
+                    if (!$(`#node-input-template${i}`).val()) {
+                        $(`#node-input-template${i}`).val(data.template);
+                    }
+
+                    let editorDivIdString = `editor${i}`;//editor0,editor1
+
+                    node[editorDivIdString] = RED.editor.createEditor({
+                        id: `node-input-template-editor${i}`,
+                        mode: "ace/mode/html",
+                        value: $(`#node-input-template${i}`).val()//印出This is the payload: {{payload}} !
+                    });
+
+                    //讓模板字串輸入表單一開始就有高亮度，所以要直接呼叫設值
+                    (function initEditorHighLight(node) {
+                        let mod = "ace/mode/" + data.format;
+                        node[editorDivIdString].getSession().setMode({
+                            path: mod,
+                            v: Date.now()
+                        });
+                    }(node));
+
+                    $(`#node-input-format${i}`).change(function () {
+                        let mod = "ace/mode/" + $(`#node-input-format${i}`).val();
+                        node[editorDivIdString].getSession().setMode({
+                            path: mod,
+                            v: Date.now()
+                        });
+                    });
+
+                    $(`#node-input-format${i}`).val(data.format);//這樣子有把值放進來了
                 },
                 removable: true,
                 sortable: true
             });
 
-            let message = this.message;
-            if (typeof message == "string") {
-                message = [message];
+            for (let i = 0; i < this.message.length; i++) {
+                let data = this.message[i];
+                $("#node-input-itemDatas-container").editableList("addItem", data);
             }
-            let idx;
-            for (idx = 0; idx < message.length; idx++) {
-                $("#node-input-message-container").editableList("addItem", message[idx]);
+        },
+        oneditsave: function () {
+            let message = $("#node-input-itemDatas-container").editableList("items");
+            let node = this;
+            node.message = [];
+            message.each(function (i) {
+                let data = $(this);
+                let editorDivIdString = `editor${i}`;//editor0,editor1
+                let d = {
+                    format: data.find(`#node-input-format${i}`).val(),
+                    template: node[editorDivIdString].getValue()
+                };
+                node.message.push(d);
+            });
+        },
+        oneditresize: function (size) {
+            let rows = $("#dialog-form>div:not(.node-input-itemDatas-container-row)");
+            let height = size.height;
+            for (let i = 0; i < rows.size(); i++) {
+                height -= $(rows[i]).outerHeight(true);
             }
+            let editorRow = $("#dialog-form>div.node-input-itemDatas-container-row");
+            height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+            $("#node-input-itemDatas-container").editableList("height", height);
         }
     });
 </script>
 
 <script type="text/x-red" data-template-name="FCF-Message">
-    <div class="form-row">
-        <!-- 節點名稱 -->
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+    <!-- 節點名稱 -->
+	<div class="form-row">
+		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <div class="form-row node-input-rule-container-row">
-        <ol id="node-input-message-container"></ol>
-    <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;clear:both;margin-top:5px;">
-    </div>
-    </div>
+
+	<!-- 定義裝表單項目的容器? -->
+	<div class="form-row node-input-itemDatas-container-row">
+		<ol id="node-input-itemDatas-container"></ol>
+	</div>
 </script>
+
 <script type="text/x-red" data-help-name="FCF-Message">
 
     <p>用來設置、定義要傳送給使用者的純文字訊息。</p>
