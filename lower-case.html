@@ -1,149 +1,80 @@
 <script type="text/javascript">
-    RED.nodes.registerType("lower-case", {
-        category: "input",
-        color: "#BBFF66",
-        defaults: {
-            name: {
-                value: ""
-            },
-            datas: {
-                value: [{
-                    format: "handlebars",
-                    template: "This is the payload: {{payload}} !"
-                }]//這兩個屬性和editor物件都要個別創造
-            }
-        },
-        inputs: 1,
-        outputs: 1,
-        paletteLabel: "lower-case",
-        icon: "file.png",
-        label: function () {
-            let labelName = "Lower Case";
-            if (this.name) {
-                return `${labelName} : ${this.name}`;
-            }
-            else {
-                return labelName;
-            }
-        },
-        oneditprepare: function () {
-            let node = this;
-            $("#node-input-itemDatas-container").css("min-height", "300px").css("min-width", "450px").editableList({
-                addItem: function (container, i, data) {
-                    if (!data.hasOwnProperty("format")) {
-                        data.format = "handlebars";
-                        data.template = "This is the payload: {{payload}} !";
-                    }
-                    let htmlTagString = `
-                        <div class="form-row" style="position: relative; margin-bottom: 0px;">
-                        <label for="node-input-template"><i class="fa fa-file-code-o"></i> <span>Template</span></label>
-                            <!-- 模板字串存在這裡 -->
-                        <input type="hidden" id="node-input-template${i}" autofocus="autofocus">
-                            <!-- 模板字串該用什麼格式來顯示 -->
-                        <div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
-                            <span>Syntax Highlight</span>:
-                            <select id="node-input-format${i}" style="width:110px; font-size: 10px !important;  height: 24px; padding:0;">
-                            <option value="handlebars">mustache</option>
-                            <option value="html">HTML</option>
-                            <option value="json">JSON</option>
-                            <option value="javascript">Javascript</option>
-                            <option value="css">CSS</option>
-                            <option value="markdown">Markdown</option>
-                            <option value="yaml">YAML</option>
-                            <option value="text">Text</option>
-                            </select>
-                        </div>
-                        </div>
-                        <!-- 沒有這個div會沒有文字輸入區塊 -->
-                        <div class="form-row node-text-editor-row"><!--  這個node-text-editor-row只有oneditresize用得到 -->
-                        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor${i}" ></div>
-                        </div>
-                    `;
-                    let parsedHtmlObject = $.parseHTML(htmlTagString);//將這段html字串轉成真的html物件
-                    $(parsedHtmlObject).appendTo(container);//將此html元素物件加到item中
-
-                    if (!$(`#node-input-template${i}`).val()) {
-                        $(`#node-input-template${i}`).val(data.template);
-                    }
-
-                    let editorDivIdString = `editor${i}`;//editor0,editor1
-
-                    node[editorDivIdString] = RED.editor.createEditor({
-                        id: `node-input-template-editor${i}`,
-                        mode: "ace/mode/html",
-                        value: $(`#node-input-template${i}`).val()//印出This is the payload: {{payload}} !
-                    });
-
-                    //讓模板字串輸入表單一開始就有高亮度，所以要直接呼叫設值
-                    (function initEditorHighLight(node) {
-                        let mod = "ace/mode/" + $(`#node-input-format${i}`).val();
-                        node[editorDivIdString].getSession().setMode({
-                            path: mod,
-                            v: Date.now()
-                        });
-                    }(node));
-
-                    $(`#node-input-format${i}`).change(function () {
-                        let mod = "ace/mode/" + $(`#node-input-format${i}`).val();
-                        node[editorDivIdString].getSession().setMode({
-                            path: mod,
-                            v: Date.now()
-                        });
-                    });
-
-                    $(`#node-input-format${i}`).val(data.format);//這樣子有把值放進來了
-                },
-                removable: true,
-                sortable: true
-            });
-
-            for (let i = 0; i < this.datas.length; i++) {
-                let data = this.datas[i];
-                $("#node-input-itemDatas-container").editableList("addItem", data);
-            }
-        },
-        oneditsave: function () {
-            let datas = $("#node-input-itemDatas-container").editableList("items");
-            let node = this;
-            node.datas = [];
-            datas.each(function (i) {
-                let data = $(this);
-                let editorDivIdString = `editor${i}`;//editor0,editor1
-                let d = {
-                    format: data.find(`#node-input-format${i}`).val(),
-                    template: node[editorDivIdString].getValue()
-                };
-                node.datas.push(d);
-            });
-        },
-        oneditresize: function (size) {
-            let rows = $("#dialog-form>div:not(.node-input-itemDatas-container-row)");
-            let height = size.height;
-            for (let i = 0; i < rows.size(); i++) {
-                height -= $(rows[i]).outerHeight(true);
-            }
-            let editorRow = $("#dialog-form>div.node-input-itemDatas-container-row");
-            height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
-            $("#node-input-itemDatas-container").editableList("height", height);
-        }
-    });
+	RED.nodes.registerType("lower-case", {
+		//定義此節點要在NodeRED編輯器左邊的哪個分類之中，所以這裡定義他要在function分類中
+		category: "function",
+		color: "#a6bbcf",
+		//定義預設值，當拉出節點時會顯示設值
+		defaults: {
+			// 節點於編輯器右邊資訊欄Name欄位所顯示的字串
+			name: {
+				value: ""
+			},
+			name2:{
+				value: ""
+			},
+			inputs: {
+				value: 1
+			},
+			outputs: {
+				value: 1
+			}
+		},
+		//一開始是幾個輸入
+		inputs: 1,
+		//一開始是幾個輸出
+		outputs: 1,
+		icon: "file.png",
+		//定義節點拉出來的時候，預設顯示的字串
+		label: function () {
+			return this.name || "lower case";
+		},
+		// 定義節點在左邊時的字串(還沒拉出來的時候)
+		paletteLabel: "Lower Case",
+		// 定義在編輯表單開啟時，要做的事
+		oneditprepare: function () {
+			$("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+				addItem: function (container, i, opt) {
+					let row2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
+					$("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
+						.text(to)
+						.appendTo(row2);
+				}
+			})
+		},
+		// 定義將編輯表單儲存時，要做的事
+		oneditsave: function () {
+		}
+	});
 </script>
 
 <!-- 定義此節點的表單元件 -->
 <script type="text/x-red" data-template-name="lower-case">
-  <!-- 節點名稱 -->
-  <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-    <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-
-  <!-- 定義裝表單項目的容器? -->
-  <div class="form-row node-input-itemDatas-container-row">
-    <ol id="node-input-itemDatas-container"></ol>
-  </div>
+	<div class="form-row">
+		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+	<!-- 自定義的表單，用來當作測試時新定義的屬性 -->
+	<div class="form-row">
+		<label for="node-input-name2"><i class="icon-tag"></i> Name2</label>
+		<input type="text" id="node-input-name2" placeholder="Name2">
+	</div>
+	<!-- <div class="form-row">
+		<label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="function.label.outputs"></span></label>
+		<input id="node-input-outputs" style="width: 60px;" value="1">
+	</div>
+	<div class="form-row">
+		<label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="function.label.inputs">Inputs</span></label>
+		<input id="node-input-inputs" style="width: 60px;" value="1">
+	</div> -->
+	<div class="form-row" style="margin-bottom:0;">
+		<label><i class="fa fa-list"></i> <span data-i18n="change.label.rules"></   ></label>
+	</div>
+	<div class="form-row node-input-rule-container-row">
+		<ol id="node-input-rule-container"></ol>
+	</div>
 </script>
 
 <!-- 定義節點的右邊資訊欄的輔助說明文字 -->
 <script type="text/x-red" data-help-name="lower-case">
-  <p>A simple node that converts the message payloads into all lower-case characters</p>
+	<p>A simple node that converts the message payloads into all lower-case characters</p>
 </script>

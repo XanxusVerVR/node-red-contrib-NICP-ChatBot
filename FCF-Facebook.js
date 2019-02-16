@@ -19,16 +19,15 @@ const grey = clc.blackBright;
 module.exports = function (RED) {
 
     function FacebookBotNode(config) {
-
         RED.nodes.createNode(this, config);
 
+        const node = this;
         this.botname = config.botname;
         this.log = config.log;
+
         this.usernames = [];
-
-        const node = this;
-
         if (config.usernames) {
+
             this.usernames = _(config.usernames.split(",")).chain()
                 .map(function (userId) {
                     return userId.match(/^[a-zA-Z0-9_]+?$/) ? userId : null;
@@ -37,13 +36,12 @@ module.exports = function (RED) {
                 .value();
         }
 
+
         this.handleMessage = function (botMsg) {
 
+
             let facebookBot = node.bot;
-            botMsg.sender.id = node.credentials.targetUserID;
-            // console.log("this.handleMessage:");
-            // console.log(node.credentials.targetUserID);
-            console.log(botMsg.sender);
+
             if (DEBUG) {
                 // eslint-disable-next-line no-console
                 console.log("START:-------");
@@ -70,12 +68,10 @@ module.exports = function (RED) {
             // decode the message, eventually download stuff
             node.getMessageDetails(botMsg, node.bot)
                 .then(function (obj) {
-                    console.log(2);
                     payload = obj;
                     return helpers.getOrFetchProfile(userId, node.bot);
                 })
                 .then(function (profile) {
-                    console.log(3);
                     // store some information
                     chatContext.set("chatId", chatId);
                     chatContext.set("messageId", messageId);
@@ -87,7 +83,6 @@ module.exports = function (RED) {
                     chatContext.set("message", payload.content);
 
                     let chatLog = new ChatLog(chatContext);
-                    //這裡其實是return一個msg物件，return的msg物件從下一個then()進入
                     return chatLog.log({
                         payload: payload,
                         originalMessage: {
@@ -102,21 +97,17 @@ module.exports = function (RED) {
                     }, node.log);
                 })
                 .then(function (msg) {
-                    console.log(4);
+
                     let currentConversationNode = chatContext.get("currentConversationNode");
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     if (currentConversationNode != null) {
-                        console.log(5);
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
                         //使用者第一句話以外的訊息會從這裡觸發，並傳進來
-                        // console.log(msg);
-                        // console.log(currentConversationNode);
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
-                        console.log(6);
                         // 使用者第一句話或訊息會從這裡觸發並接收進來
                         facebookBot.emit("relay", msg);
                     }
@@ -129,7 +120,6 @@ module.exports = function (RED) {
 
 
         if (this.credentials) {
-
             this.token = this.credentials.token;
             this.app_secret = this.credentials.app_secret;
             this.verify_token = this.credentials.verify_token;
@@ -161,7 +151,7 @@ module.exports = function (RED) {
                     console.log("");
                     // mount endpoints on local express
                     this.bot.expressMiddleware(RED.httpNode);
-                    //觸發點疑似在 lib/facebook/messenger-bot.js
+
                     this.bot.on("message", this.handleMessage);
                     this.bot.on("postback", this.handleMessage);
                     this.bot.on("account_linking", this.handleMessage);
@@ -189,15 +179,13 @@ module.exports = function (RED) {
 
         // creates the message details object from the original message
         this.getMessageDetails = function (botMsg) {
-            console.log(7);
             return new Promise(function (resolve, reject) {
-                console.log(8);
+
                 //let userId = botMsg.sender.id;
                 let chatId = botMsg.sender.id;
                 let messageId = botMsg.message != null ? botMsg.message.mid : null;
 
                 if (!_.isEmpty(botMsg.account_linking)) {
-                    console.log(9);
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -211,13 +199,11 @@ module.exports = function (RED) {
                 }
 
                 if (botMsg.message == null) {
-                    console.log(10);
                     reject("Unable to detect inbound message for Facebook");
                 }
 
                 let message = botMsg.message;
                 if (!_.isEmpty(message.quick_reply)) {
-                    console.log(11);
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -228,7 +214,6 @@ module.exports = function (RED) {
                     });
                     return;
                 } else if (!_.isEmpty(message.text)) {
-                    console.log(12);
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -241,7 +226,6 @@ module.exports = function (RED) {
                 }
 
                 if (_.isArray(message.attachments) && !_.isEmpty(message.attachments)) {
-                    console.log(13);
                     let attachment = message.attachments[0];
                     switch (attachment.type) {
                         case "image":
@@ -293,7 +277,6 @@ module.exports = function (RED) {
                             break;
                     }
                 } else {
-                    console.log(14);
                     reject("Unable to detect inbound message for Facebook Messenger");
                 }
             });
@@ -318,9 +301,6 @@ module.exports = function (RED) {
                 type: "text"
             },
             cert_pem: {
-                type: "text"
-            },
-            targetUserID: {
                 type: "text"
             }
         }
@@ -378,7 +358,6 @@ module.exports = function (RED) {
         this.name = config.name || "My Facebook Out Node";
         this.bot = config.bot;
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
-        this.targetUserID = config.targetUserID;
         //這段主要在設置節點顯示的狀態
         this.config = RED.nodes.getNode(this.bot);
 
@@ -438,8 +417,7 @@ module.exports = function (RED) {
                 let type = msg.payload.type;
                 let bot = node.bot;
                 let credentials = node.config.credentials;
-                // console.log(node.targetUserID);
-                // console.log(msg.payload.chatId);
+
                 let reportError = (err) => {
                     if (err) {
                         reject(err);
@@ -522,7 +500,7 @@ module.exports = function (RED) {
 
                     case "message":
                         bot.sendMessage(
-                            node.targetUserID || msg.payload.chatId, {
+                            msg.payload.chatId, {
                                 text: msg.payload.content
                             },
                             reportError
@@ -604,10 +582,7 @@ module.exports = function (RED) {
         // relay message
         //當使用者一說話，就會觸發這個註冊的函式來傳送訊息
         let handler = function (msg) {
-            //使用者說的話(除了第一句)都會從這裡傳到下個節點
-            // console.log(msg);
-            // console.log(node.targetUserID);
-            // console.log(msg.payload.chatId);
+            //使用者說的話(除了第一句)都會從這裡傳出去
             node.send(msg);
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
