@@ -318,7 +318,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input Facebook In節點的資料，且Message節點本身沒有設置模板訊息(自己拉的測試flow)，測試Message節點是某會輸出使用者設置的模板訊息", function (done) {
+    it("input Facebook In節點的資料，測試Message節點是某會輸出使用者設置的模板訊息(沒有插入變數)", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "b2918cce.263e9",
@@ -378,7 +378,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input Facebook In節點的資料，且Message節點本身有設置模板訊息(自己拉的測試flow)", function (done) {
+    it("input Facebook In節點的資料，測試Message節點是某會輸出使用者設置的模板訊息(有插入變數)", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "6d416c2c.c9c744",
@@ -434,6 +434,54 @@ describe("Message節點測試", function () {
                     }
                 },
                 "_msgid": "d7472870.3531e8"
+            });//接收前面的節點傳過來的msg物件
+        });
+    });
+
+    it("input Facebook In節點的資料，測試Message節點當沒有設置模板訊息時，是否可以直接拿接收到的msg.payload當要輸出的訊息", function (done) {
+        let messageNode = JSON.parse(`[
+            {
+                "id": "4ba52d54.d48be4",
+                "type": "FCF-Message",
+                "z": "e064253c.b676f8",
+                "name": "用來寫測試案例的",
+                "answer": false,
+                "track": false,
+                "parse_mode": "",
+                "message": [],
+                "x": 560,
+                "y": 580,
+                "wires": [
+                    [
+                        "n2"
+                    ]
+                ]
+            }
+        ]`);
+
+        let helperNode = {
+            id: "n2",
+            type: "helper"
+        };
+
+        messageNode.push(helperNode);
+
+        helper.load(fcfMessageNode, messageNode, function () {
+            let helperNode = helper.getNode("n2");
+            let n1 = helper.getNode(messageNode[0].id);
+            helperNode.on("input", function (msg) {
+                msg.payload.should.have.property("content", "abc");//send出去的msg是否有個屬性a，並且值為轉成小寫的uppercase
+                done();
+            });
+            n1.receive({//模擬Facebook In的輸出
+                "payload": "abc",
+                "originalMessage": {
+                    "transport": "facebook",
+                    "chat": {
+                        "id": "1763667070393238"
+                    }
+                },
+                "_msgid": "e6f192e0.98774"
             });//接收前面的節點傳過來的msg物件
         });
     });
@@ -619,4 +667,5 @@ describe("Message節點測試", function () {
             });
         });
     });
+
 });
