@@ -9,9 +9,9 @@
 			name: {
 				value: ""
 			},
-			name2:{
+			name2: {
 				value: ""
-			},
+			},  
 			inputs: {
 				value: 1
 			},
@@ -25,8 +25,11 @@
 		outputs: 1,
 		icon: "file.png",
 		//定義節點拉出來的時候，預設顯示的字串
+		//觸發時機：1.當節點已經拉出來時，頁面重整會觸發(呼叫)兩次
+		//	      2.當點擊節點時會觸發一次，和當節點失去焦點時觸發一次
 		label: function () {
-			return this.name || "lower case";
+			console.log("Xanxus");
+			return "lower case";
 		},
 		// 定義節點在左邊時的字串(還沒拉出來的時候)
 		paletteLabel: "Lower Case",
