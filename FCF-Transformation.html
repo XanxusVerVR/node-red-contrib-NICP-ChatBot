@@ -136,6 +136,32 @@
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 160);
             }
 
+            let showContextList = function () {
+                $.when(
+                    $.getJSON(`context/flow/${this.z}`),
+                    $.getJSON(`context/global`)
+                ).then(function (data1, data2) {
+                    let contextFlowObject = getContextKeys(data1[0], "flow");//回傳型態是Array
+                    let contextGlobalObject = getContextKeys(data2[0], "global");
+                    let contextObjectArray = contextFlowObject.concat(contextGlobalObject);
+                    window.contextObjectArray = contextObjectArray;
+                    for (let i = 0; i < contextObjectArray.length; i++) {
+                        let spanTag = $("<apan/>", {
+                            "class": "searchterm",
+                            "text": contextObjectArray[i],
+                        });
+                        let liTag = $("<li/>", {
+                            "class": "propertyli"
+                        });
+                        $(liTag).append(spanTag).appendTo("#results");
+                    }
+                }).fail(function (problem) {
+                    console.log(problem);
+                });
+            }.bind(this);
+
+            showContextList();
+
             //刷新Context清單和Context帶入值的下拉選項
             $("#refreshBtn").click(function () {
 
@@ -156,28 +182,8 @@
                     $(".seleCon").append($("<option class=\"contextOption\" ></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
                 }
 
-                $.when(
-                    $.getJSON(`context/flow/${this.z}`),
-                    $.getJSON(`context/global`)
-                ).then(function (data1, data2) {
-                    console.log(data1);
-                    let contextFlowObject = getContextKeys(data1[0], "flow");//回傳型態是Array
-                    let contextGlobalObject = getContextKeys(data2[0], "global");
-                    let contextObjectArray = contextFlowObject.concat(contextGlobalObject);
-                    window.contextObjectArray = contextObjectArray;
-                    for (let i = 0; i < contextObjectArray.length; i++) {
-                        let spanTag = $("<apan/>", {
-                            "class": "searchterm",
-                            "text": contextObjectArray[i],
-                        });
-                        let liTag = $("<li/>", {
-                            "class": "propertyli"
-                        });
-                        $(liTag).append(spanTag).appendTo("#results");
-                    }
-                }).fail(function (problem) {
-                    console.log(problem);
-                });
+                showContextList();
+
             }.bind(this));
 
             function getContextKeys(data, contextType) {
@@ -204,28 +210,6 @@
                 return contextObject;
             }
 
-            $.when(
-                $.getJSON(`context/flow/${this.z}`),
-                $.getJSON(`context/global`)
-            ).then(function (data1, data2) {
-                let contextFlowObject = getContextKeys(data1[0], "flow");//回傳型態是Array
-                let contextGlobalObject = getContextKeys(data2[0], "global");
-                let contextObjectArray = contextFlowObject.concat(contextGlobalObject);
-                window.contextObjectArray = contextObjectArray;
-                for (let i = 0; i < contextObjectArray.length; i++) {
-                    let spanTag = $("<apan/>", {
-                        "class": "searchterm",
-                        "text": contextObjectArray[i],
-                    });
-                    let liTag = $("<li/>", {
-                        "class": "propertyli"
-                    });
-                    $(liTag).append(spanTag).appendTo("#results");
-                }
-            }).fail(function (problem) {
-                console.log(problem);
-            });
-            
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 //當加入新項目時，會呼叫的方法
                 //i:如果目前已經存在3個項目，addItem似乎會呼叫3次，每次i會加1，所以有三個i會是0~2
