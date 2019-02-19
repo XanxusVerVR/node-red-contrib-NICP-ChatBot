@@ -136,8 +136,26 @@
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 160);
             }
 
+            //刷新Context清單和Context帶入值的下拉選項
             $("#refreshBtn").click(function () {
+
                 $("#results li").remove();
+                $("select .contextOption").remove();
+
+                // 動態生成option
+                let selectOptions2 = [];
+                for (let i = 0; i < window.contextObjectArray.length; i++) {
+                    let value = (i + 1).toString();
+                    let optionObject = {
+                        v: value,
+                        l: value
+                    }
+                    selectOptions2.push(optionObject);
+                }
+                for (let i = 0; i < selectOptions2.length; i++) {
+                    $(".seleCon").append($("<option class=\"contextOption\" ></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                }
+
                 $.when(
                     $.getJSON(`context/flow/${this.z}`),
                     $.getJSON(`context/global`)
@@ -161,6 +179,7 @@
                     console.log(problem);
                 });
             }.bind(this));
+
             function getContextKeys(data, contextType) {
                 let sortedData = {};
                 for (let store in data) {
@@ -185,42 +204,9 @@
                 return contextObject;
             }
 
-            // let texts = [];
-            // $("#results .searchterm").each(function () {
-            //     texts.push($(this).text());
-            // });
-
             $.when(
                 $.getJSON(`context/flow/${this.z}`),
                 $.getJSON(`context/global`)
-				/*
-				data1(Array):
-					0: {memory: {…}}
-					1: "success"
-					2:
-						abort: ƒ (a)
-						always: ƒ ()
-						complete: ƒ ()
-						done: ƒ ()
-						error: ƒ ()
-						fail: ƒ ()
-						getAllResponseHeaders: ƒ ()
-						getResponseHeader: ƒ (a)
-						overrideMimeType: ƒ (a)
-						pipe: ƒ ()
-						progress: ƒ ()
-						promise: ƒ (a)
-						readyState: 4
-						responseJSON: {memory: {…}}
-						responseText: "{"memory":{"aaa":{"msg":"123","format":"string[3]"}}}"
-						setRequestHeader: ƒ (a,b)
-						state: ƒ ()
-						status: 200
-						statusCode: ƒ (a)
-						statusText: "OK"
-						success: ƒ ()
-						then: ƒ ()
-				*/
             ).then(function (data1, data2) {
                 let contextFlowObject = getContextKeys(data1[0], "flow");//回傳型態是Array
                 let contextGlobalObject = getContextKeys(data2[0], "global");
@@ -239,6 +225,7 @@
             }).fail(function (problem) {
                 console.log(problem);
             });
+            
             $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
                 //當加入新項目時，會呼叫的方法
                 //i:如果目前已經存在3個項目，addItem似乎會呼叫3次，每次i會加1，所以有三個i會是0~2
@@ -300,7 +287,7 @@
                     let propertyName = $("<input/>", { class: "node-input-rule-property-name", type: "text" })
                         .appendTo(row1)
                         .typedInput({ types: ["msg", "flow", "global"] });
-                    let selectContextNumber = $("<select/>", { class: "selectNumber1", style: "width:35px;" }).appendTo(row1);
+                    let selectContextNumber = $("<select/>", { class: "selectNumber1 seleCon", style: "width:35px;" }).appendTo(row1);
                     // 動態生成option
                     let selectOptions2 = [];
                     if (!window.contextObjectArray) {
@@ -316,7 +303,7 @@
                     }
                     selectContextNumber.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
-                        selectContextNumber.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                        selectContextNumber.append($("<option class=\"contextOption\" ></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
                     }
 
                     //這個div是set選項的to區塊
@@ -327,10 +314,10 @@
                     let propertyValue = $("<input/>", { class: "node-input-rule-property-value", type: "text" })
                         .appendTo(row2)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
-                    let selectContextNumber2 = $("<select/>", { class: "selectNumber2", style: "width:35px;" }).appendTo(row2);
+                    let selectContextNumber2 = $("<select/>", { class: "selectNumber2 seleCon", style: "width:35px;" }).appendTo(row2);
                     selectContextNumber2.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
-                        selectContextNumber2.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                        selectContextNumber2.append($("<option class=\"contextOption\" ></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
                     }
 
                     let row3_1 = $("<div/>").appendTo(row3);
@@ -342,10 +329,10 @@
                     let fromValue = $("<input/>", { class: "node-input-rule-property-search-value", type: "text" })
                         .appendTo(row3_1)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool"] });
-                    let selectContextNumber3_1 = $("<select/>", { class: "selectNumber3_1", style: "width:35px;" }).appendTo(row3_1);
+                    let selectContextNumber3_1 = $("<select/>", { class: "selectNumber3_1 seleCon", style: "width:35px;" }).appendTo(row3_1);
                     selectContextNumber3_1.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
-                        selectContextNumber3_1.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                        selectContextNumber3_1.append($("<option class=\"contextOption\" ></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
                     }
 
                     let row3_2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(row3);
@@ -357,10 +344,10 @@
                     let toValue = $("<input/>", { class: "node-input-rule-property-replace-value", type: "text" })
                         .appendTo(row3_2)
                         .typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", "bool", "json"] });
-                    let selectContextNumber3_2 = $("<select/>", { class: "selectNumber3_2", style: "width:35px;" }).appendTo(row3_2);
+                    let selectContextNumber3_2 = $("<select/>", { class: "selectNumber3_2 seleCon", style: "width:35px;" }).appendTo(row3_2);
                     selectContextNumber3_2.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
-                        selectContextNumber3_2.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                        selectContextNumber3_2.append($("<option class=\"contextOption\" ></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
                     }
 
                     //這個div是move選項的to區塊
@@ -371,10 +358,10 @@
                     let moveValue = $("<input/>", { class: "node-input-rule-property-move-value", type: "text" })
                         .appendTo(row4)
                         .typedInput({ default: "msg", types: ["msg", "flow", "global"] });
-                    let selectContextNumber4 = $("<select/>", { class: "selectNumber4", style: "width:35px;" }).appendTo(row4);
+                    let selectContextNumber4 = $("<select/>", { class: "selectNumber4 seleCon", style: "width:35px;" }).appendTo(row4);
                     selectContextNumber4.append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
                     for (let i = 0; i < selectOptions2.length; i++) {
-                        selectContextNumber4.append($("<option></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
+                        selectContextNumber4.append($("<option class=\"contextOption\" ></option>").val(selectOptions2[i].v).text(selectOptions2[i].l));
                     }
 
                     selectField.change(function () {
