@@ -11,7 +11,6 @@ const request = require("request").defaults({
 const Bot = require("./lib/facebook/messenger-bot");
 const clc = require("cli-color");
 
-const DEBUG = false;
 const green = clc.greenBright;
 const white = clc.white;
 const grey = clc.blackBright;
@@ -41,15 +40,8 @@ module.exports = function (RED) {
         this.handleMessage = function (botMsg) {
 
             let facebookBot = node.bot;
-            // botMsg.sender.id = node.credentials.targetUserID;
-            if (DEBUG) {
-                // eslint-disable-next-line no-console
-                console.log("START:-------");
-                // eslint-disable-next-line no-console
-                console.log(botMsg);
-                // eslint-disable-next-line no-console
-                console.log("END:-------");
-            }
+            botMsg.sender.id = globalUserID || botMsg.sender.id;
+            console.log(globalUserID);
 
             // mark the original message with the platform
             botMsg = _.extend({}, botMsg, {
@@ -68,12 +60,10 @@ module.exports = function (RED) {
             // decode the message, eventually download stuff
             node.getMessageDetails(botMsg, node.bot)
                 .then(function (obj) {
-                    console.log(2);
                     payload = obj;
                     return helpers.getOrFetchProfile(userId, node.bot);
                 })
                 .then(function (profile) {
-                    console.log(3);
                     // store some information
                     chatContext.set("chatId", chatId);
                     chatContext.set("messageId", messageId);
@@ -100,19 +90,19 @@ module.exports = function (RED) {
                     }, node.log);
                 })
                 .then(function (msg) {
-                    console.log(4);
                     let currentConversationNode = chatContext.get("currentConversationNode");
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     if (currentConversationNode != null) {
-                        console.log(5);
+                        console.log(1);
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
                         //使用者第一句話以外的訊息會從這裡觸發，並傳進來
+                        // console.log(msg);
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
-                        console.log(6);
+                        console.log(2);
                         // 使用者第一句話或訊息會從這裡觸發並接收進來
                         facebookBot.emit("relay", msg);
                     }
@@ -185,15 +175,11 @@ module.exports = function (RED) {
 
         // creates the message details object from the original message
         this.getMessageDetails = function (botMsg) {
-            console.log(7);
             return new Promise(function (resolve, reject) {
-                console.log(8);
-                //let userId = botMsg.sender.id;
                 let chatId = botMsg.sender.id;
                 let messageId = botMsg.message != null ? botMsg.message.mid : null;
 
                 if (!_.isEmpty(botMsg.account_linking)) {
-                    console.log(9);
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -207,13 +193,11 @@ module.exports = function (RED) {
                 }
 
                 if (botMsg.message == null) {
-                    console.log(10);
                     reject("Unable to detect inbound message for Facebook");
                 }
 
                 let message = botMsg.message;
                 if (!_.isEmpty(message.quick_reply)) {
-                    console.log(11);
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -224,7 +208,6 @@ module.exports = function (RED) {
                     });
                     return;
                 } else if (!_.isEmpty(message.text)) {
-                    console.log(12);
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -237,7 +220,6 @@ module.exports = function (RED) {
                 }
 
                 if (_.isArray(message.attachments) && !_.isEmpty(message.attachments)) {
-                    console.log(13);
                     let attachment = message.attachments[0];
                     switch (attachment.type) {
                         case "image":
@@ -289,7 +271,6 @@ module.exports = function (RED) {
                             break;
                     }
                 } else {
-                    console.log(14);
                     reject("Unable to detect inbound message for Facebook Messenger");
                 }
             });
@@ -331,7 +312,7 @@ module.exports = function (RED) {
         this.config = RED.nodes.getNode(this.bot);
 
         let node = this;
-        a = node.name;
+
         if (this.config) {
             this.status({
                 fill: "red",
@@ -380,10 +361,14 @@ module.exports = function (RED) {
 
         let node = this;
 
-        globalUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
-
-        console.log("node.fcfFacebookRoleNode.credentials.targetUserID:");
-        console.log(node.fcfFacebookRoleNode.credentials.targetUserID);
+        let chatId;
+        if (node.fcfFacebookRoleNode) {
+            globalUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
+            chatId = node.fcfFacebookRoleNode.credentials.targetUserID;
+        }
+        else {
+            chatId = "";
+        }
 
         if (this.config) {
             this.status({
@@ -521,12 +506,9 @@ module.exports = function (RED) {
                         break;
 
                     case "message":
-                        bot.sendMessage(
-                            node.fcfFacebookRoleNode.credentials.targetUserID || msg.payload.chatId, {
-                                text: msg.payload.content
-                            },
-                            reportError
-                        );
+                        bot.sendMessage(chatId || msg.payload.chatId, {
+                            text: msg.payload.content
+                        }, reportError);
                         break;
 
                     case "location":

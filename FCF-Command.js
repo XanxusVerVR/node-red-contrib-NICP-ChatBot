@@ -103,7 +103,7 @@ module.exports = function (RED) {
         let node = this;
 
         this.on("input", function (msg) {
-            console.log(msg);
+
             let message = node.message;
             let answer = node.answer;
             let parse_mode = node.parse_mode;
