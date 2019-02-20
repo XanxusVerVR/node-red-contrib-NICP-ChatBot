@@ -12,11 +12,6 @@
             },
             log: {
                 value: null
-            },
-            fcfFacebookRoleNode: {
-            	value: "",
-                type: "FCF-facebook-config-role",
-                required: false
             }
         },
         paletteName: "Facebook Bot",
@@ -69,10 +64,6 @@
         <input type="text" id="node-config-input-webhookURL" placeholder="Webhook URL">
         <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
         </div>
-    </div>
-	<div class="form-row">
-        <label for="node-config-input-fcfFacebookRoleNode"><i class="icon-bookmark"></i> Role</label>
-        <input type="text" id="node-config-input-fcfFacebookRoleNode">
     </div>
 </script>
 
@@ -189,6 +180,11 @@
             },
             outputs: {
                 value: 0
+            },
+            fcfFacebookRoleNode: {
+            	value: "",
+                type: "FCF-facebook-config-role",
+                required: false
             }
         },
         inputs: 1,
@@ -223,11 +219,13 @@
         <input type="text" id="node-input-bot" placeholder="Bot">
     </div>
     <div class="form-row">
+        <label for="node-input-fcfFacebookRoleNode"><i class="icon-bookmark"></i> Role</label>
+        <input type="text" id="node-input-fcfFacebookRoleNode">
+    </div>
+    <div class="form-row">
         <label for="node-input-track"><i class="icon-envelope"></i> Track Conversation</label>
         <input type="checkbox" value="true" id="node-input-track">
     <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
-    </div>
-    </div>
 </script>
 
 <script type="text/x-red" data-help-name="FCF-facebook-send">
@@ -237,6 +235,7 @@
 </script>
 <!-- Facebook Out結束 -->
 
+<!-- 設置角色的節點 -->
 <script type="text/javascript">
     RED.nodes.registerType("FCF-facebook-config-role", {
         category: "config",

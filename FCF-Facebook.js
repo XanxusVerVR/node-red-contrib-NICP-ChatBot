@@ -18,17 +18,17 @@ const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
+    let globalUserID = "";
+
     function FacebookBotNode(config) {
 
         RED.nodes.createNode(this, config);
         this.botname = config.botname;
         this.log = config.log;
         this.usernames = [];
-        this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
 
         const node = this;
-        // console.log("node.fcfFacebookRoleNode.credentials.targetUserID:");
-        // console.log(node.fcfFacebookRoleNode.credentials.targetUserID);
+
         if (config.usernames) {
             this.usernames = _(config.usernames.split(",")).chain()
                 .map(function (userId) {
@@ -42,9 +42,6 @@ module.exports = function (RED) {
 
             let facebookBot = node.bot;
             // botMsg.sender.id = node.credentials.targetUserID;
-            // console.log("this.handleMessage:");
-            // console.log(node.credentials.targetUserID);
-            // console.log(botMsg.sender);
             if (DEBUG) {
                 // eslint-disable-next-line no-console
                 console.log("START:-------");
@@ -113,8 +110,6 @@ module.exports = function (RED) {
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
                         //使用者第一句話以外的訊息會從這裡觸發，並傳進來
-                        // console.log(msg);
-                        // console.log(currentConversationNode);
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
                         console.log(6);
@@ -378,11 +373,17 @@ module.exports = function (RED) {
         this.name = config.name || "My Facebook Out Node";
         this.bot = config.bot;
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
-        // this.targetUserID = config.targetUserID;
+        this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
+
         //這段主要在設置節點顯示的狀態
         this.config = RED.nodes.getNode(this.bot);
 
         let node = this;
+
+        globalUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
+
+        console.log("node.fcfFacebookRoleNode.credentials.targetUserID:");
+        console.log(node.fcfFacebookRoleNode.credentials.targetUserID);
 
         if (this.config) {
             this.status({
@@ -438,8 +439,7 @@ module.exports = function (RED) {
                 let type = msg.payload.type;
                 let bot = node.bot;
                 let credentials = node.config.credentials;
-                // console.log(node.targetUserID);
-                // console.log(msg.payload.chatId);
+
                 let reportError = (err) => {
                     if (err) {
                         reject(err);
@@ -522,7 +522,7 @@ module.exports = function (RED) {
 
                     case "message":
                         bot.sendMessage(
-                            msg.payload.chatId, {
+                            node.fcfFacebookRoleNode.credentials.targetUserID || msg.payload.chatId, {
                                 text: msg.payload.content
                             },
                             reportError
@@ -605,9 +605,6 @@ module.exports = function (RED) {
         //當使用者一說話，就會觸發這個註冊的函式來傳送訊息
         let handler = function (msg) {
             //使用者說的話(除了第一句)都會從這裡傳到下個節點
-            // console.log(msg);
-            // console.log(node.targetUserID);
-            // console.log(msg.payload.chatId);
             node.send(msg);
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
