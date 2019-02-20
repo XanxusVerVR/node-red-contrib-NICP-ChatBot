@@ -21,7 +21,6 @@ module.exports = function (RED) {
     function FacebookBotNode(config) {
 
         RED.nodes.createNode(this, config);
-
         this.botname = config.botname;
         this.log = config.log;
         this.usernames = [];
@@ -30,7 +29,6 @@ module.exports = function (RED) {
         const node = this;
         // console.log("node.fcfFacebookRoleNode.credentials.targetUserID:");
         // console.log(node.fcfFacebookRoleNode.credentials.targetUserID);
-
         if (config.usernames) {
             this.usernames = _(config.usernames.split(",")).chain()
                 .map(function (userId) {
@@ -46,7 +44,7 @@ module.exports = function (RED) {
             // botMsg.sender.id = node.credentials.targetUserID;
             // console.log("this.handleMessage:");
             // console.log(node.credentials.targetUserID);
-            console.log(botMsg.sender);
+            // console.log(botMsg.sender);
             if (DEBUG) {
                 // eslint-disable-next-line no-console
                 console.log("START:-------");
@@ -338,7 +336,7 @@ module.exports = function (RED) {
         this.config = RED.nodes.getNode(this.bot);
 
         let node = this;
-
+        a = node.name;
         if (this.config) {
             this.status({
                 fill: "red",
@@ -377,7 +375,6 @@ module.exports = function (RED) {
 
     function FacebookOutNode(config) {
         RED.nodes.createNode(this, config);
-
         this.name = config.name || "My Facebook Out Node";
         this.bot = config.bot;
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點

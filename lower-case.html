@@ -11,12 +11,17 @@
 			},
 			name2: {
 				value: ""
-			},  
+			},
 			inputs: {
 				value: 1
 			},
 			outputs: {
 				value: 1
+			},
+			myCredentials: {
+				value: "",
+				type: "config-credential-node",
+				required: false
 			}
 		},
 		//一開始是幾個輸入
@@ -29,7 +34,7 @@
 		//	      2.當點擊節點時會觸發一次，和當節點失去焦點時觸發一次
 		label: function () {
 			console.log("Xanxus");
-			return "lower case";
+			return this.name || "lower case";
 		},
 		// 定義節點在左邊時的字串(還沒拉出來的時候)
 		paletteLabel: "Lower Case",
@@ -61,6 +66,11 @@
 		<label for="node-input-name2"><i class="icon-tag"></i> Name2</label>
 		<input type="text" id="node-input-name2" placeholder="Name2">
 	</div>
+	<!-- 這裡要放置一個input表單來當設置Credentials資料的進入點 -->
+	<div class="form-row">
+        <label for="node-input-myCredentials" style="width:100%;"><i class="icon-bookmark"></i>My Credentials</label>
+        <input type="text" id="node-input-myCredentials">
+    </div>
 	<!-- <div class="form-row">
 		<label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="function.label.outputs"></span></label>
 		<input id="node-input-outputs" style="width: 60px;" value="1">
