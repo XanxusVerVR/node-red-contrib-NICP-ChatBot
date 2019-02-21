@@ -12,6 +12,13 @@
             },
             log: {
                 value: null
+            },
+            isHttps: {
+                value: false
+            },
+            serverLocation: {
+                value: "",
+                required: false
             }
         },
         paletteName: "Facebook Bot",
@@ -31,6 +38,10 @@
         },
         label: function () {//回傳這裡的botname變數
             return this.botname;
+        },
+        oneditsave: function () {
+            let isHttps = $("#node-config-input-serverLocation").is(":checked");
+            this.isHttps = isHttps ? true : false;
         }
     });
 
@@ -61,7 +72,17 @@
     </div>
     <div class="form-row">
         <label for="node-config-input-webhookURL"><i class="icon-random"></i> Webhook URL</label>
-        <input type="text" id="node-config-input-webhookURL" placeholder="Webhook URL">
+        <input type="text" id="node-config-input-webhookURL" placeholder="/path">
+        <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-isHttps"><i class="icon-envelope"></i> IsHttps?</label>
+        <input type="checkbox" value="true" id="node-config-input-isHttps">
+    <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
+    <div class="form-row">
+        <label for="node-config-input-serverLocation"><i class="icon-random"></i> Server Location</label>
+        <input type="text" id="node-config-input-serverLocation" placeholder="Server Location">
         <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
         </div>
     </div>
@@ -182,7 +203,7 @@
                 value: 0
             },
             fcfFacebookRoleNode: {
-            	value: "",
+                value: "",
                 type: "FCF-facebook-config-role",
                 required: false
             }

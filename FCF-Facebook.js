@@ -26,6 +26,8 @@ module.exports = function (RED) {
 
         this.botname = config.botname;
         this.log = config.log;
+        this.serverLocation = config.serverLocation;
+        this.isHttps = config.isHttps;
         this.usernames = [];
 
         const node = this;
@@ -134,14 +136,21 @@ module.exports = function (RED) {
                     // eslint-disable-next-line no-console
                     console.log("");
                     // eslint-disable-next-line no-console
-                    console.log(grey("------ Facebook Webhook ----------------"));
+                    console.log(grey("--------------- Facebook Webhook Start ----------------"));
                     // eslint-disable-next-line no-console
-                    console.log(green("Webhook URL: ") + white("http://localhost" + (uiPort != "80" ? ":" + uiPort : "") +
-                        "/redbot/facebook" + this.webhookURL));
+                    // console.log(green("Webhook URL: ") + white("http://"+node.serverLocation+" + (uiPort != "80" ? ":" + uiPort : "") + "/redbot/facebook" + this.webhookURL));
+                    let port;
+                    if (node.isHttps) {
+                        port = "";
+                    }
+                    else {
+                        port = ":" + uiPort;
+                    }
+                    console.log(green("Webhook URL: ") + white("" + (node.isHttps ? "https" : "http") + "://" + (node.serverLocation ? node.serverLocation : "localhost") + port + "/redbot/facebook" + this.webhookURL));
                     // eslint-disable-next-line no-console
                     console.log(green("Verify token is: ") + white(this.verify_token));
                     // eslint-disable-next-line no-console
-                    console.log("");
+                    console.log(grey("--------------- Facebook Webhook End ----------------"));
                     // mount endpoints on local express
                     this.bot.expressMiddleware(RED.httpNode);
 
