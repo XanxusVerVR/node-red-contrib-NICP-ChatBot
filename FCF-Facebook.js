@@ -299,7 +299,7 @@ module.exports = function (RED) {
         this.bot = config.bot;//config.bot是一個類似98bd3fe8.c4eb5這樣的字串
         this.config = RED.nodes.getNode(this.bot);
 
-        let node = this;
+        const node = this;
 
         if (this.config) {
 
@@ -351,7 +351,7 @@ module.exports = function (RED) {
         this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
         this.config = RED.nodes.getNode(this.bot);
 
-        let node = this;
+        const node = this;
 
         //當Facebook Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
         let outputRoleUserID;
