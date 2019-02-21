@@ -17,7 +17,7 @@ const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
-    let globalUserID = "";
+    // let globalUserID = "";
 
     function FacebookBotNode(config) {
 
@@ -40,8 +40,8 @@ module.exports = function (RED) {
         this.handleMessage = function (botMsg) {
 
             let facebookBot = node.bot;
-            botMsg.sender.id = globalUserID || botMsg.sender.id;
-            console.log(globalUserID);
+            // botMsg.sender.id = globalUserID || botMsg.sender.id;
+            // console.log(globalUserID);
 
             // mark the original message with the platform
             botMsg = _.extend({}, botMsg, {
@@ -94,7 +94,7 @@ module.exports = function (RED) {
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     if (currentConversationNode != null) {
-                        console.log(1);
+                        console.log("第二句話之後~~");
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
@@ -102,7 +102,7 @@ module.exports = function (RED) {
                         // console.log(msg);
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
-                        console.log(2);
+                        console.log("第一句話進來!!");
                         // 使用者第一句話或訊息會從這裡觸發並接收進來
                         facebookBot.emit("relay", msg);
                     }
@@ -361,13 +361,13 @@ module.exports = function (RED) {
 
         let node = this;
 
-        let chatId;
+        let outputRoleUserID;
         if (node.fcfFacebookRoleNode) {
-            globalUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
-            chatId = node.fcfFacebookRoleNode.credentials.targetUserID;
+            // globalUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
+            outputRoleUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
         }
         else {
-            chatId = "";
+            outputRoleUserID = "";
         }
 
         if (this.config) {
@@ -506,7 +506,7 @@ module.exports = function (RED) {
                         break;
 
                     case "message":
-                        bot.sendMessage(chatId || msg.payload.chatId, {
+                        bot.sendMessage(outputRoleUserID || msg.payload.chatId, {
                             text: msg.payload.content
                         }, reportError);
                         break;
@@ -632,6 +632,12 @@ module.exports = function (RED) {
                             let chatLog = new ChatLog(chatContext);
                             chatLog.log(msg, node.config.log)
                                 .then(function () {
+                                    // console.log("node.id:");
+                                    // console.log(node.id);
+                                    // console.log("chatId:");
+                                    // console.log(chatId);
+                                    // console.log("msg.payload.chatId:");
+                                    // console.log(msg.payload.chatId);
                                     sendMessage(msg);
                                 });
                         } // end valid payload
