@@ -17,8 +17,6 @@ const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
-    // let globalUserID = "";
-
     function FacebookBotNode(config) {
 
         RED.nodes.createNode(this, config);
@@ -40,8 +38,6 @@ module.exports = function (RED) {
         this.handleMessage = function (botMsg) {
 
             let facebookBot = node.bot;
-            // botMsg.sender.id = globalUserID || botMsg.sender.id;
-            // console.log(globalUserID);
 
             // mark the original message with the platform
             botMsg = _.extend({}, botMsg, {
@@ -93,16 +89,14 @@ module.exports = function (RED) {
                     let currentConversationNode = chatContext.get("currentConversationNode");
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
+                    //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
                     if (currentConversationNode != null) {
-                        console.log("第二句話之後~~");
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
                         //使用者第一句話以外的訊息會從這裡觸發，並傳進來
-                        // console.log(msg);
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
-                        console.log("第一句話進來!!");
                         // 使用者第一句話或訊息會從這裡觸發並接收進來
                         facebookBot.emit("relay", msg);
                     }
@@ -418,6 +412,7 @@ module.exports = function (RED) {
             });
         }
 
+        //此方法用來將機器人處理好的訊息傳給Messenger平台的使用者
         function sendMessage(msg) {
             return new Promise((resolve, reject) => {
 
@@ -587,6 +582,7 @@ module.exports = function (RED) {
         //當使用者一說話，就會觸發這個註冊的函式來傳送訊息
         let handler = function (msg) {
             //使用者說的話(除了第一句)都會從這裡傳到下個節點
+            //也就是說當此Facebook Out有設置Track Conversation的時候，表示要將訊息傳給下個節點
             node.send(msg);
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
@@ -622,9 +618,10 @@ module.exports = function (RED) {
                         } else {
                             // payload is valid, go on
                             let track = node.track;
-                            let chatContext = msg.chat();
+                            let chatContext = msg.chat();//chatContext存著六個方法分別為：get、remove、set、dump、all、clear
                             // check if this node has some wirings in the follow up pin, in that case
                             // the next message should be redirected here
+                            //當這個Facebook Out有把track打勾時，才會進來這if
                             if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
                                 chatContext.set("currentConversationNode", node.id);
                                 chatContext.set("currentConversationNode_at", moment());
@@ -632,12 +629,6 @@ module.exports = function (RED) {
                             let chatLog = new ChatLog(chatContext);
                             chatLog.log(msg, node.config.log)
                                 .then(function () {
-                                    // console.log("node.id:");
-                                    // console.log(node.id);
-                                    // console.log("chatId:");
-                                    // console.log(chatId);
-                                    // console.log("msg.payload.chatId:");
-                                    // console.log(msg.payload.chatId);
                                     sendMessage(msg);
                                 });
                         } // end valid payload
