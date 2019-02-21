@@ -4,7 +4,6 @@ const ChatLog = require("./lib/chat-log");
 const ChatContextStore = require("./lib/chat-context-store");
 const helpers = require("./lib/facebook/facebook");
 const utils = require("./lib/helpers/utils");
-const util = require("util");
 const request = require("request").defaults({
     encoding: null
 });
@@ -17,9 +16,14 @@ const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
+    let globalOutputRoleUserID;//當Facebook Out節點有設置角色ID時，將Messenger ID存入這個變數中
+    let trackOpenFacebookOutNodeId;//儲存有打勾Tracking Answer功能的Facebook Out節點的ID
+    let originalMessengeUserID;//存放最一開始Facebook In進來的UserID，為了保持Facebook Out在Tracking Answer功能輸出的時候，將輸出的UserID設回原本的
+
     function FacebookBotNode(config) {
 
         RED.nodes.createNode(this, config);
+
         this.botname = config.botname;
         this.log = config.log;
         this.usernames = [];
@@ -90,12 +94,12 @@ module.exports = function (RED) {
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
-                    if (currentConversationNode != null) {
+                    if (currentConversationNode != null || globalOutputRoleUserID) {
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
                         //使用者第一句話以外的訊息會從這裡觸發，並傳進來
-                        RED.events.emit("node:" + currentConversationNode, msg);
+                        RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
                     } else {
                         // 使用者第一句話或訊息會從這裡觸發並接收進來
                         facebookBot.emit("relay", msg);
@@ -106,7 +110,6 @@ module.exports = function (RED) {
                     facebookBot.emit("relay", null, error);
                 });
         };
-
 
         if (this.credentials) {
 
@@ -284,15 +287,6 @@ module.exports = function (RED) {
             },
             webhookURL: {
                 type: "text"
-            },
-            key_pem: {
-                type: "text"
-            },
-            cert_pem: {
-                type: "text"
-            },
-            targetUserID: {
-                type: "text"
             }
         }
     });
@@ -308,6 +302,7 @@ module.exports = function (RED) {
         let node = this;
 
         if (this.config) {
+
             this.status({
                 fill: "red",
                 shape: "ring",
@@ -325,12 +320,15 @@ module.exports = function (RED) {
                 });
 
                 node.bot.on("relay", function (message, error) {
+
                     if (error != null) {
                         node.error(error);
                     } else {
                         // 將使用者的第一個傳訊息給下個節點
+                        originalMessengeUserID = message.payload.chatId;
                         node.send(message);
                     }
+
                 });
 
             } else {
@@ -344,20 +342,20 @@ module.exports = function (RED) {
 
 
     function FacebookOutNode(config) {
+
         RED.nodes.createNode(this, config);
+
         this.name = config.name || "My Facebook Out Node";
         this.bot = config.bot;
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
         this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
-
-        //這段主要在設置節點顯示的狀態
         this.config = RED.nodes.getNode(this.bot);
 
         let node = this;
 
+        //當Facebook Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
         let outputRoleUserID;
         if (node.fcfFacebookRoleNode) {
-            // globalUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
             outputRoleUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
         }
         else {
@@ -489,7 +487,6 @@ module.exports = function (RED) {
                             return quickReply;
                         });
 
-                        // send
                         bot.sendMessage(
                             msg.payload.chatId, {
                                 text: msg.payload.content,
@@ -583,6 +580,7 @@ module.exports = function (RED) {
         let handler = function (msg) {
             //使用者說的話(除了第一句)都會從這裡傳到下個節點
             //也就是說當此Facebook Out有設置Track Conversation的時候，表示要將訊息傳給下個節點
+            msg.payload.chatId = originalMessengeUserID;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
             node.send(msg);
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
@@ -622,15 +620,14 @@ module.exports = function (RED) {
                             // check if this node has some wirings in the follow up pin, in that case
                             // the next message should be redirected here
                             //當這個Facebook Out有把track打勾時，才會進來這if
+                            //經測試，不管track有沒有打勾，都會有東西，不會null
                             if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
+                                globalOutputRoleUserID = outputRoleUserID;
+                                trackOpenFacebookOutNodeId = node.id;
                                 chatContext.set("currentConversationNode", node.id);
                                 chatContext.set("currentConversationNode_at", moment());
                             }
-                            let chatLog = new ChatLog(chatContext);
-                            chatLog.log(msg, node.config.log)
-                                .then(function () {
-                                    sendMessage(msg);
-                                });
+                            sendMessage(msg);
                         } // end valid payload
                     } // end no error
                 }); // end then
@@ -638,6 +635,7 @@ module.exports = function (RED) {
     }
     RED.nodes.registerType("FCF-facebook-send", FacebookOutNode);
 
+    //定義角色的節點在這
     function FacebookRole(config) {
         RED.nodes.createNode(this, config);
     }
