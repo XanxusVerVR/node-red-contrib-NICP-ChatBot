@@ -92,18 +92,18 @@ module.exports = function (RED) {
                     }, node.log);
                 })
                 .then(function (msg) {
-                    let currentConversationNode = chatContext.get("currentConversationNode");
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
-                    if (currentConversationNode != null || globalOutputRoleUserID) {
+                    if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID) {
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
+                        globalOutputRoleUserID = "";
                         // emit message directly the node where the conversation stopped
-                        //使用者第一句話以外的訊息會從這裡觸發，並傳進來
+                        // 使用者第一句話以外的訊息會從這裡觸發，並傳進來
                         RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
                     } else {
-                        // 使用者第一句話或訊息會從這裡觸發並接收進來
+                        // 使用者第一句話或訊息會從這裡觸發並接收進來，並且傳給Facebook In
                         facebookBot.emit("relay", msg);
                     }
 
@@ -656,6 +656,7 @@ module.exports = function (RED) {
                         } else {
                             // payload is valid, go on
                             let track = node.track;
+                            // let chatContext = ChatContextStore.getOrCreateChatContext(node, chatId);
                             let chatContext = msg.chat();//chatContext存著六個方法分別為：get、remove、set、dump、all、clear
                             // check if this node has some wirings in the follow up pin, in that case
                             // the next message should be redirected here
@@ -664,8 +665,14 @@ module.exports = function (RED) {
                             if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
                                 globalOutputRoleUserID = outputRoleUserID;
                                 trackOpenFacebookOutNodeId = node.id;
-                                chatContext.set("currentConversationNode", node.id);
-                                chatContext.set("currentConversationNode_at", moment());
+                                //假設先在一開始的Facebook In進來是顧客，那就把顧客這個物件的currentConversationNode設為空，這樣在包括有Tracking Answer的整個Flow第一次結束後，讓顧客不會又再直接進到有Tracking Answer的節點來開始對話流程
+                                if (globalOutputRoleUserID) {
+                                    chatContext.set("currentConversationNode", null);
+                                }
+                                else {
+                                    chatContext.set("currentConversationNode", node.id);
+                                    chatContext.set("currentConversationNode_at", moment());
+                                }
                             }
                             let chatLog = new ChatLog(chatContext);
                             chatLog.log(msg, node.config.log)
