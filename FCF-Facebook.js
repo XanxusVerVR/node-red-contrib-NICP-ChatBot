@@ -437,7 +437,7 @@ module.exports = function (RED) {
                 switch (type) {
                     case "persistent-menu":
                         if (msg.payload.command === "set") {
-                            var items = helpers.parseButtons(msg.payload.items);
+                            let items = helpers.parseButtons(msg.payload.items);
                             // for some reason the called the same button as web_url and not url
                             items.forEach(function (item) {
                                 item.type = item.type === "url" ? "web_url" : item.type;
@@ -462,6 +462,8 @@ module.exports = function (RED) {
                 let bot = node.bot;
                 let credentials = node.config.credentials;
                 //多一個elements的宣告
+                let elements = null;
+
                 let reportError = (err) => {
                     if (err) {
                         reject(err);
@@ -497,8 +499,71 @@ module.exports = function (RED) {
                             reportError
                         );
                         break;
-                    //多一個list-template的case
-                    //多一個generic-template
+                    case "list-template":
+                        // translate elements into facebook format
+                        elements = msg.payload.elements.map(function (item) {
+                            let element = {
+                                title: item.title,
+                                buttons: helpers.parseButtons(item.buttons)
+                            };
+                            if (!_.isEmpty(item.subtitle)) {
+                                element.subtitle = item.subtitle;
+                            }
+                            if (!_.isEmpty(item.imageUrl)) {
+                                element.image_url = item.imageUrl;
+                            }
+                            return element;
+                        });
+                        // sends
+                        bot.sendMessage(
+                            msg.payload.chatId,
+                            {
+                                attachment: {
+                                    type: "template",
+                                    payload: {
+                                        template_type: "list",
+                                        image_aspect_ratio: msg.payload.aspectRatio,
+                                        sharable: msg.payload.sharable,
+                                        elements: elements
+                                    }
+                                }
+                            },
+                            reportError
+                        );
+                        break;
+
+                    case "generic-template":
+                        // translate elements into facebook format
+                        elements = msg.payload.elements.map(function (item) {
+                            let element = {
+                                title: item.title,
+                                buttons: helpers.parseButtons(item.buttons)
+                            };
+                            if (!_.isEmpty(item.subtitle)) {
+                                element.subtitle = item.subtitle;
+                            }
+                            if (!_.isEmpty(item.imageUrl)) {
+                                element.image_url = item.imageUrl;
+                            }
+                            return element;
+                        });
+                        // sends
+                        bot.sendMessage(
+                            msg.payload.chatId,
+                            {
+                                attachment: {
+                                    type: "template",
+                                    payload: {
+                                        template_type: "generic",
+                                        image_aspect_ratio: msg.payload.aspectRatio,
+                                        sharable: msg.payload.sharable,
+                                        elements: elements
+                                    }
+                                }
+                            },
+                            reportError
+                        );
+                        break;
                     case "account-link":
                         let attachment = {
                             "type": "template",
