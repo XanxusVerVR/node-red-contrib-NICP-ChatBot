@@ -162,7 +162,7 @@ module.exports = function (RED) {
         }
 
         this.on("close", function (done) {
-            let endpoints = ['/redbot/facebook' + node.credentials.webhookURL, '/redbot/facebook/_status' + node.credentials.webhookURL];
+            let endpoints = ["/redbot/facebook" + node.credentials.webhookURL, "/redbot/facebook/_status" + node.credentials.webhookURL];
             // remove middleware for facebook callback
             let routesCount = RED.httpNode._router.stack.length;
             _(RED.httpNode._router.stack).each(function (route, i, routes) {
@@ -175,7 +175,7 @@ module.exports = function (RED) {
             });
             if (RED.httpNode._router.stack.length >= routesCount) {
                 // eslint-disable-next-line no-console
-                console.log('ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs');
+                console.log("ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs");
             }
             this.bot = null;
             done();
@@ -237,7 +237,23 @@ module.exports = function (RED) {
                 if (_.isArray(message.attachments) && !_.isEmpty(message.attachments)) {
                     let attachment = message.attachments[0];
                     switch (attachment.type) {
-                        //這裡多一個audio
+                        case "audio":
+                            // download the audio into a buffer
+                            helpers.downloadFile(attachment.payload.url)
+                                .then(function (buffer) {
+                                    resolve({
+                                        chatId: chatId,
+                                        messageId: messageId,
+                                        type: "audio",
+                                        content: buffer,
+                                        date: moment(botMsg.timestamp),
+                                        inbound: true
+                                    });
+                                })
+                                .catch(function () {
+                                    reject("Unable to download " + attachment.payload.url);
+                                });
+                            break;
                         case "image":
                             // download the image into a buffer
                             helpers.downloadFile(attachment.payload.url)
@@ -420,10 +436,19 @@ module.exports = function (RED) {
                 //一般文字訊息type都是message
                 switch (type) {
                     case "persistent-menu":
-                        bot.setPersistentMenu(msg.payload.items, reportError);
+                        if (msg.payload.command === "set") {
+                            var items = helpers.parseButtons(msg.payload.items);
+                            // for some reason the called the same button as web_url and not url
+                            items.forEach(function (item) {
+                                item.type = item.type === "url" ? "web_url" : item.type;
+                            });
+                            bot.setPersistentMenu(items, msg.payload.composerInputDisabled, reportError);
+                        } else if (msg.payload.command === "delete") {
+                            bot.removePersistentMenu(reportError);
+                        }
                         break;
+
                     default:
-                        //是message的話，就會跑到這裡，會reject()
                         reject();
                 }
             });
@@ -648,7 +673,7 @@ module.exports = function (RED) {
                                     return sendMessage(msg);
                                 })
                                 .then(function () {
-                                    // we're done
+                                    // we"re done
                                 }, function (err) {
                                     node.error(err);
                                 });
