@@ -43,7 +43,7 @@ module.exports = function (RED) {
 
         this.handleMessage = function (botMsg) {
 
-            let facebookBot = node.bot;
+            let facebookBot = this;
 
             // mark the original message with the platform
             botMsg = _.extend({}, botMsg, {
@@ -154,21 +154,30 @@ module.exports = function (RED) {
                     // mount endpoints on local express
                     this.bot.expressMiddleware(RED.httpNode);
 
-                    this.bot.on("message", this.handleMessage);
-                    this.bot.on("postback", this.handleMessage);
-                    this.bot.on("account_linking", this.handleMessage);
+                    this.bot.on("message", this.handleMessage.bind(this.bot));
+                    this.bot.on("postback", this.handleMessage.bind(this.bot));
+                    this.bot.on("account_linking", this.handleMessage.bind(this.bot));
                 }
             }
         }
 
         this.on("close", function (done) {
-            let endpoints = ["/facebook", "/facebook/_status"];
+            let endpoints = ['/redbot/facebook' + node.credentials.webhookURL, '/redbot/facebook/_status' + node.credentials.webhookURL];
             // remove middleware for facebook callback
-            RED.httpNode._router.stack.forEach(function (route, i, routes) {
-                if (route.route && _.contains(endpoints, route.route.path)) {
-                    routes.splice(i, 1);
+            let routesCount = RED.httpNode._router.stack.length;
+            _(RED.httpNode._router.stack).each(function (route, i, routes) {
+
+                if (route != null && route.route != null) {
+                    if (_.contains(endpoints, route.route.path)) {
+                        routes.splice(i, 1);
+                    }
                 }
             });
+            if (RED.httpNode._router.stack.length >= routesCount) {
+                // eslint-disable-next-line no-console
+                console.log('ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs');
+            }
+            this.bot = null;
             done();
         });
 
@@ -228,6 +237,7 @@ module.exports = function (RED) {
                 if (_.isArray(message.attachments) && !_.isEmpty(message.attachments)) {
                     let attachment = message.attachments[0];
                     switch (attachment.type) {
+                        //這裡多一個audio
                         case "image":
                             // download the image into a buffer
                             helpers.downloadFile(attachment.payload.url)
@@ -426,7 +436,7 @@ module.exports = function (RED) {
                 let type = msg.payload.type;
                 let bot = node.bot;
                 let credentials = node.config.credentials;
-
+                //多一個elements的宣告
                 let reportError = (err) => {
                     if (err) {
                         reject(err);
@@ -462,7 +472,8 @@ module.exports = function (RED) {
                             reportError
                         );
                         break;
-
+                    //多一個list-template的case
+                    //多一個generic-template
                     case "account-link":
                         let attachment = {
                             "type": "template",
@@ -595,11 +606,6 @@ module.exports = function (RED) {
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
         RED.events.on("node:" + config.id, handler);
 
-        // cleanup on close
-        this.on("close", function () {
-            RED.events.removeListener("node:" + config.id, handler);
-        });
-
         this.on("input", function (msg) {
             // 所有機器人要傳給使用者的訊息都會從這裡進來
             // check if the message is from facebook
@@ -636,10 +642,23 @@ module.exports = function (RED) {
                                 chatContext.set("currentConversationNode", node.id);
                                 chatContext.set("currentConversationNode_at", moment());
                             }
-                            sendMessage(msg);
+                            let chatLog = new ChatLog(chatContext);
+                            chatLog.log(msg, node.config.log)
+                                .then(function () {
+                                    return sendMessage(msg);
+                                })
+                                .then(function () {
+                                    // we're done
+                                }, function (err) {
+                                    node.error(err);
+                                });
                         } // end valid payload
                     } // end no error
                 }); // end then
+        });
+        // cleanup on close
+        this.on("close", function () {
+            RED.events.removeListener("node:" + config.id, handler);
         });
     }
     RED.nodes.registerType("FCF-facebook-send", FacebookOutNode);
