@@ -95,7 +95,8 @@ module.exports = function (RED) {
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
-                    if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID) {
+                    if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID == msg.payload.chatId) {
+                        console.log(1);
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         globalOutputRoleUserID = "";
@@ -103,6 +104,7 @@ module.exports = function (RED) {
                         // 使用者第一句話以外的訊息會從這裡觸發，並傳進來
                         RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
                     } else {
+                        console.log(1);
                         // 使用者第一句話或訊息會從這裡觸發並接收進來，並且傳給Facebook In
                         facebookBot.emit("relay", msg);
                     }
