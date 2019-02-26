@@ -1,5 +1,8 @@
 const _ = require("underscore");
 const moment = require("moment");
+const q = require("./lib/xanxus-queue");
+let msgQueue = new q();
+let originalMessengeUserIdQueue = new q();//儲存顧客的使用者ID
 const ChatLog = require("./lib/chat-log");
 const ChatContextStore = require("./lib/chat-context-store");
 const helpers = require("./lib/facebook/facebook");
@@ -15,10 +18,241 @@ const white = clc.white;
 const grey = clc.blackBright;
 
 module.exports = function (RED) {
+    //此方法用來將機器人處理好的訊息傳給Messenger平台的使用者
+    let sendMessage = function _sendMessage(msg, node) {
+        return new Promise((resolve, reject) => {
+
+            let type = msg.payload.type;
+            let bot = node.bot;
+            let credentials = node.config.credentials;
+            //多一個elements的宣告
+            let elements = null;
+
+            let reportError = (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            };
+
+            switch (type) {
+                case "action":
+                    request({
+                        method: "POST",
+                        json: {
+                            recipient: {
+                                id: msg.payload.chatId
+                            },
+                            "sender_action": "typing_on"
+                        },
+                        url: "https://graph.facebook.com/v2.6/me/messages?access_token=" + credentials.token
+                    }, reportError);
+                    break;
+
+                case "request":
+                    // todo error if not location
+                    // send
+                    bot.sendMessage(
+                        msg.payload.chatId, {
+                            text: msg.payload.content,
+                            quick_replies: [{
+                                "content_type": "location"
+                            }]
+                        },
+                        reportError
+                    );
+                    break;
+                case "list-template":
+                    // translate elements into facebook format
+                    elements = msg.payload.elements.map(function (item) {
+                        let element = {
+                            title: item.title,
+                            buttons: helpers.parseButtons(item.buttons)
+                        };
+                        if (!_.isEmpty(item.subtitle)) {
+                            element.subtitle = item.subtitle;
+                        }
+                        if (!_.isEmpty(item.imageUrl)) {
+                            element.image_url = item.imageUrl;
+                        }
+                        return element;
+                    });
+                    // sends
+                    bot.sendMessage(
+                        msg.payload.chatId,
+                        {
+                            attachment: {
+                                type: "template",
+                                payload: {
+                                    template_type: "list",
+                                    image_aspect_ratio: msg.payload.aspectRatio,
+                                    sharable: msg.payload.sharable,
+                                    elements: elements
+                                }
+                            }
+                        },
+                        reportError
+                    );
+                    break;
+
+                case "generic-template":
+                    // translate elements into facebook format
+                    elements = msg.payload.elements.map(function (item) {
+                        let element = {
+                            title: item.title,
+                            buttons: helpers.parseButtons(item.buttons)
+                        };
+                        if (!_.isEmpty(item.subtitle)) {
+                            element.subtitle = item.subtitle;
+                        }
+                        if (!_.isEmpty(item.imageUrl)) {
+                            element.image_url = item.imageUrl;
+                        }
+                        return element;
+                    });
+                    // sends
+                    bot.sendMessage(
+                        msg.payload.chatId,
+                        {
+                            attachment: {
+                                type: "template",
+                                payload: {
+                                    template_type: "generic",
+                                    image_aspect_ratio: msg.payload.aspectRatio,
+                                    sharable: msg.payload.sharable,
+                                    elements: elements
+                                }
+                            }
+                        },
+                        reportError
+                    );
+                    break;
+                case "account-link":
+                    let attachment = {
+                        "type": "template",
+                        "payload": {
+                            "template_type": "button",
+                            "text": msg.payload.content,
+                            "buttons": [{
+                                "type": "account_link",
+                                "url": msg.payload.authUrl
+                            }]
+                        }
+                    };
+                    bot.sendMessage(
+                        msg.payload.chatId, {
+                            attachment: attachment
+                        },
+                        reportError
+                    );
+                    break;
+
+                case "inline-buttons":
+                    let quickReplies = _(msg.payload.buttons).map(function (button) {
+                        let quickReply = {
+                            content_type: "text",
+                            title: button.label,
+                            payload: !_.isEmpty(button.value) ? button.value : button.label
+                        };
+                        if (!_.isEmpty(button.image_url)) {
+                            quickReply.image_url = button.image_url;
+                        }
+                        return quickReply;
+                    });
+
+                    bot.sendMessage(
+                        msg.payload.chatId, {
+                            text: msg.payload.content,
+                            quick_replies: quickReplies
+                        },
+                        reportError
+                    );
+
+                    break;
+
+                case "message":
+                    bot.sendMessage(msg.payload.chatId, {
+                        text: msg.payload.content
+                    }, reportError);
+                    break;
+
+                case "location":
+                    let lat = msg.payload.content.latitude;
+                    let lon = msg.payload.content.longitude;
+
+                    let locationAttachment = {
+                        "type": "template",
+                        "payload": {
+                            "template_type": "generic",
+                            "elements": {
+                                "element": {
+                                    "title": !_.isEmpty(msg.payload.place) ? msg.payload.place : "Position",
+                                    "image_url": "https:\/\/maps.googleapis.com\/maps\/api\/staticmap?size=764x400&center=" +
+                                        lat + "," + lon + "&zoom=16&markers=" + lat + "," + lon,
+                                    "item_url": "http:\/\/maps.apple.com\/maps?q=" + lat + "," + lon + "&z=16"
+                                }
+                            }
+                        }
+                    };
+
+                    bot.sendMessage(
+                        msg.payload.chatId, {
+                            attachment: locationAttachment
+                        },
+                        reportError
+                    );
+                    break;
+
+                case "audio":
+                    let audio = msg.payload.content;
+                    helpers.uploadBuffer({
+                        recipient: msg.payload.chatId,
+                        type: "audio",
+                        buffer: audio,
+                        token: credentials.token,
+                        filename: msg.payload.filename
+                    }).catch(function (err) {
+                        reject(err);
+                    });
+                    break;
+
+                case "document":
+                    helpers.uploadBuffer({
+                        recipient: msg.payload.chatId,
+                        type: "file",
+                        buffer: msg.payload.content,
+                        token: credentials.token,
+                        filename: msg.payload.filename,
+                        mimeType: msg.payload.mimeType
+                    }).catch(function (err) {
+                        reject(err);
+                    });
+                    break;
+
+                case "photo":
+                    let image = msg.payload.content;
+                    helpers.uploadBuffer({
+                        recipient: msg.payload.chatId,
+                        type: "image",
+                        buffer: image,
+                        token: credentials.token,
+                        filename: msg.payload.filename
+                    }).catch(function (err) {
+                        reject(err);
+                    });
+                    break;
+
+                default:
+                    reject("Unable to prepare unknown message type");
+            }
+        });
+    };
 
     let globalOutputRoleUserID;//當Facebook Out節點有設置角色ID時，將Messenger ID存入這個變數中
     let trackOpenFacebookOutNodeId;//儲存有打勾Tracking Answer功能的Facebook Out節點的ID
     let originalMessengeUserID;//存放最一開始Facebook In進來的UserID，為了保持Facebook Out在Tracking Answer功能輸出的時候，將輸出的UserID設回原本的
+    let isFacebookOutRoleAnswer = false;//用了設置老闆是否回話了嗎的狀態
 
     function FacebookBotNode(config) {
 
@@ -96,15 +330,30 @@ module.exports = function (RED) {
                     // then first pin, if not second pin
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
                     if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID == msg.payload.chatId) {
-                        console.log(1);
+                        console.log("Facebook Out~~Track Conversation！！");
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
-                        globalOutputRoleUserID = "";
+
                         // emit message directly the node where the conversation stopped
                         // 使用者第一句話以外的訊息會從這裡觸發，並傳進來
                         RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
+                        isFacebookOutRoleAnswer = true;
+                        if (msgQueue.size() != 0) {
+                            let msgAndNodeObject = msgQueue.last();
+                            sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode)
+                                .then(function () {
+                                    console.log("寄出Qu中的msg訊息了!!!!!");
+                                    // we"re done
+                                }, function (err) {
+                                    node.error(err);
+                                });
+                            msgQueue.remove();
+                        }
+                        else{
+                            globalOutputRoleUserID = "";
+                        }
                     } else {
-                        console.log(1);
+                        console.log("Facebook In！！");
                         // 使用者第一句話或訊息會從這裡觸發並接收進來，並且傳給Facebook In
                         facebookBot.emit("relay", msg);
                     }
@@ -168,7 +417,6 @@ module.exports = function (RED) {
             // remove middleware for facebook callback
             let routesCount = RED.httpNode._router.stack.length;
             _(RED.httpNode._router.stack).each(function (route, i, routes) {
-
                 if (route != null && route.route != null) {
                     if (_.contains(endpoints, route.route.path)) {
                         routes.splice(i, 1);
@@ -176,10 +424,10 @@ module.exports = function (RED) {
                 }
             });
             if (RED.httpNode._router.stack.length >= routesCount) {
-                // eslint-disable-next-line no-console
                 console.log("ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs");
             }
             this.bot = null;
+            isFacebookOutRoleAnswer = false;
             done();
         });
 
@@ -363,6 +611,7 @@ module.exports = function (RED) {
                     } else {
                         // 將使用者的第一個傳訊息給下個節點
                         originalMessengeUserID = message.payload.chatId;
+                        originalMessengeUserIdQueue.add(originalMessengeUserID);
                         node.send(message);
                     }
 
@@ -387,6 +636,8 @@ module.exports = function (RED) {
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
         this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
         this.config = RED.nodes.getNode(this.bot);
+
+        let count = 0;//用來記錄之前第一個顧客有沒有進來了，有進來就先+1
 
         const node = this;
 
@@ -456,243 +707,14 @@ module.exports = function (RED) {
             });
         }
 
-        //此方法用來將機器人處理好的訊息傳給Messenger平台的使用者
-        function sendMessage(msg) {
-            return new Promise((resolve, reject) => {
-
-                let type = msg.payload.type;
-                let bot = node.bot;
-                let credentials = node.config.credentials;
-                //多一個elements的宣告
-                let elements = null;
-
-                let reportError = (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                };
-
-                switch (type) {
-                    case "action":
-                        request({
-                            method: "POST",
-                            json: {
-                                recipient: {
-                                    id: msg.payload.chatId
-                                },
-                                "sender_action": "typing_on"
-                            },
-                            url: "https://graph.facebook.com/v2.6/me/messages?access_token=" + credentials.token
-                        }, reportError);
-                        break;
-
-                    case "request":
-                        // todo error if not location
-                        // send
-                        bot.sendMessage(
-                            msg.payload.chatId, {
-                                text: msg.payload.content,
-                                quick_replies: [{
-                                    "content_type": "location"
-                                }]
-                            },
-                            reportError
-                        );
-                        break;
-                    case "list-template":
-                        // translate elements into facebook format
-                        elements = msg.payload.elements.map(function (item) {
-                            let element = {
-                                title: item.title,
-                                buttons: helpers.parseButtons(item.buttons)
-                            };
-                            if (!_.isEmpty(item.subtitle)) {
-                                element.subtitle = item.subtitle;
-                            }
-                            if (!_.isEmpty(item.imageUrl)) {
-                                element.image_url = item.imageUrl;
-                            }
-                            return element;
-                        });
-                        // sends
-                        bot.sendMessage(
-                            msg.payload.chatId,
-                            {
-                                attachment: {
-                                    type: "template",
-                                    payload: {
-                                        template_type: "list",
-                                        image_aspect_ratio: msg.payload.aspectRatio,
-                                        sharable: msg.payload.sharable,
-                                        elements: elements
-                                    }
-                                }
-                            },
-                            reportError
-                        );
-                        break;
-
-                    case "generic-template":
-                        // translate elements into facebook format
-                        elements = msg.payload.elements.map(function (item) {
-                            let element = {
-                                title: item.title,
-                                buttons: helpers.parseButtons(item.buttons)
-                            };
-                            if (!_.isEmpty(item.subtitle)) {
-                                element.subtitle = item.subtitle;
-                            }
-                            if (!_.isEmpty(item.imageUrl)) {
-                                element.image_url = item.imageUrl;
-                            }
-                            return element;
-                        });
-                        // sends
-                        bot.sendMessage(
-                            msg.payload.chatId,
-                            {
-                                attachment: {
-                                    type: "template",
-                                    payload: {
-                                        template_type: "generic",
-                                        image_aspect_ratio: msg.payload.aspectRatio,
-                                        sharable: msg.payload.sharable,
-                                        elements: elements
-                                    }
-                                }
-                            },
-                            reportError
-                        );
-                        break;
-                    case "account-link":
-                        let attachment = {
-                            "type": "template",
-                            "payload": {
-                                "template_type": "button",
-                                "text": msg.payload.content,
-                                "buttons": [{
-                                    "type": "account_link",
-                                    "url": msg.payload.authUrl
-                                }]
-                            }
-                        };
-                        bot.sendMessage(
-                            msg.payload.chatId, {
-                                attachment: attachment
-                            },
-                            reportError
-                        );
-                        break;
-
-                    case "inline-buttons":
-                        let quickReplies = _(msg.payload.buttons).map(function (button) {
-                            let quickReply = {
-                                content_type: "text",
-                                title: button.label,
-                                payload: !_.isEmpty(button.value) ? button.value : button.label
-                            };
-                            if (!_.isEmpty(button.image_url)) {
-                                quickReply.image_url = button.image_url;
-                            }
-                            return quickReply;
-                        });
-
-                        bot.sendMessage(
-                            msg.payload.chatId, {
-                                text: msg.payload.content,
-                                quick_replies: quickReplies
-                            },
-                            reportError
-                        );
-
-                        break;
-
-                    case "message":
-                        bot.sendMessage(outputRoleUserID || msg.payload.chatId, {
-                            text: msg.payload.content
-                        }, reportError);
-                        break;
-
-                    case "location":
-                        let lat = msg.payload.content.latitude;
-                        let lon = msg.payload.content.longitude;
-
-                        let locationAttachment = {
-                            "type": "template",
-                            "payload": {
-                                "template_type": "generic",
-                                "elements": {
-                                    "element": {
-                                        "title": !_.isEmpty(msg.payload.place) ? msg.payload.place : "Position",
-                                        "image_url": "https:\/\/maps.googleapis.com\/maps\/api\/staticmap?size=764x400&center=" +
-                                            lat + "," + lon + "&zoom=16&markers=" + lat + "," + lon,
-                                        "item_url": "http:\/\/maps.apple.com\/maps?q=" + lat + "," + lon + "&z=16"
-                                    }
-                                }
-                            }
-                        };
-
-                        bot.sendMessage(
-                            msg.payload.chatId, {
-                                attachment: locationAttachment
-                            },
-                            reportError
-                        );
-                        break;
-
-                    case "audio":
-                        let audio = msg.payload.content;
-                        helpers.uploadBuffer({
-                            recipient: msg.payload.chatId,
-                            type: "audio",
-                            buffer: audio,
-                            token: credentials.token,
-                            filename: msg.payload.filename
-                        }).catch(function (err) {
-                            reject(err);
-                        });
-                        break;
-
-                    case "document":
-                        helpers.uploadBuffer({
-                            recipient: msg.payload.chatId,
-                            type: "file",
-                            buffer: msg.payload.content,
-                            token: credentials.token,
-                            filename: msg.payload.filename,
-                            mimeType: msg.payload.mimeType
-                        }).catch(function (err) {
-                            reject(err);
-                        });
-                        break;
-
-                    case "photo":
-                        let image = msg.payload.content;
-                        helpers.uploadBuffer({
-                            recipient: msg.payload.chatId,
-                            type: "image",
-                            buffer: image,
-                            token: credentials.token,
-                            filename: msg.payload.filename
-                        }).catch(function (err) {
-                            reject(err);
-                        });
-                        break;
-
-                    default:
-                        reject("Unable to prepare unknown message type");
-                }
-            });
-        }
-
         // relay message
         //當使用者一說話，就會觸發這個註冊的函式來傳送訊息
         let handler = function (msg) {
             //使用者說的話(除了第一句)都會從這裡傳到下個節點
             //也就是說當此Facebook Out有設置Track Conversation的時候，表示要將訊息傳給下個節點
-            msg.payload.chatId = originalMessengeUserID;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
+            let m = originalMessengeUserIdQueue.last();
+            msg.payload.chatId = m;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
+            originalMessengeUserIdQueue.remove();
             node.send(msg);
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
@@ -744,7 +766,21 @@ module.exports = function (RED) {
                             let chatLog = new ChatLog(chatContext);
                             chatLog.log(msg, node.config.log)
                                 .then(function () {
-                                    return sendMessage(msg);
+                                    //如果有設置要輸出的角色，那就把msg物件要輸出的角色ID換成使用者設置的角色ID(老闆)
+                                    msg.payload.chatId = outputRoleUserID || msg.payload.chatId;
+                                    //如果 這個Facebook Out有設置角色ID 而且 角色ID不等於自己 而且 老闆還沒回話 而且 count不是0 而且
+                                    if (outputRoleUserID && outputRoleUserID != originalMessengeUserID && !isFacebookOutRoleAnswer && count != 0 && !_.isEmpty(node.wires[0])) {
+                                        msgQueue.add({
+                                            waiteThisFacebookOutNodeMsg: msg,
+                                            waiteThisFacebookOutNode: node
+                                        });
+                                        console.log(2);
+                                    }
+                                    else {
+                                        count++;
+                                        console.log(1);
+                                        return sendMessage(msg, node);
+                                    }
                                 })
                                 .then(function () {
                                     // we"re done
@@ -757,6 +793,7 @@ module.exports = function (RED) {
         });
         // cleanup on close
         this.on("close", function () {
+            count = 0;
             RED.events.removeListener("node:" + config.id, handler);
         });
     }
