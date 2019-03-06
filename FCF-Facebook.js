@@ -252,7 +252,8 @@ module.exports = function (RED) {
     let globalOutputRoleUserID;//當Facebook Out節點有設置角色ID時，將Messenger ID存入這個變數中
     let trackOpenFacebookOutNodeId;//儲存有打勾Tracking Answer功能的Facebook Out節點的ID
     let originalMessengeUserID;//存放最一開始Facebook In進來的UserID，為了保持Facebook Out在Tracking Answer功能輸出的時候，將輸出的UserID設回原本的
-    let isFacebookOutRoleAnswer = false;//用了設置老闆是否回話了嗎的狀態
+    let isFacebookOutRoleAnswer = false;//用來設置老闆是否回話了嗎 的狀態
+
 
     function FacebookBotNode(config) {
 
@@ -329,11 +330,11 @@ module.exports = function (RED) {
                     // if a conversation is going on, go straight to the conversation node, otherwise if authorized
                     // then first pin, if not second pin
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
+                    //前面是用來判斷是不是顧客，後面是判斷是不是老闆，如果現在的msg.payload.chatId與設置在Facebook Out的使用者ID相同，表示要將對話轉為等待這個被設置的使用者ID(老闆)
                     if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID == msg.payload.chatId) {
                         console.log("Facebook Out~~Track Conversation！！");
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
-
                         // emit message directly the node where the conversation stopped
                         // 使用者第一句話以外的訊息會從這裡觸發，並傳進來
                         RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
@@ -349,8 +350,10 @@ module.exports = function (RED) {
                                 });
                             msgQueue.remove();
                         }
-                        else{
+                        else {
+                            console.log("msg的qu沒東西了!");
                             globalOutputRoleUserID = "";
+                            isFacebookOutRoleAnswer = false;
                         }
                     } else {
                         console.log("Facebook In！！");
@@ -389,7 +392,6 @@ module.exports = function (RED) {
                     // eslint-disable-next-line no-console
                     console.log(grey("--------------- Facebook Webhook Start ----------------"));
                     // eslint-disable-next-line no-console
-                    // console.log(green("Webhook URL: ") + white("http://"+node.serverLocation+" + (uiPort != "80" ? ":" + uiPort : "") + "/redbot/facebook" + this.webhookURL));
                     let port;
                     if (node.isHttps) {
                         port = "";
@@ -636,8 +638,7 @@ module.exports = function (RED) {
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
         this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
         this.config = RED.nodes.getNode(this.bot);
-
-        let count = 0;//用來記錄之前第一個顧客有沒有進來了，有進來就先+1
+        let first;//代表顧客第一次說話
 
         const node = this;
 
@@ -769,16 +770,15 @@ module.exports = function (RED) {
                                     //如果有設置要輸出的角色，那就把msg物件要輸出的角色ID換成使用者設置的角色ID(老闆)
                                     msg.payload.chatId = outputRoleUserID || msg.payload.chatId;
                                     //如果 這個Facebook Out有設置角色ID 而且 角色ID不等於自己 而且 老闆還沒回話 而且 count不是0 而且
-                                    if (outputRoleUserID && outputRoleUserID != originalMessengeUserID && !isFacebookOutRoleAnswer && count != 0 && !_.isEmpty(node.wires[0])) {
+                                    if (outputRoleUserID && outputRoleUserID != originalMessengeUserID && !isFacebookOutRoleAnswer && first && !_.isEmpty(node.wires[0])) {
                                         msgQueue.add({
                                             waiteThisFacebookOutNodeMsg: msg,
                                             waiteThisFacebookOutNode: node
                                         });
-                                        console.log(2);
+                                        first = false;
                                     }
                                     else {
-                                        count++;
-                                        console.log(1);
+                                        first = true;
                                         return sendMessage(msg, node);
                                     }
                                 })
