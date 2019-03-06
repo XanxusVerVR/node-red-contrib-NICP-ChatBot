@@ -1,7 +1,6 @@
 const _ = require("underscore");
 const moment = require("moment");
 const q = require("./lib/xanxus-queue");
-let msgQueue = new q();
 let originalMessengeUserIdQueue = new q();//儲存顧客的使用者ID
 const ChatLog = require("./lib/chat-log");
 const ChatContextStore = require("./lib/chat-context-store");
@@ -252,8 +251,6 @@ module.exports = function (RED) {
     let globalOutputRoleUserID;//當Facebook Out節點有設置角色ID時，將Messenger ID存入這個變數中
     let trackOpenFacebookOutNodeId;//儲存有打勾Tracking Answer功能的Facebook Out節點的ID
     let originalMessengeUserID;//存放最一開始Facebook In進來的UserID，為了保持Facebook Out在Tracking Answer功能輸出的時候，將輸出的UserID設回原本的
-    let isFacebookOutRoleAnswer = false;//用來設置老闆是否回話了嗎 的狀態
-
 
     function FacebookBotNode(config) {
 
@@ -338,23 +335,6 @@ module.exports = function (RED) {
                         // emit message directly the node where the conversation stopped
                         // 使用者第一句話以外的訊息會從這裡觸發，並傳進來
                         RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
-                        isFacebookOutRoleAnswer = true;
-                        if (msgQueue.size() != 0) {
-                            let msgAndNodeObject = msgQueue.last();
-                            sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode)
-                                .then(function () {
-                                    console.log("寄出Qu中的msg訊息了!!!!!");
-                                    // we"re done
-                                }, function (err) {
-                                    node.error(err);
-                                });
-                            msgQueue.remove();
-                        }
-                        else {
-                            console.log("msg的qu沒東西了!");
-                            globalOutputRoleUserID = "";
-                            isFacebookOutRoleAnswer = false;
-                        }
                     } else {
                         console.log("Facebook In！！");
                         // 使用者第一句話或訊息會從這裡觸發並接收進來，並且傳給Facebook In
@@ -429,7 +409,7 @@ module.exports = function (RED) {
                 console.log("ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs");
             }
             this.bot = null;
-            isFacebookOutRoleAnswer = false;
+            originalMessengeUserIdQueue.clear();
             done();
         });
 
@@ -638,7 +618,7 @@ module.exports = function (RED) {
         this.track = config.track;//當track有被使用者勾選，那facebook out後面可以再接其他節點，並且使用者的下一個訊息會重新路由至後面接的節點
         this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
         this.config = RED.nodes.getNode(this.bot);
-        let first;//代表顧客第一次說話
+        let isFirst = false;//用來表示是不是第一次訊息
 
         const node = this;
 
@@ -717,9 +697,28 @@ module.exports = function (RED) {
             msg.payload.chatId = m;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
             originalMessengeUserIdQueue.remove();
             node.send(msg);
+
+            if (msgQueue.size() != 0) {
+                let msgAndNodeObject = msgQueue.last();
+                sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode)
+                    .then(function () {
+                        console.log("寄出Qu中的msg訊息了!!!!!");
+                        // we"re done
+                    }, function (err) {
+                        node.error(err);
+                    });
+                msgQueue.remove();
+            }
+            else {
+                console.log("msg的qu沒東西了!");
+                globalOutputRoleUserID = "";
+                isFirst = false;
+            }
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
         RED.events.on("node:" + config.id, handler);
+
+        let msgQueue = new q();
 
         this.on("input", function (msg) {
             // 所有機器人要傳給使用者的訊息都會從這裡進來
@@ -769,16 +768,15 @@ module.exports = function (RED) {
                                 .then(function () {
                                     //如果有設置要輸出的角色，那就把msg物件要輸出的角色ID換成使用者設置的角色ID(老闆)
                                     msg.payload.chatId = outputRoleUserID || msg.payload.chatId;
-                                    //如果 這個Facebook Out有設置角色ID 而且 角色ID不等於自己 而且 老闆還沒回話 而且 count不是0 而且
-                                    if (outputRoleUserID && outputRoleUserID != originalMessengeUserID && !isFacebookOutRoleAnswer && first && !_.isEmpty(node.wires[0])) {
+                                    //如果 這個Facebook Out有設置角色ID 而且 角色ID不等於自己 而且 第一次訊息已經送出過了 而且 後面還有串接別的節點
+                                    if (outputRoleUserID && outputRoleUserID != originalMessengeUserID && isFirst && !_.isEmpty(node.wires[0])) {
                                         msgQueue.add({
                                             waiteThisFacebookOutNodeMsg: msg,
                                             waiteThisFacebookOutNode: node
                                         });
-                                        first = false;
                                     }
                                     else {
-                                        first = true;
+                                        isFirst = true;
                                         return sendMessage(msg, node);
                                     }
                                 })
@@ -793,7 +791,8 @@ module.exports = function (RED) {
         });
         // cleanup on close
         this.on("close", function () {
-            count = 0;
+            isFirst = false;
+            msgQueue.clear();
             RED.events.removeListener("node:" + config.id, handler);
         });
     }
