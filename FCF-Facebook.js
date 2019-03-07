@@ -1,7 +1,6 @@
 const _ = require("underscore");
 const moment = require("moment");
 const q = require("./lib/xanxus-queue");
-let originalMessengeUserIdQueue = new q();//儲存顧客的使用者ID
 const ChatLog = require("./lib/chat-log");
 const ChatContextStore = require("./lib/chat-context-store");
 const helpers = require("./lib/facebook/facebook");
@@ -409,7 +408,6 @@ module.exports = function (RED) {
                 console.log("ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs");
             }
             this.bot = null;
-            originalMessengeUserIdQueue.clear();
             done();
         });
 
@@ -593,7 +591,6 @@ module.exports = function (RED) {
                     } else {
                         // 將使用者的第一個傳訊息給下個節點
                         originalMessengeUserID = message.payload.chatId;
-                        originalMessengeUserIdQueue.add(originalMessengeUserID);
                         node.send(message);
                     }
 
@@ -619,6 +616,8 @@ module.exports = function (RED) {
         this.fcfFacebookRoleNode = RED.nodes.getNode(config.fcfFacebookRoleNode);
         this.config = RED.nodes.getNode(this.bot);
         let isFirst = false;//用來表示是不是第一次訊息
+        const originalMessengeUserIdQueue = new q();//儲存顧客的使用者ID
+        const msgQueue = new q();
 
         const node = this;
 
@@ -700,13 +699,15 @@ module.exports = function (RED) {
 
             if (msgQueue.size() != 0) {
                 let msgAndNodeObject = msgQueue.last();
-                sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode)
-                    .then(function () {
-                        console.log("寄出Qu中的msg訊息了!!!!!");
-                        // we"re done
-                    }, function (err) {
-                        node.error(err);
-                    });
+                setTimeout(function () {
+                    sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode)
+                        .then(function () {
+                            console.log("寄出Qu中的msg訊息了!!!!!");
+                            // we"re done
+                        }, function (err) {
+                            node.error(err);
+                        });
+                }, 1000);
                 msgQueue.remove();
             }
             else {
@@ -718,9 +719,8 @@ module.exports = function (RED) {
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
         RED.events.on("node:" + config.id, handler);
 
-        let msgQueue = new q();
-
         this.on("input", function (msg) {
+            originalMessengeUserIdQueue.add(msg.payload.chatId);
             // 所有機器人要傳給使用者的訊息都會從這裡進來
             // check if the message is from facebook
             if (msg.originalMessage != null && msg.originalMessage.transport !== "facebook") {
@@ -774,6 +774,7 @@ module.exports = function (RED) {
                                             waiteThisFacebookOutNodeMsg: msg,
                                             waiteThisFacebookOutNode: node
                                         });
+                                        console.log("這次顧客訊息存入Qu中了");
                                     }
                                     else {
                                         isFirst = true;
@@ -793,6 +794,7 @@ module.exports = function (RED) {
         this.on("close", function () {
             isFirst = false;
             msgQueue.clear();
+            originalMessengeUserIdQueue.clear();
             RED.events.removeListener("node:" + config.id, handler);
         });
     }
