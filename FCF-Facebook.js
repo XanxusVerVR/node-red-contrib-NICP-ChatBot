@@ -249,7 +249,6 @@ module.exports = function (RED) {
 
     let globalOutputRoleUserID;//當Facebook Out節點有設置角色ID時，將Messenger ID存入這個變數中
     let trackOpenFacebookOutNodeId;//儲存有打勾Tracking Answer功能的Facebook Out節點的ID
-    let originalMessengeUserID;//存放最一開始Facebook In進來的UserID，為了保持Facebook Out在Tracking Answer功能輸出的時候，將輸出的UserID設回原本的
 
     function FacebookBotNode(config) {
 
@@ -328,14 +327,12 @@ module.exports = function (RED) {
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
                     //前面是用來判斷是不是顧客，後面是判斷是不是老闆，如果現在的msg.payload.chatId與設置在Facebook Out的使用者ID相同，表示要將對話轉為等待這個被設置的使用者ID(老闆)
                     if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID == msg.payload.chatId) {
-                        console.log("Facebook Out~~Track Conversation！！");
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
                         // 使用者第一句話以外的訊息會從這裡觸發，並傳進來
                         RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
                     } else {
-                        console.log("Facebook In！！");
                         // 使用者第一句話或訊息會從這裡觸發並接收進來，並且傳給Facebook In
                         facebookBot.emit("relay", msg);
                     }
@@ -590,7 +587,6 @@ module.exports = function (RED) {
                         node.error(error);
                     } else {
                         // 將使用者的第一個傳訊息給下個節點
-                        originalMessengeUserID = message.payload.chatId;
                         node.send(message);
                     }
 
@@ -702,16 +698,14 @@ module.exports = function (RED) {
                 setTimeout(function () {
                     sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode)
                         .then(function () {
-                            console.log("寄出Qu中的msg訊息了!!!!!");
                             // we"re done
                         }, function (err) {
                             node.error(err);
                         });
-                }, 1000);
+                }, 600);
                 msgQueue.remove();
             }
             else {
-                console.log("msg的qu沒東西了!");
                 globalOutputRoleUserID = "";
                 isFirst = false;
             }
@@ -727,7 +721,6 @@ module.exports = function (RED) {
                 // exit, it"s not from facebook
                 return;
             }
-
             // try to send the meta first (those messages that doesn"t require a valid payload)
             sendMeta(msg)//then()有兩個參數，第一個表示Promise成功(被實現)的function，第二個表示Promise回傳失敗時要做的事的function
                 .then(function () {//如果這裡有傳參數進來，那整支程式就會停在這，且這個參數就是從sendMeta的reject方法傳進來的
@@ -755,7 +748,7 @@ module.exports = function (RED) {
                                 globalOutputRoleUserID = outputRoleUserID;
                                 trackOpenFacebookOutNodeId = node.id;
                                 //假設先在一開始的Facebook In進來是顧客，那就把顧客這個物件的currentConversationNode設為空，這樣在包括有Tracking Answer的整個Flow第一次結束後，讓顧客不會又再直接進到有Tracking Answer的節點來開始對話流程
-                                if (globalOutputRoleUserID) {
+                                if (outputRoleUserID) {
                                     chatContext.set("currentConversationNode", null);
                                 }
                                 else {
@@ -768,13 +761,12 @@ module.exports = function (RED) {
                                 .then(function () {
                                     //如果有設置要輸出的角色，那就把msg物件要輸出的角色ID換成使用者設置的角色ID(老闆)
                                     msg.payload.chatId = outputRoleUserID || msg.payload.chatId;
-                                    //如果 這個Facebook Out有設置角色ID 而且 角色ID不等於自己 而且 第一次訊息已經送出過了 而且 後面還有串接別的節點
-                                    if (outputRoleUserID && outputRoleUserID != originalMessengeUserID && isFirst && !_.isEmpty(node.wires[0])) {
+                                    //如果 這個Facebook Out有設置角色ID 而且 角色ID不等於自己(如設定的角色ID為老闆，但原始訊息是顧客，故這樣就不等於自己) 而且 第一次訊息已經送出過了 而且 後面還有串接別的節點
+                                    if (outputRoleUserID && outputRoleUserID != msg.originalMessage.chat.id && isFirst && !_.isEmpty(node.wires[0])) {
                                         msgQueue.add({
                                             waiteThisFacebookOutNodeMsg: msg,
                                             waiteThisFacebookOutNode: node
                                         });
-                                        console.log("這次顧客訊息存入Qu中了");
                                     }
                                     else {
                                         isFirst = true;
