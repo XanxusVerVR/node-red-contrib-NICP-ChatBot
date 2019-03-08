@@ -247,7 +247,8 @@ module.exports = function (RED) {
         });
     };
 
-    let storeAllFacebookOutTackingAnswer = [];//用來記錄目前
+    let globalOutputRoleUserID;//當Facebook Out節點有設置角色ID時，將Messenger ID存入這個變數中
+    let trackOpenFacebookOutNodeId;//儲存有打勾Tracking Answer功能的Facebook Out節點的ID
 
     function FacebookBotNode(config) {
 
@@ -260,7 +261,7 @@ module.exports = function (RED) {
         this.usernames = [];
 
         const node = this;
-        
+
         if (config.usernames) {
             this.usernames = _(config.usernames.split(",")).chain()
                 .map(function (userId) {
@@ -325,21 +326,12 @@ module.exports = function (RED) {
                     // then first pin, if not second pin
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
                     //前面是用來判斷是不是顧客，後面是判斷是不是老闆，如果現在的msg.payload.chatId與設置在Facebook Out的使用者ID相同，表示要將對話轉為等待這個被設置的使用者ID(老闆)
-                    let facebookOutConfigUserId = "";
-                    let facebookOutNodeId = "";
-                    for (let i = 0; i < storeAllFacebookOutTackingAnswer.length; i++) {
-                        if(storeAllFacebookOutTackingAnswer[i].userId == msg.payload.chatId){
-                            facebookOutConfigUserId = storeAllFacebookOutTackingAnswer[i].userId;
-                            facebookOutNodeId = storeAllFacebookOutTackingAnswer[i].nodeId;
-                            storeAllFacebookOutTackingAnswer.splice(i, 1);
-                        }
-                    }
-                    if (chatContext.get("currentConversationNode") != null || facebookOutConfigUserId) {
+                    if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID == msg.payload.chatId) {
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
                         // emit message directly the node where the conversation stopped
                         // 使用者第一句話以外的訊息會從這裡觸發，並傳進來
-                        RED.events.emit("node:" + facebookOutNodeId || currentConversationNode, msg);
+                        RED.events.emit("node:" + trackOpenFacebookOutNodeId || currentConversationNode, msg);
                     } else {
                         // 使用者第一句話或訊息會從這裡觸發並接收進來，並且傳給Facebook In
                         facebookBot.emit("relay", msg);
@@ -413,7 +405,6 @@ module.exports = function (RED) {
                 console.log("ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs");
             }
             this.bot = null;
-            storeAllFacebookOutTackingAnswer = [];
             done();
         });
 
@@ -715,7 +706,7 @@ module.exports = function (RED) {
                 msgQueue.remove();
             }
             else {
-                storeAllFacebookOutTackingAnswer = [];
+                globalOutputRoleUserID = "";
                 isFirst = false;
             }
         };
@@ -747,16 +738,15 @@ module.exports = function (RED) {
                         } else {
                             // payload is valid, go on
                             let track = node.track;
+                            // let chatContext = ChatContextStore.getOrCreateChatContext(node, chatId);
                             let chatContext = msg.chat();//chatContext存著六個方法分別為：get、remove、set、dump、all、clear
                             // check if this node has some wirings in the follow up pin, in that case
                             // the next message should be redirected here
                             //當這個Facebook Out有把track打勾時，才會進來這if
                             //經測試，不管track有沒有打勾，都會有東西，不會null
                             if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
-                                storeAllFacebookOutTackingAnswer.push({
-                                    userId: outputRoleUserID,
-                                    nodeId: node.id
-                                });
+                                globalOutputRoleUserID = outputRoleUserID;
+                                trackOpenFacebookOutNodeId = node.id;
                                 //假設先在一開始的Facebook In進來是顧客，那就把顧客這個物件的currentConversationNode設為空，這樣在包括有Tracking Answer的整個Flow第一次結束後，讓顧客不會又再直接進到有Tracking Answer的節點來開始對話流程
                                 if (outputRoleUserID) {
                                     chatContext.set("currentConversationNode", null);
@@ -779,7 +769,7 @@ module.exports = function (RED) {
                                         });
                                     }
                                     else {
-                                        isFirst = true;//第一次訊息已經發生了
+                                        isFirst = true;
                                         return sendMessage(msg, node);
                                     }
                                 })
