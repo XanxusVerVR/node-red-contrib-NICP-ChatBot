@@ -145,28 +145,33 @@ module.exports = function (RED) {
                         reportError
                     );
                     break;
-
-                case "inline-buttons":
-                    let quickReplies = _(msg.payload.buttons).map(function (button) {
-                        let quickReply = {
-                            content_type: "text",
-                            title: button.label,
-                            payload: !_.isEmpty(button.value) ? button.value : button.label
-                        };
-                        if (!_.isEmpty(button.image_url)) {
-                            quickReply.image_url = button.image_url;
-                        }
-                        return quickReply;
-                    });
-
+                case "quick-replies":
+                    // send
                     bot.sendMessage(
-                        msg.payload.chatId, {
+                        msg.payload.chatId,
+                        {
                             text: msg.payload.content,
-                            quick_replies: quickReplies
+                            quick_replies: helpers.parseButtons(msg.payload.buttons)
                         },
                         reportError
                     );
+                    break;
 
+                case "inline-buttons":
+                    bot.sendMessage(
+                        msg.payload.chatId,
+                        {
+                            attachment: {
+                                type: "template",
+                                payload: {
+                                    template_type: "button",
+                                    text: msg.payload.content,
+                                    buttons: helpers.parseButtons(msg.payload.buttons)
+                                }
+                            }
+                        },
+                        reportError
+                    );
                     break;
 
                 case "message":
@@ -274,7 +279,8 @@ module.exports = function (RED) {
         this.handleMessage = function (botMsg) {
 
             let facebookBot = this;
-
+            console.log("使用者說的話是：");
+            console.log(botMsg);
             // mark the original message with the platform
             botMsg = _.extend({}, botMsg, {
                 transport: "facebook"
@@ -422,6 +428,7 @@ module.exports = function (RED) {
                 let messageId = botMsg.message != null ? botMsg.message.mid : null;
 
                 if (!_.isEmpty(botMsg.account_linking)) {
+                    console.log("account_linking");
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -440,6 +447,7 @@ module.exports = function (RED) {
 
                 let message = botMsg.message;
                 if (!_.isEmpty(message.quick_reply)) {
+                    console.log("quick_reply");
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -450,6 +458,7 @@ module.exports = function (RED) {
                     });
                     return;
                 } else if (!_.isEmpty(message.text)) {
+                    console.log("text");
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -462,10 +471,12 @@ module.exports = function (RED) {
                 }
 
                 if (_.isArray(message.attachments) && !_.isEmpty(message.attachments)) {
+                    console.log("attachments");
                     let attachment = message.attachments[0];
                     switch (attachment.type) {
                         case "audio":
                             // download the audio into a buffer
+                            console.log("audio");
                             helpers.downloadFile(attachment.payload.url)
                                 .then(function (buffer) {
                                     resolve({
@@ -483,6 +494,7 @@ module.exports = function (RED) {
                             break;
                         case "image":
                             // download the image into a buffer
+                            console.log("image");
                             helpers.downloadFile(attachment.payload.url)
                                 .then(function (buffer) {
                                     resolve({
@@ -500,6 +512,7 @@ module.exports = function (RED) {
                             break;
                         case "file":
                             // download the image into a buffer
+                            console.log("file");
                             helpers.downloadFile(attachment.payload.url)
                                 .then(function (buffer) {
                                     resolve({
@@ -516,6 +529,7 @@ module.exports = function (RED) {
                                 });
                             break;
                         case "location":
+                            console.log("location");
                             resolve({
                                 chatId: chatId,
                                 messageId: messageId,
@@ -714,6 +728,7 @@ module.exports = function (RED) {
         RED.events.on("node:" + config.id, handler);
 
         this.on("input", function (msg) {
+            console.log(msg);
             originalMessengeUserIdQueue.add(msg.payload.chatId);
             // 所有機器人要傳給使用者的訊息都會從這裡進來
             // check if the message is from facebook
