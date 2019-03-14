@@ -32,12 +32,16 @@
 
 		oneditprepare: function () {
 			// this.type是這個節點的類型，如：lower-case。為字串
+
 			let showContextList = function () {
 				$.when(
 					$.getJSON(`context/flow/${this.z}`)
 				).then((data1) => {
-					console.log(JSON.parse(data1.xanxusContext[this.type].msg)[0].datas);
-					this.datas = JSON.parse(data1.xanxusContext[this.type].msg)[0].datas;
+					// console.log(JSON.parse(data1.xanxusContext[this.type].msg)[1].name2);
+					this.name2 = JSON.parse(data1.xanxusContext[this.type].msg)[1].name2;
+					this.datas = JSON.parse(data1.xanxusContext[this.type].msg)[1].datas;
+					$("#node-input-name2").val(this.name2);
+					// console.log(this.name2);
 					for (let i = 0; i < this.datas.length; i++) {
 						let data = this.datas[i];
 						$("#node-input-rule-container").editableList("addItem", data);
@@ -48,6 +52,8 @@
 			}.bind(this);
 
 			showContextList();
+
+			// $("#node-input-name2").prop('disabled', false);
 
 			$("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
 				addItem: function (container, i, data) {
@@ -66,20 +72,47 @@
 				sortable: true
 			})
 
+			// for (let i = 0; i < this.datas.length; i++) {
+			// 	let data = this.datas[i];
+			// 	$("#node-input-rule-container").editableList("addItem", data);
+			// }
 
 		},
 		oneditsave: function () {
-			let datas = $("#node-input-rule-container").editableList("items");
-			let node = this;
+			let datas = $("#node-input-rule-container").editableList("items");//這是在取得html dom相關的物件
+			let node = this;// 取得這個節點的相關屬性
 			node.datas = [];
-			datas.each(function (i) {
-				let data = $(this);
+			datas.each(function (i) {//走訪DOM中的每個item物件
+				let data = $(this);//取得這次這個DOM item物件
+				// 從DOM item物件中找到元素的值
 				let r = {
 					a: data.find(".node-input-xanxusInput").val(),
 					b: data.find(".node-input-xanxusInput2").val()
 				};
-				node.datas.push(r);
+				node.datas.push(r);//放進去
 			});
+			node.name2 = $("#node-input-name2").val();
+			// $("#node-input-name2").val(this.name2);
+			// let showContextList = function () {
+			// 	$.when(
+			// 		$.getJSON(`context/flow/${this.z}`)
+			// 	).then((data1) => {
+			// 		console.log(JSON.parse(data1.xanxusContext[this.type].msg)[1].name2);
+			// 		this.name2 = JSON.parse(data1.xanxusContext[this.type].msg)[1].name2;
+			// 		this.datas = JSON.parse(data1.xanxusContext[this.type].msg)[1].datas;
+			// 		$("#node-input-name2").val(this.name2);
+			// 		// console.log(this.name2);
+			// 		for (let i = 0; i < this.datas.length; i++) {
+			// 			let data = this.datas[i];
+			// 			$("#node-input-rule-container").editableList("addItem", data);
+			// 		}
+			// 	}).fail(function (problem) {
+			// 		console.log(problem);
+			// 	});
+			// }.bind(this);
+
+			// showContextList();
+			// console.log(node);
 		}
 	});
 </script>
