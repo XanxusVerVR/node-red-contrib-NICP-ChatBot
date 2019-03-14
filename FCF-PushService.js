@@ -1,3 +1,4 @@
+const _ = require("underscore");
 const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
@@ -20,11 +21,30 @@ module.exports = function (RED) {
             RED.httpNode.options("*", corsHandler);
         }
 
-        let postCallback = function (req, res) {
+        const flowContext = this.context().flow;//建立並取得context物件
+
+        let postCallback = function _postCallback(req, res) {
+            //當config屬性存在，表示有資料需要設定並儲存
+            if (!_.isEmpty(req.body.config)) {// 當_.isEmpty()參數中的物件是  未定義 null "" {}  等等這四個情況時，就會是true
+                let contextFileSystemNodeTypeKey = flowContext.get(req.body.config.type, "xanxusContext");
+                //如果這個屬性存在，那就拿出來，放新的進去
+                if (contextFileSystemNodeTypeKey) {
+                    contextFileSystemNodeTypeKey.push(req.body.config);
+                    flowContext.set(req.body.config.type, contextFileSystemNodeTypeKey, "xanxusContext");
+                }
+                //如果不存在，就創造新的，並放進去
+                else {
+                    let _contextFileSystemNodeTypeKey = [];
+                    _contextFileSystemNodeTypeKey.push(req.body.config);
+                    flowContext.set(req.body.config.type, _contextFileSystemNodeTypeKey, "xanxusContext");
+                }
+            }
             let msg = {
                 payload: {
-                    userID: req.body.UserID,
-                    content: req.body.Message
+                    userID: req.body.userID || "",
+                    content: req.body.message || "",
+                    result: req.body.result || "",
+                    config: req.body.config || ""
                 }
             };
             node.send(msg);

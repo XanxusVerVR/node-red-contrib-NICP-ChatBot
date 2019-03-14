@@ -1,87 +1,104 @@
 <script type="text/javascript">
 	RED.nodes.registerType("lower-case", {
-		//定義此節點要在NodeRED編輯器左邊的哪個分類之中，所以這裡定義他要在function分類中
-		category: "function",
-		color: "#a6bbcf",
-		//定義預設值，當拉出節點時會顯示設值
+		category: "input",
+		color: "#BBFF66",
 		defaults: {
-			// 節點於編輯器右邊資訊欄Name欄位所顯示的字串
 			name: {
 				value: ""
 			},
 			name2: {
 				value: ""
 			},
-			inputs: {
-				value: 1
-			},
-			outputs: {
-				value: 1
-			},
-			myCredentials: {
-				value: "",
-				type: "config-credential-node",
-				required: false
+			datas: {
+				value: [{
+					a: "str",
+					b: "Xanxus"
+				}]
 			}
 		},
-		//一開始是幾個輸入
 		inputs: 1,
-		//一開始是幾個輸出
 		outputs: 1,
+		paletteLabel: "lower-case",
 		icon: "file.png",
-		//定義節點拉出來的時候，預設顯示的字串
-		//觸發時機：1.當節點已經拉出來時，頁面重整會觸發(呼叫)兩次
-		//	      2.當點擊節點時會觸發一次，和當節點失去焦點時觸發一次
 		label: function () {
-			console.log("Xanxus");
-			return this.name || "lower case";
+			let labelName = "Lower Case";
+			if (this.name) {
+				return `${labelName} : ${this.name}`;
+			}
+			else {
+				return labelName;
+			}
 		},
-		// 定義節點在左邊時的字串(還沒拉出來的時候)
-		paletteLabel: "Lower Case",
-		// 定義在編輯表單開啟時，要做的事
+
 		oneditprepare: function () {
+			// this.type是這個節點的類型，如：lower-case。為字串
+			let showContextList = function () {
+				$.when(
+					$.getJSON(`context/flow/${this.z}`)
+				).then((data1) => {
+					console.log(JSON.parse(data1.xanxusContext[this.type].msg)[0].datas);
+					this.datas = JSON.parse(data1.xanxusContext[this.type].msg)[0].datas;
+					for (let i = 0; i < this.datas.length; i++) {
+						let data = this.datas[i];
+						$("#node-input-rule-container").editableList("addItem", data);
+					}
+				}).fail(function (problem) {
+					console.log(problem);
+				});
+			}.bind(this);
+
+			showContextList();
+
 			$("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
-				addItem: function (container, i, opt) {
-					let row2 = $("<div/>", { style: "margin-top:8px;" }).appendTo(container);
-					$("<div/>", { style: "display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;" })
-						.text(to)
-						.appendTo(row2);
-				}
+				addItem: function (container, i, data) {
+					if (!data.hasOwnProperty("a")) {
+						data.a = "str";
+						data.b = "Xanxus";
+					}
+					let propertyValue = $("<input/>", { class: "node-input-xanxusInput", type: "text", value: data.a })
+						.appendTo(container);
+					let propertyValue2 = $("<input/>", { class: "node-input-xanxusInput2", type: "text", value: data.b })
+						.appendTo(container);
+					propertyValue.val(data.a);
+					propertyValue2.val(data.b);
+				},
+				removable: true,
+				sortable: true
 			})
+
+
 		},
-		// 定義將編輯表單儲存時，要做的事
 		oneditsave: function () {
+			let datas = $("#node-input-rule-container").editableList("items");
+			let node = this;
+			node.datas = [];
+			datas.each(function (i) {
+				let data = $(this);
+				let r = {
+					a: data.find(".node-input-xanxusInput").val(),
+					b: data.find(".node-input-xanxusInput2").val()
+				};
+				node.datas.push(r);
+			});
 		}
 	});
 </script>
 
 <!-- 定義此節點的表單元件 -->
 <script type="text/x-red" data-template-name="lower-case">
+	<!-- 節點名稱 -->
 	<div class="form-row">
 		<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
 	</div>
-	<!-- 自定義的表單，用來當作測試時新定義的屬性 -->
+
+	<!-- 節點名稱2:測試用 -->
 	<div class="form-row">
 		<label for="node-input-name2"><i class="icon-tag"></i> Name2</label>
 		<input type="text" id="node-input-name2" placeholder="Name2">
-	</div>
-	<!-- 這裡要放置一個input表單來當設置Credentials資料的進入點 -->
-	<div class="form-row">
-        <label for="node-input-myCredentials" style="width:100%;"><i class="icon-bookmark"></i>My Credentials</label>
-        <input type="text" id="node-input-myCredentials">
     </div>
-	<!-- <div class="form-row">
-		<label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="function.label.outputs"></span></label>
-		<input id="node-input-outputs" style="width: 60px;" value="1">
-	</div>
-	<div class="form-row">
-		<label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="function.label.inputs">Inputs</span></label>
-		<input id="node-input-inputs" style="width: 60px;" value="1">
-	</div> -->
-	<div class="form-row" style="margin-bottom:0;">
-		<label><i class="fa fa-list"></i> <span data-i18n="change.label.rules"></   ></label>
-	</div>
+
+	<!-- 定義裝表單項目的容器? -->
 	<div class="form-row node-input-rule-container-row">
 		<ol id="node-input-rule-container"></ol>
 	</div>

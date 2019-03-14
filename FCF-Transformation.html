@@ -136,6 +136,7 @@
                 rule.find(".red-ui-typedInput").typedInput("width", newWidth - 160);
             }
 
+            //this.z是目前這個節點所在的Flow標籤頁的id
             let showContextList = function () {
                 $.when(
                     $.getJSON(`context/flow/${this.z}`),
