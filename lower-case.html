@@ -9,6 +9,12 @@
 			name2: {
 				value: ""
 			},
+			isUseExistContextNode: {//是否要使用已經存在的Context資料(將會存取本地檔案系統的Context)
+				value: false
+			},
+			configDataId: {
+				value: ""
+			},
 			datas: {
 				value: [{
 					a: "str",
@@ -32,20 +38,53 @@
 
 		oneditprepare: function () {
 			// this.type是這個節點的類型，如：lower-case。為字串
-
 			let showContextList = function () {
 				$.when(
 					$.getJSON(`context/flow/${this.z}`)
 				).then((data1) => {
-					// console.log(JSON.parse(data1.xanxusContext[this.type].msg)[1].name2);
-					this.name2 = JSON.parse(data1.xanxusContext[this.type].msg)[1].name2;
-					this.datas = JSON.parse(data1.xanxusContext[this.type].msg)[1].datas;
-					$("#node-input-name2").val(this.name2);
-					// console.log(this.name2);
-					for (let i = 0; i < this.datas.length; i++) {
-						let data = this.datas[i];
-						$("#node-input-rule-container").editableList("addItem", data);
+					let theNodeConfigDatasArray = JSON.parse(data1.xanxusContext[this.type].msg);
+					let node = this;
+					// 動態生成option
+					let nodeContextConfigDatsOption = [];
+					for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
+						let optionObject = {
+							v: theNodeConfigDatasArray[i].id,
+							l: theNodeConfigDatasArray[i].name
+						}
+						nodeContextConfigDatsOption.push(optionObject);
 					}
+					$("#node-input-nodeContextConfigDats").append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+					for (let i = 0; i < nodeContextConfigDatsOption.length; i++) {
+						$("#node-input-nodeContextConfigDats").append($("<option></option>").val(nodeContextConfigDatsOption[i].v).text(nodeContextConfigDatsOption[i].l));
+					}
+
+					// 如果上次有設置了某節點資料，則找到他，並把option設為上次選中的那筆資料
+					if (this.configDataId && this.configDataId != "--") {
+						$("#node-input-nodeContextConfigDats option").each(function () {
+							if ($(this).val() == node.configDataId) {
+								$(this).prop("selected", true);
+							}
+						});
+					}
+
+					$("#node-input-nodeContextConfigDats").change(function () {
+						$("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
+						//$(this).val()會印出這個被選中的option的值
+						let id = $(this).val();
+						//找出被選中的資料
+						for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
+							if (theNodeConfigDatasArray[i].id == id) {
+								node.name2 = theNodeConfigDatasArray[i].name2;
+								node.datas = theNodeConfigDatasArray[i].datas;
+							}
+						}
+						// 把context的值存進addItem DOM物件中
+						$("#node-input-name2").val(node.name2);
+						for (let i = 0; i < node.datas.length; i++) {
+							let data = node.datas[i];
+							$("#node-input-rule-container").editableList("addItem", data);
+						}
+					});
 				}).fail(function (problem) {
 					console.log(problem);
 				});
@@ -53,7 +92,21 @@
 
 			showContextList();
 
-			// $("#node-input-name2").prop('disabled', false);
+			//當打勾或不打勾時，下拉選單要隱藏或顯示
+			$("#node-input-isUseExistContextNode").change(function () {
+				if ($(this).is(":checked")) {//當有打勾時
+					$("#node-input-name2").prop("disabled", true);//這個input就不要給使用者填了，因為就是要拿外部系統設定好的資料(老闆)
+					$(".node-input-xanxusInput").prop("disabled", true);
+					$(".node-input-xanxusInput2").prop("disabled", true);
+					$(".nodeConfigDataOption").show();
+				}
+				else {//沒打勾時
+					$("#node-input-name2").prop("disabled", false);
+					$(".node-input-xanxusInput").prop("disabled", false);
+					$(".node-input-xanxusInput2").prop("disabled", false);
+					$(".nodeConfigDataOption").hide();
+				}
+			});
 
 			$("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
 				addItem: function (container, i, data) {
@@ -67,19 +120,31 @@
 						.appendTo(container);
 					propertyValue.val(data.a);
 					propertyValue2.val(data.b);
+
+					// 要加在addItem function裡面才有效果
+					if ($("#node-input-isUseExistContextNode").is(":checked")) {
+						$("#node-input-name2").prop("disabled", true);//這個input就不要給使用者填了，因為就是要拿外部系統設定好的資料(老闆)
+						$(".node-input-xanxusInput").prop("disabled", true);
+						$(".node-input-xanxusInput2").prop("disabled", true);
+					}
+					else {
+						$("#node-input-name2").prop("disabled", false);
+						$(".node-input-xanxusInput").prop("disabled", false);
+						$(".node-input-xanxusInput2").prop("disabled", false);
+					}
 				},
 				removable: true,
 				sortable: true
 			})
 
-			// for (let i = 0; i < this.datas.length; i++) {
-			// 	let data = this.datas[i];
-			// 	$("#node-input-rule-container").editableList("addItem", data);
-			// }
+			for (let i = 0; i < this.datas.length; i++) {
+				let data = this.datas[i];
+				$("#node-input-rule-container").editableList("addItem", data);
+			}
 
 		},
 		oneditsave: function () {
-			let datas = $("#node-input-rule-container").editableList("items");//這是在取得html dom相關的物件
+			let datas = $("#node-input-rule-container").editableList("items");//取得設置在item這個DOM物件的資料
 			let node = this;// 取得這個節點的相關屬性
 			node.datas = [];
 			datas.each(function (i) {//走訪DOM中的每個item物件
@@ -92,27 +157,8 @@
 				node.datas.push(r);//放進去
 			});
 			node.name2 = $("#node-input-name2").val();
-			// $("#node-input-name2").val(this.name2);
-			// let showContextList = function () {
-			// 	$.when(
-			// 		$.getJSON(`context/flow/${this.z}`)
-			// 	).then((data1) => {
-			// 		console.log(JSON.parse(data1.xanxusContext[this.type].msg)[1].name2);
-			// 		this.name2 = JSON.parse(data1.xanxusContext[this.type].msg)[1].name2;
-			// 		this.datas = JSON.parse(data1.xanxusContext[this.type].msg)[1].datas;
-			// 		$("#node-input-name2").val(this.name2);
-			// 		// console.log(this.name2);
-			// 		for (let i = 0; i < this.datas.length; i++) {
-			// 			let data = this.datas[i];
-			// 			$("#node-input-rule-container").editableList("addItem", data);
-			// 		}
-			// 	}).fail(function (problem) {
-			// 		console.log(problem);
-			// 	});
-			// }.bind(this);
-
-			// showContextList();
-			// console.log(node);
+			let selectedVal = $("#node-input-nodeContextConfigDats").children("option:selected").val();
+			node.configDataId = selectedVal;
 		}
 	});
 </script>
@@ -129,6 +175,21 @@
 	<div class="form-row">
 		<label for="node-input-name2"><i class="icon-tag"></i> Name2</label>
 		<input type="text" id="node-input-name2" placeholder="Name2">
+	</div>
+
+	<!-- chechbox：看使用者要選擇哪個模式。自己設定還是用已存在的節點設置資料  -->
+	<div class="form-row">
+	<label for="node-input-isUseExistContextNode">Mode</label>
+		<input type="checkbox" id="node-input-isUseExistContextNode" style="margin-left: 0px; vertical-align: top; width: auto !important;">
+		<label style="width:auto !important;" for="node-input-isUseExistContextNode">Do you want to use existing data?</label>
+	</div>
+
+	<!-- select option：看使用者要選哪一筆context節點資料 -->
+	<div class="form-row nodeConfigDataOption">
+        <label for="node-input-nodeContextConfigDats"> Node Config Data </label>
+        <select id="node-input-nodeContextConfigDats" class="nodeConfigDataOption">
+            <!-- <option value="red">red</option> -->
+        </select>
     </div>
 
 	<!-- 定義裝表單項目的容器? -->

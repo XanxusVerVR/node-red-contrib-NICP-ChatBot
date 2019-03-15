@@ -13,6 +13,7 @@ module.exports = function (RED) {
         // console.log(node);
         // console.log(flowContext.get(config.type, "xanxusContext"));
         node.on("input", function (msg) {
+            console.log("-----------------下面是config的資料---------------------");
             console.log(config);
             // msg.payload = msg.payload.toLowerCase();
             msg.payload = node.name2;
