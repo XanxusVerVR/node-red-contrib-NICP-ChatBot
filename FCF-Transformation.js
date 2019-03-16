@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-
+const _ = require("underscore");
 module.exports = function (RED) {
     "use strict";
 
@@ -209,7 +209,12 @@ module.exports = function (RED) {
                                 if (rule.t === "delete") {
                                     RED.util.setMessageProperty(msg, property, undefined);
                                 } else if (rule.t === "set") {
-                                    RED.util.setMessageProperty(msg, property, value);
+                                    if (_.isEmpty(property)) {
+                                        msg = value;
+                                    }
+                                    else {
+                                        RED.util.setMessageProperty(msg, property, value);
+                                    }
                                 } else if (rule.t === "change") {
                                     current = RED.util.getMessageProperty(msg, property);
                                     if (typeof current === "string") {

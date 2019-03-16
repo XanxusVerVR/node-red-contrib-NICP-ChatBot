@@ -11,7 +11,6 @@ module.exports = function (RED) {
         let node = this;
 
         this.on("input", function (msg) {
-
             let headers = {
                 "Content-Type": "application/json;charset=utf-8"
             };
@@ -26,8 +25,8 @@ module.exports = function (RED) {
 
             request(options, function (error, response, body) {
                 body = JSON.parse(body);
-                msg.result = body.Result;
-                msg.payload = body.Message;
+                msg.result = body.result;
+                msg.payload = body.message;
                 node.send(msg);
             });
 

@@ -55,6 +55,18 @@ module.exports = function (RED) {
 
         if (!config.url) {
             config.url = "/您設置的URL樣式";
+            node.status({
+                fill: "blue",
+                shape: "ring",
+                text: "URL Path Undefined"
+            });
+        }
+        else {
+            node.status({
+                fill: "blue",
+                shape: "dot",
+                text: config.url
+            });
         }
 
         console.log(green(`Push Service節點的ID: `) + white(node.id) + green(` 提供的URL樣式為 `) + white(`https://your_domain${config.url}`));

@@ -74,6 +74,9 @@ module.exports = function (RED) {
                         if (!_.isEmpty(item.imageUrl)) {
                             element.image_url = item.imageUrl;
                         }
+                        if (_.isEmpty(element.buttons)) {// 當沒有button屬性時要把他移除，不然傳到Messenger會錯
+                            delete element.buttons;
+                        }
                         return element;
                     });
                     // sends
@@ -106,6 +109,9 @@ module.exports = function (RED) {
                         }
                         if (!_.isEmpty(item.imageUrl)) {
                             element.image_url = item.imageUrl;
+                        }
+                        if (_.isEmpty(element.buttons)) {// 當沒有button屬性時要把他移除，不然傳到Messenger會錯
+                            delete element.buttons;
                         }
                         return element;
                     });
@@ -279,8 +285,6 @@ module.exports = function (RED) {
         this.handleMessage = function (botMsg) {
 
             let facebookBot = this;
-            console.log("使用者說的話是：");
-            console.log(botMsg);
             // mark the original message with the platform
             botMsg = _.extend({}, botMsg, {
                 transport: "facebook"
@@ -313,6 +317,9 @@ module.exports = function (RED) {
                     chatContext.set("message", payload.content);
 
                     let chatLog = new ChatLog(chatContext);
+                    payload.first_name = profile.first_name;
+                    payload.last_name = profile.last_name;
+
                     //這裡其實是return一個msg物件，return的msg物件從下一個then()進入
                     return chatLog.log({
                         payload: payload,
@@ -728,7 +735,6 @@ module.exports = function (RED) {
         RED.events.on("node:" + config.id, handler);
 
         this.on("input", function (msg) {
-            console.log(msg);
             originalMessengeUserIdQueue.add(msg.payload.chatId);
             // 所有機器人要傳給使用者的訊息都會從這裡進來
             // check if the message is from facebook
@@ -754,7 +760,13 @@ module.exports = function (RED) {
                             // payload is valid, go on
                             let track = node.track;
                             // let chatContext = ChatContextStore.getOrCreateChatContext(node, chatId);
-                            let chatContext = msg.chat();//chatContext存著六個方法分別為：get、remove、set、dump、all、clear
+                            let chatContext;
+                            try {
+                                chatContext = msg.chat();
+                            } catch (error) {
+                                console.log("chat function不存在");
+                            }
+                            //chatContext存著六個方法分別為：get、remove、set、dump、all、clear
                             // check if this node has some wirings in the follow up pin, in that case
                             // the next message should be redirected here
                             //當這個Facebook Out有把track打勾時，才會進來這if
