@@ -1,0 +1,213 @@
+<script type="text/javascript">
+    let locale = [
+        "default",
+        "en_US",
+        "ca_ES",
+        "cs_CZ",
+        "cx_PH",
+        "cy_GB",
+        "da_DK",
+        "de_DE",
+        "eu_ES",
+        "en_UD",
+        "es_LA",
+        "es_ES",
+        "gn_PY",
+        "fi_FI",
+        "fr_FR",
+        "gl_ES",
+        "hu_HU",
+        "it_IT",
+        "ja_JP",
+        "ko_KR",
+        "nb_NO",
+        "nn_NO",
+        "nl_NL",
+        "fy_NL",
+        "pl_PL",
+        "pt_BR",
+        "pt_PT",
+        "ro_RO",
+        "ru_RU",
+        "sk_SK",
+        "sl_SI",
+        "sv_SE",
+        "th_TH",
+        "tr_TR",
+        "ku_TR",
+        "zh_CN",
+        "zh_HK",
+        "zh_TW",
+        "af_ZA",
+        "sq_AL",
+        "hy_AM",
+        "az_AZ",
+        "be_BY",
+        "bn_IN",
+        "bs_BA",
+        "bg_BG",
+        "hr_HR",
+        "nl_BE",
+        "en_GB",
+        "et_EE",
+        "fo_FO",
+        "fr_CA",
+        "ka_GE",
+        "el_GR",
+        "gu_IN",
+        "hi_IN",
+        "is_IS",
+        "id_ID",
+        "ga_IE",
+        "jv_ID",
+        "kn_IN",
+        "kk_KZ",
+        "lv_LV",
+        "lt_LT",
+        "mk_MK",
+        "mg_MG",
+        "ms_MY",
+        "mt_MT",
+        "mr_IN",
+        "mn_MN",
+        "ne_NP",
+        "pa_IN",
+        "sr_RS",
+        "so_SO",
+        "sw_KE",
+        "tl_PH",
+        "ta_IN",
+        "te_IN",
+        "ml_IN",
+        "uk_UA",
+        "uz_UZ",
+        "vi_VN",
+        "km_KH",
+        "tg_TJ",
+        "ar_AR",
+        "he_IL",
+        "ur_PK",
+        "fa_IR",
+        "ps_AF",
+        "my_MM",
+        "qz_MM",
+        "or_IN",
+        "si_LK",
+        "rw_RW",
+        "cb_IQ",
+        "ha_NG",
+        "ja_KS",
+        "br_FR",
+        "tz_MA",
+        "co_FR",
+        "as_IN",
+        "ff_NG",
+        "sc_IT",
+        "sz_PL"
+    ];
+    RED.nodes.registerType("FCF-WelcomeScreen", {
+        category: "FCF",
+        color: "#FFCC66",
+        defaults: {
+            name: {
+                value: "",
+            },
+            bot: {
+                value: "",
+                type: "FCF-facebook-node",
+                required: true
+            },
+            startedButtonPostbackPayload: {
+                value: "",
+            },
+            greetings: {
+                value: [{
+                    locale: "",
+                    text: ""
+                }]
+            }
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: "debug.png",
+        paletteLabel: "Welcome Screen Config",
+        label: function () {
+            let labelName = "Welcome Screen Config";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
+        },
+        oneditprepare: function () {
+            let node = this;
+            $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+                addItem: function (container, i, _greetings) {
+                    if (!_greetings.hasOwnProperty("locale")) {
+                        _greetings.locale = "default";
+                        _greetings.text = "Hello!";
+                    }
+                    let localeSelectField = $("<select/>", { class: "node-input-locale", style: "width:110px; margin-right:10px;" }).appendTo(container);
+                    let selectOptions = [];
+                    for (let i = 0; i < locale.length; i++) {
+                        selectOptions.push({
+                            value: locale[i],
+                            text: locale[i]
+                        });
+                    }
+                    for (let i = 0; i < selectOptions.length; i++) {
+                        localeSelectField.append($("<option></option>").val(selectOptions[i].value).text(selectOptions[i].text));
+                    }
+                    let propertyValue2 = $("<input/>", { class: "node-input-text", type: "text", value: _greetings.text })
+                        .appendTo(container);
+
+                    localeSelectField.val(_greetings.locale);
+
+                },
+                removable: true,
+                sortable: true
+            })
+            for (let i = 0; i < node.greetings.length; i++) {
+                $("#node-input-rule-container").editableList("addItem", node.greetings[i]);
+            }
+        },
+        oneditsave: function () {
+            let node = this;
+            let items = $("#node-input-rule-container").editableList("items");
+            node.greetings = [];//這你一定要創造一個node.greetings，跟上面定義的屬性名稱要一樣，這樣才存得進去
+            items.each(function (i) {
+                let data = $(this);
+                node.greetings.push({
+                    locale: data.find(".node-input-locale").val(),//這裡的locale和text也是和上面定義的屬性要一樣
+                    text: data.find(".node-input-text").val()
+                });
+            });
+        }
+    });
+
+</script>
+
+<script type="text/x-red" data-template-name="FCF-WelcomeScreen">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bot"><i class="icon-bookmark"></i> Bot</label>
+        <input type="text" id="node-input-bot" placeholder="Bot">
+    </div>
+    <div class="form-row">
+        <!-- 開始使用按鈕的字串 -->
+        <label for="node-input-startedButtonPostbackPayload"><i class="icon-tag"></i> Postback Payload</label>
+        <input type="text" id="node-input-startedButtonPostbackPayload" placeholder="Postback Payload">
+    </div>
+    <!-- 定義裝表單項目的容器? -->
+	<div class="form-row node-input-rule-container-row">
+		<ol id="node-input-rule-container"></ol>
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="FCF-WelcomeScreen">
+</script>
