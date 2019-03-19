@@ -1,3 +1,4 @@
+const _ = require("underscore");
 const request = require("request");
 const clc = require("cli-color");
 const green = clc.greenBright;
@@ -47,28 +48,25 @@ module.exports = function (RED) {
                         console.log(white("發生error!!!，訊息如下："));
                         console.log(redBright(error));
                     }
-                    else {
-                        console.log("設置成功!");
-                    }
+                    console.log("觸發設置開始使用字串!");
                     console.log(white("回應狀態碼為: ") + green(response.statusCode));
                     console.log(white("回應的Body: ") + green(body));
                 });
             }
-            let isEveryExist = false;
+            let isEveryExist = true;
             for (let i = 0; i < node.greetings.length; i++) {
-                if (node.greetings[i].locale && node.greetings[i].text) {
-                    isEveryExist = true;
+                if (!node.greetings[i].locale || !node.greetings[i].text) {
+                    isEveryExist = false;
+                    break;
                 }
             }
-            if (isEveryExist) {
+            if (isEveryExist && !_.isEmpty(node.greetings)) {
                 request(optionsGreeting, function (error, response, body) {
                     if (error) {
                         console.log(white("發生error!!!，訊息如下："));
                         console.log(redBright(error));
                     }
-                    else {
-                        console.log("設置成功!");
-                    }
+                    console.log("觸發問候語設置!");
                     console.log(white("回應狀態碼為: ") + green(response.statusCode));
                     console.log(white("回應的Body: ") + green(body));
                 });
