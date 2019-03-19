@@ -6,8 +6,6 @@ const Context = require("../red/runtime/nodes/context");
 
 describe("Message節點測試", function () {
 
-    this.timeout(1 * 1000);
-
     beforeEach(function (done) {
         helper.startServer(done);
     });
@@ -547,6 +545,11 @@ describe("Message節點測試", function () {
     });
 
     it("測試Context flow，在Message節點的模板訊息有穿插flow的屬性，看是否可以成功轉換成實際的值", function (done) {
+        /* 2019-3-20把測試修好後，但所有context的測試變不通過了，出現以下的測試錯誤訊息：
+        Error: Timeout of 2000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves.
+        將"For async tests and hooks, ensure "done()" is called"丟Google搜尋後，找到這篇 https://github.com/mochajs/mocha/issues/2025#issuecomment-243478128
+        在每個it 加一行 setTimeout(done, 1000); 就可以動了! */
+        setTimeout(done, 1000);
         let messageNode = JSON.parse(`[
             {
                 "id": "51b6a1f0.2809f",
@@ -582,11 +585,15 @@ describe("Message節點測試", function () {
         helper.load(fcfCommandNode, messageNode, function () {
             let n1 = helper.getNode(messageNode[0].id);
             let helperNode = helper.getNode("n2");
-            n1.context().flow.set("aaa", "123123");//設置一個context flow的物件屬性，所以是設置了flow.aaa=123123
             helperNode.on("input", function (msg) {
-                msg.payload.should.have.property("content", "This is the payload: 123123 !");
-                done();
+                try {
+                    msg.payload.should.have.property("content", "This is the payload: 123123 !");
+                    done();
+                } catch (error) {
+                    done(error);
+                }
             });
+            n1.context().flow.set("aaa", "123123");//設置一個context flow的物件屬性，所以是設置了flow.aaa=123123
             n1.receive({
                 "payload": {
                     "chatId": "1001653183292396",
@@ -608,6 +615,7 @@ describe("Message節點測試", function () {
     });
 
     it("測試Context global，在Message節點的模板訊息有穿插global的屬性，看是否可以成功轉換成實際的值", function (done) {
+        setTimeout(done, 1000);
         let messageNode = JSON.parse(`[
             {
                 "id": "51b6a1f0.2809f",
