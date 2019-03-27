@@ -26,6 +26,13 @@
             else {
                 return labelName;
             }
+        },
+        oneditprepare: function () {
+            let node = this;
+            $("#node-input-urlPattern").text(`http://127.0.0.1:1880${node.url}`);//讓一打開下面就會顯示上次設的URL樣式
+            $("#node-input-url").keyup(function (event) {//當使用者在設置URL時，每打一個字會在下面顯示現在設置的URL樣式
+                $("#node-input-urlPattern").text(`http://127.0.0.1:1880${$(this).val()}`);
+            })
         }
     });
 </script>
@@ -37,8 +44,14 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
+        <!-- 給使用者設置服務網址路徑 -->
         <label for="node-input-url"><i class="icon-tag"></i>Service URL</label>
         <input type="text" id="node-input-url" placeholder="/url">
+    </div>
+    <div class="form-row">
+        <!-- 給使用者看它定義的服務網址樣式-->
+        <label for="node-input-urlPattern"><i class="icon-tag"></i>Your URL Pattern Is</label>
+        <span id="node-input-urlPattern"></span>
     </div>
 </script>
 
