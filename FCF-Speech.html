@@ -156,6 +156,11 @@
             },
             outputs: {
                 value: 0
+            },
+            speechConfigRoleNode: {
+                value: "",
+                type: "NICP-Speech Config Role",
+                required: false
             }
         },
         inputs: 1,
@@ -191,6 +196,11 @@
 		<label for="node-input-botConfigData"><i class="icon-tag"></i> Speech Bot</label>
 		<input type="text" id="node-input-botConfigData" placeholder="Speech Bot">
     </div>
+    <!-- 提供設置要輸出給外部系統的某個角色ID -->
+    <div class="form-row">
+        <label for="node-input-speechConfigRoleNode"><i class="icon-bookmark"></i> Role</label>
+        <input type="text" id="node-input-speechConfigRoleNode">
+    </div>
     <!-- 設置對話是否要延續下去，往後面的流程走 -->
     <div class="form-row">
         <label for="node-input-track"><i class="icon-envelope"></i> Track Conversation</label>
@@ -200,4 +210,55 @@
     </div>
 </script>
 <script type="text/x-red" data-help-name="NICP-Speech Out">
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 設置角色的節點 -->
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-Speech Config Role", {
+        category: "config",
+        defaults: {
+            name: {
+                value: "",
+                required: true
+            }
+        },
+        credentials: {
+            targetUserID: {
+                type: "text"
+            }
+        },
+        //定義這個config形式的節點在別的節點的dialog所呈現的字串，和在右邊的config sidebar所呈現的字串
+        label: function () {
+            return this.name || "NICP-Speech Config Role";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="NICP-Speech Config Role">
+    <!-- 注意這裡的id是node-config-input-開頭 -->
+        <!-- 定義這個credential節點的名稱 -->
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+        <!-- 定義使用者名稱的表單 -->
+    <div class="form-row">
+        <label for="node-config-input-targetUserID"><i class="icon-bookmark"></i> Target UserID</label>
+        <input type="text" id="node-config-input-targetUserID">
+    </div>
 </script>
