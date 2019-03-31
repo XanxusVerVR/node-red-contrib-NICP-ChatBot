@@ -1,41 +1,64 @@
+const _ = require("underscore");
+const clc = require("cli-color");
+const green = clc.greenBright;
+const white = clc.white;
+const redBright = clc.redBright;
+
 module.exports = function (RED) {
-    function SampleNode(n) {
-        // Create a RED node
-        RED.nodes.createNode(this, n);
 
-        // Store local copies of the node configuration (as defined in the .html)
-        this.topic = n.topic;
+    function SpeechConfig(config) {
 
-        // copy "this" object in case we need it in context of callbacks of other functions.
+    }
+    RED.nodes.registerType("NICP-Speech Config", SpeechConfig, {
+        credentials: {
+            token: {
+                type: "text"
+            }
+        }
+    });
+
+
+
+
+
+
+
+
+
+
+    function SpeechIn(config) {
+
+        RED.nodes.createNode(this, config);
+
+        this.property = config.property;
+
         let node = this;
 
-        // Do whatever you need to do in here - declare callbacks etc
-        // Note: this sample doesn't do anything much - it will only send
-        // this message once at startup...
-        // Look at other real nodes for some better ideas of what to do....
-        let msg = {};
-        msg.topic = this.topic;
-        msg.payload = "Hello world !";
+        let inputCallback = function (msg) {
 
-        // send out the message to the rest of the workspace.
-        // ... this message will get sent at startup so you may not see it in a debug node.
-        this.send(msg);
-
-        // respond to inputs....
-        this.on('input', function (msg) {
-            node.warn("I saw a payload: " + msg.payload);
-            // in this example just send it straight on... should process it here really
-            node.send(msg);
-        });
-
-        this.on("close", function () {
-            // Called when the node is shutdown - eg on redeploy.
-            // Allows ports to be closed, connections dropped etc.
-            // eg: node.client.disconnect();
-        });
+        };
+        node.on("input", inputCallback);
     }
+    RED.nodes.registerType("NICP-Speech In", SpeechIn);
 
-    // Register the node by name. This must be called before overriding any of the
-    // Node functions.
-    RED.nodes.registerType("NICP-Speech", SampleNode);
+
+
+
+
+
+
+    function SpeechOut(config) {
+
+        RED.nodes.createNode(this, config);
+
+        this.property = config.property;
+
+        let node = this;
+
+        let inputCallback = function (msg) {
+
+        };
+        node.on("input", inputCallback);
+    }
+    RED.nodes.registerType("NICP-Speech Out", SpeechOut);
 };

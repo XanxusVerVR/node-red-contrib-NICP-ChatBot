@@ -1,4 +1,47 @@
 <script type="text/javascript">
+    RED.nodes.registerType("NICP-Speech Config", {
+        category: "config",
+        defaults: {
+            botName: {
+                value: "",
+                required: true
+            }
+        },
+        paletteName: "Speech Config",
+        credentials: {
+            token: {
+                type: "text"
+            }
+        },
+        label: function () {
+        },
+        oneditsave: function () {
+        }
+    });
+
+</script>
+<script type="text/x-red" data-template-name="NICP-Speech Config">
+    <div class="form-row">
+        <label for="node-config-input-botName"><i class="icon-bookmark"></i> Bot Name</label>
+        <input type="text" id="node-config-input-botName">
+    </div>
+</script>
+<script type="text/x-red" data-help-name="NICP-Speech Config">
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
     RED.nodes.registerType("NICP-Speech In", {
         category: "NICP",
         color: "#9999cc",
@@ -27,7 +70,6 @@
     });
 
 </script>
-
 <script type="text/x-red" data-template-name="NICP-Speech In">
     <div class="form-row">
         <!-- 節點名稱 -->
@@ -35,9 +77,14 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
-
 <script type="text/x-red" data-help-name="NICP-Speech In">
 </script>
+
+
+
+
+
+
 
 
 
@@ -74,7 +121,6 @@
     });
 
 </script>
-
 <script type="text/x-red" data-template-name="NICP-Speech Out">
     <div class="form-row">
         <!-- 節點名稱 -->
@@ -82,6 +128,5 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
-
 <script type="text/x-red" data-help-name="NICP-Speech Out">
 </script>
