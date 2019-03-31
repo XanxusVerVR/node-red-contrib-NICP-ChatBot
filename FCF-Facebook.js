@@ -432,7 +432,7 @@ module.exports = function (RED) {
                     else {
                         port = ":" + uiPort;
                     }
-                    console.log(green("Webhook URL: ") + white("" + (node.isHttps ? "https" : "http") + "://" + (node.serverLocation ? node.serverLocation : "localhost") + port + "/redbot/facebook" + this.webhookURL));
+                    console.log(green("Webhook URL: ") + white("" + (node.isHttps ? "https" : "http") + "://" + (node.serverLocation ? node.serverLocation : "localhost") + port + "/nicp/facebook" + this.webhookURL));
                     // eslint-disable-next-line no-console
                     console.log(green("Verify token is: ") + white(this.verify_token));
                     // eslint-disable-next-line no-console
@@ -448,7 +448,7 @@ module.exports = function (RED) {
         }
 
         this.on("close", function (done) {
-            let endpoints = ["/redbot/facebook" + node.credentials.webhookURL, "/redbot/facebook/_status" + node.credentials.webhookURL];
+            let endpoints = ["/nicp/facebook" + node.credentials.webhookURL, "/nicp/facebook/_status" + node.credentials.webhookURL];
             // remove middleware for facebook callback
             let routesCount = RED.httpNode._router.stack.length;
             _(RED.httpNode._router.stack).each(function (route, i, routes) {
