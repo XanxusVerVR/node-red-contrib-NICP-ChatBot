@@ -9,6 +9,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         this.name = config.name || "My Push Service Node";
+        this.url = config.url;
 
         let node = this;
 
@@ -70,6 +71,15 @@ module.exports = function (RED) {
         }
 
         console.log(green(`Push Service節點的ID: `) + white(node.id) + green(` 提供的URL樣式為 `) + white(`https://your_domain${config.url}`));
+
+        node.on("close", function () {
+            let node = this;
+            RED.httpNode._router.stack.forEach(function (route, i, routes) {
+                if (route.route && route.route.path === node.url) {
+                    routes.splice(i, 1);
+                }
+            });
+        });
     }
     RED.nodes.registerType("FCF-PushService", PushService);
 };
