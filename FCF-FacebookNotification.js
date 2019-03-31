@@ -34,7 +34,7 @@ module.exports = function (RED) {
             });
         });
     }
-    RED.nodes.registerType("FCF-FacebookNotification", FacebookNotification, {
+    RED.nodes.registerType("NICP-FacebookNotification", FacebookNotification, {
         credentials: {
             pageAccessToken: {
                 type: "text"

@@ -187,5 +187,5 @@ module.exports = function (RED) {
             });
         });
     }
-    RED.nodes.registerType("FCF-Command", Command);
+    RED.nodes.registerType("NICP-Command", Command);
 };

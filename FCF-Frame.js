@@ -63,5 +63,5 @@ module.exports = function (RED) {
             node.send(msg);
         });
     }
-    RED.nodes.registerType("FCF-Frame", Frame);
+    RED.nodes.registerType("NICP-Frame", Frame);
 };

@@ -105,8 +105,8 @@
         "sc_IT",
         "sz_PL"
     ];
-    RED.nodes.registerType("FCF-WelcomeScreen", {
-        category: "FCF",
+    RED.nodes.registerType("NICP-WelcomeScreen", {
+        category: "NICP",
         color: "#FFCC66",
         defaults: {
             name: {
@@ -114,7 +114,7 @@
             },
             bot: {
                 value: "",
-                type: "FCF-facebook-node",
+                type: "NICP-facebook-node",
                 required: true
             },
             startedButtonPostbackPayload: {
@@ -188,7 +188,7 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="FCF-WelcomeScreen">
+<script type="text/x-red" data-template-name="NICP-WelcomeScreen">
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -209,5 +209,5 @@
 	</div>
 </script>
 
-<script type="text/x-red" data-help-name="FCF-WelcomeScreen">
+<script type="text/x-red" data-help-name="NICP-WelcomeScreen">
 </script>

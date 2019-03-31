@@ -338,5 +338,5 @@ module.exports = function (RED) {
             });
         }
     }
-    RED.nodes.registerType("FCF-Transformation", Transformation);
+    RED.nodes.registerType("NICP-Transformation", Transformation);
 };

@@ -81,5 +81,5 @@ module.exports = function (RED) {
             });
         });
     }
-    RED.nodes.registerType("FCF-PushService", PushService);
+    RED.nodes.registerType("NICP-PushService", PushService);
 };

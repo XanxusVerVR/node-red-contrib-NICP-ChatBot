@@ -109,5 +109,5 @@ module.exports = function (RED) {
             }
         });
     }
-    RED.nodes.registerType("FCF-DataCollection", DataCollection);
+    RED.nodes.registerType("NICP-DataCollection", DataCollection);
 };

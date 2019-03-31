@@ -133,7 +133,7 @@ module.exports = function (RED) {
             this.error(RED._("mqtt.errors.missing-config"));
         }
     }
-    RED.nodes.registerType("FCF-Mqtt-In", MQTTInNode);
+    RED.nodes.registerType("NICP-Mqtt-In", MQTTInNode);
 
     function MQTTOutNode(n) {
         RED.nodes.createNode(this, n);
@@ -184,5 +184,5 @@ module.exports = function (RED) {
             this.error(RED._("mqtt.errors.missing-config"));
         }
     }
-    RED.nodes.registerType("FCF-Mqtt-Out", MQTTOutNode);
+    RED.nodes.registerType("NICP-Mqtt-Out", MQTTOutNode);
 };

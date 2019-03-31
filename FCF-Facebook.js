@@ -601,7 +601,7 @@ module.exports = function (RED) {
         };
     }
 
-    RED.nodes.registerType("FCF-facebook-node", FacebookBotNode, {
+    RED.nodes.registerType("NICP-facebook-node", FacebookBotNode, {
         credentials: {
             token: {
                 type: "text"
@@ -664,7 +664,7 @@ module.exports = function (RED) {
             node.warn("Missing configuration in Facebook Messenger Receiver");
         }
     }
-    RED.nodes.registerType("FCF-facebook-receive", FacebookInNode);
+    RED.nodes.registerType("NICP-facebook-receive", FacebookInNode);
 
 
     function FacebookOutNode(config) {
@@ -861,13 +861,13 @@ module.exports = function (RED) {
             RED.events.removeListener("node:" + config.id, handler);
         });
     }
-    RED.nodes.registerType("FCF-facebook-send", FacebookOutNode);
+    RED.nodes.registerType("NICP-facebook-send", FacebookOutNode);
 
     //定義角色的節點在這
     function FacebookRole(config) {
         RED.nodes.createNode(this, config);
     }
-    RED.nodes.registerType("FCF-facebook-config-role", FacebookRole, {
+    RED.nodes.registerType("NICP-facebook-config-role", FacebookRole, {
         credentials: {
             targetUserID: {
                 type: "text"

@@ -1,5 +1,5 @@
-<script type="text/javascript">//FCF-facebook-node開始
-    RED.nodes.registerType("FCF-facebook-node", {//FCF-facebook-node表示整個Facebook Node，包含Facebook In Facebook Out
+<script type="text/javascript">//NICP-facebook-node開始
+    RED.nodes.registerType("NICP-facebook-node", {//NICP-facebook-node表示整個Facebook Node，包含Facebook In Facebook Out
         category: "config",//定義成config不會出現在面板左邊
         defaults: {
             botname: {
@@ -47,7 +47,7 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="FCF-facebook-node">
+<script type="text/x-red" data-template-name="NICP-facebook-node">
     <div class="form-row">
         <label for="node-config-input-botname"><i class="icon-bookmark"></i> Bot-Name</label>
         <input type="text" id="node-config-input-botname">
@@ -88,7 +88,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="FCF-facebook-node">
+<script type="text/x-red" data-help-name="NICP-facebook-node">
     <p>
         設置Facebook Messenger Webhook驗證的資料
     </p>
@@ -130,12 +130,12 @@
         </dd>
     </dl>
 </script>
-<!--FCF-facebook-node結束-->
+<!--NICP-facebook-node結束-->
 
 
 <script type="text/javascript">//Facebook In開始
-    RED.nodes.registerType("FCF-facebook-receive", {
-        category: "FCF",
+    RED.nodes.registerType("NICP-facebook-receive", {
+        category: "NICP",
         color: "#FFCC66",
         defaults: {
             name: {
@@ -143,7 +143,7 @@
             },
             bot: {//此物件存的是facebook的設置節點(就是在config頁籤的節點)的Node的ID，所以最後存的是像這樣的字串:98bd3fe8.c4eb5
                 value: "",
-                type: "FCF-facebook-node",
+                type: "NICP-facebook-node",
                 required: true
             }
         },
@@ -164,7 +164,7 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="FCF-facebook-receive"><!-- Facebook In第二部分 -->
+<script type="text/x-red" data-template-name="NICP-facebook-receive"><!-- Facebook In第二部分 -->
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -176,7 +176,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="FCF-facebook-receive">
+<script type="text/x-red" data-help-name="NICP-facebook-receive">
   <p>
     用來接收從 Facebook 通訊平台送來的訊息
   </p>
@@ -184,8 +184,8 @@
 <!-- Facebook In結束 -->
 
 <script type="text/javascript">//Facebook Out開始
-    RED.nodes.registerType("FCF-facebook-send", {
-        category: "FCF",
+    RED.nodes.registerType("NICP-facebook-send", {
+        category: "NICP",
         color: "#FFCC66",
         defaults: {
             name: {
@@ -193,7 +193,7 @@
             },
             bot: {
                 value: "",
-                type: "FCF-facebook-node",
+                type: "NICP-facebook-node",
                 required: true
             },
             track: {
@@ -204,7 +204,7 @@
             },
             fcfFacebookRoleNode: {
                 value: "",
-                type: "FCF-facebook-config-role",
+                type: "NICP-facebook-config-role",
                 required: false
             }
         },
@@ -229,7 +229,7 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="FCF-facebook-send"><!-- Facebook Out第二部分 -->
+<script type="text/x-red" data-template-name="NICP-facebook-send"><!-- Facebook Out第二部分 -->
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -249,7 +249,7 @@
     <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
 </script>
 
-<script type="text/x-red" data-help-name="FCF-facebook-send">
+<script type="text/x-red" data-help-name="NICP-facebook-send">
     <p>
         用來將訊息傳送至 Facebook 通訊平台
     </p>
@@ -258,7 +258,7 @@
 
 <!-- 設置角色的節點 -->
 <script type="text/javascript">
-    RED.nodes.registerType("FCF-facebook-config-role", {
+    RED.nodes.registerType("NICP-facebook-config-role", {
         category: "config",
         defaults: {
             name: {
@@ -273,12 +273,12 @@
         },
         //定義這個config形式的節點在別的節點的dialog所呈現的字串，和在右邊的config sidebar所呈現的字串
         label: function () {
-            return this.name || "FCF-facebook-config-role";
+            return this.name || "NICP-facebook-config-role";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="FCF-facebook-config-role">
+<script type="text/x-red" data-template-name="NICP-facebook-config-role">
     <!-- 注意這裡的id是node-config-input-開頭 -->
         <!-- 定義這個credential節點的名稱 -->
     <div class="form-row">

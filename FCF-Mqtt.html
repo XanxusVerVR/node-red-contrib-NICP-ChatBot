@@ -11,7 +11,7 @@
   limitations under the License.
 -->
 
-<script type="text/x-red" data-template-name="FCF-Mqtt-In">
+<script type="text/x-red" data-template-name="NICP-Mqtt-In">
     <div class="form-row">
         <label for="node-input-broker"><i class="fa fa-globe"></i> <span data-i18n="mqtt.label.broker"></span></label>
         <input type="text" id="node-input-broker">
@@ -45,8 +45,8 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('FCF-Mqtt-In', {
-        category: 'FCF',
+    RED.nodes.registerType('NICP-Mqtt-In', {
+        category: 'NICP',
         defaults: {
             name: { value: "" },
             topic: { value: "", required: true, validate: RED.validators.regex(/^(#$|(\+|[^+#]*)(\/(\+|[^+#]*))*(\/(\+|#|[^+#]*))?$)/) },
@@ -85,7 +85,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="FCF-Mqtt-Out">
+<script type="text/x-red" data-template-name="NICP-Mqtt-Out">
     <div class="form-row">
         <label for="node-input-broker"><i class="fa fa-globe"></i> <span data-i18n="mqtt.label.broker"></span></label>
         <input type="text" id="node-input-broker">
@@ -116,8 +116,8 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('FCF-Mqtt-Out', {
-        category: 'FCF',
+    RED.nodes.registerType('NICP-Mqtt-Out', {
+        category: 'NICP',
         defaults: {
             name: { value: "" },
             topic: { value: "" },

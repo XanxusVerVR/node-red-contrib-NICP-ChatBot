@@ -1,6 +1,6 @@
 <script type="text/javascript">
-    RED.nodes.registerType("FCF-Dispatcher", {
-        category: "FCF",
+    RED.nodes.registerType("NICP-Dispatcher", {
+        category: "NICP",
         color: "#A6BBCF",
         defaults: {
             name: {
@@ -8,7 +8,7 @@
             },
             agentCredentials: {
                 value: "",
-                type: "FCF-DialogflowConfig",
+                type: "NICP-DialogflowConfig",
                 required: true
             },
             rules: {
@@ -102,7 +102,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="FCF-Dispatcher">
+<script type="text/x-red" data-template-name="NICP-Dispatcher">
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -122,7 +122,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="FCF-Dispatcher">
+<script type="text/x-red" data-help-name="NICP-Dispatcher">
     <p>
         藉由串接 Dialogflow 來分析對話的分支
     </p>

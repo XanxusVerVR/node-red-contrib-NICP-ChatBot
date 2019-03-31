@@ -82,5 +82,5 @@ module.exports = function (RED) {
             })();
         });
     }
-    RED.nodes.registerType("FCF-Dispatcher", Dispatcher);
+    RED.nodes.registerType("NICP-Dispatcher", Dispatcher);
 };

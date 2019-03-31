@@ -76,5 +76,5 @@ module.exports = function (RED) {
         node.on("input", inputCallback);
 
     }
-    RED.nodes.registerType("FCF-WelcomeScreen", WelcomeScreen);
+    RED.nodes.registerType("NICP-WelcomeScreen", WelcomeScreen);
 };

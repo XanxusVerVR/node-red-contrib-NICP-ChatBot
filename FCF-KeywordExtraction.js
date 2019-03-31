@@ -69,5 +69,5 @@ module.exports = function (RED) {
             })();
         });
     }
-    RED.nodes.registerType("FCF-KeywordExtraction", KeywordExtraction);
+    RED.nodes.registerType("NICP-KeywordExtraction", KeywordExtraction);
 };

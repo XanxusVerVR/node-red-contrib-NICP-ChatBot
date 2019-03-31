@@ -158,5 +158,5 @@ module.exports = function (RED) {
             return obj;
         };
     }
-    RED.nodes.registerType("FCF-Status", Status);
+    RED.nodes.registerType("NICP-Status", Status);
 };

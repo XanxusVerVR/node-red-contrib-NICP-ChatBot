@@ -622,5 +622,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType("FCF-Condition", SwitchNode);
+    RED.nodes.registerType("NICP-Condition", SwitchNode);
 }

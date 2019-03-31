@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 
-<script type="text/x-red" data-template-name="FCF-Condition">
+<script type="text/x-red" data-template-name="NICP-Condition">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
@@ -40,7 +40,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="FCF-Condition">
+<script type="text/x-red" data-help-name="NICP-Condition">
     <p>Route messages based on their property values or sequence position.</p>
     <h3>Details</h3>
     <p>When a message arrives, the node will evaluate each of the defined rules
@@ -122,9 +122,9 @@
             }
             return clipValueLength(v);
         }
-        RED.nodes.registerType("FCF-Condition", {
+        RED.nodes.registerType("NICP-Condition", {
             color: "#479B4D",
-            category: "FCF",
+            category: "NICP",
             defaults: {
                 name: { value: "" },
                 property: { value: "payload", required: true, validate: RED.validators.typedInput("propertyType") },

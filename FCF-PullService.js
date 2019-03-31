@@ -33,5 +33,5 @@ module.exports = function (RED) {
         });
 
     }
-    RED.nodes.registerType("FCF-PullService", PullService);
+    RED.nodes.registerType("NICP-PullService", PullService);
 };

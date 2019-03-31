@@ -2,7 +2,7 @@ module.exports = function (RED) {
     function DialogflowConfig(config) {
         RED.nodes.createNode(this, config);
     }
-    RED.nodes.registerType("FCF-DialogflowConfig", DialogflowConfig, {
+    RED.nodes.registerType("NICP-DialogflowConfig", DialogflowConfig, {
         credentials: {
             projectID: {
                 type: "text"
