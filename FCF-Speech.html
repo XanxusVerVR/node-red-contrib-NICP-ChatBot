@@ -5,15 +5,26 @@
             botName: {
                 value: "",
                 required: true
+            },
+            sendAPIUrl: {
+                value: "",
+                required: true
+            },
+            webhookPath: {
+                value: "",
+                required: true
+            },
+            isHttps: {
+                value: false
+            },
+            serverLocation: {
+                value: "",
+                required: false
             }
         },
         paletteName: "Speech Config",
-        credentials: {
-            token: {
-                type: "text"
-            }
-        },
         label: function () {
+            return this.botName;
         },
         oneditsave: function () {
         }
@@ -21,9 +32,36 @@
 
 </script>
 <script type="text/x-red" data-template-name="NICP-Speech Config">
+    <!-- 給一個這個外部系統的機器人名稱 -->
     <div class="form-row">
         <label for="node-config-input-botName"><i class="icon-bookmark"></i> Bot Name</label>
         <input type="text" id="node-config-input-botName">
+    </div>
+    <!-- 設定Webhook Path 如：/path -->
+    <div class="form-row">
+        <label for="node-config-input-webhookPath"><i class="icon-random"></i> Webhook Path</label>
+        <input type="text" id="node-config-input-webhookPath" placeholder="/path">
+        <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
+        </div>
+    </div>
+    <!-- 設定要呼叫的外部系統的服務網址，要將訊息傳給外部系統 -->
+    <div class="form-row">
+        <label for="node-config-input-sendAPIUrl"><i class="icon-bookmark"></i>Send API URL</label>
+        <input type="text" id="node-config-input-sendAPIUrl">
+    </div>
+    <!-- 設置NICP提供的服務網址是否為HTTPS，為了在Terminal呈現給開發者完整的URL來看-->
+    <div class="form-row">
+        <label for="node-config-input-isHttps"><i class="icon-envelope"></i> IsHttps?</label>
+        <input type="checkbox" value="true" id="node-config-input-isHttps">
+        <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
+        </div>
+    </div>
+    <!-- 設置NICP提供的服務的公開伺服器位置(Domain Name)，為了在Terminal呈現給開發者完整的URL來看-->
+    <div class="form-row">
+        <label for="node-config-input-serverLocation"><i class="icon-random"></i> Server Location</label>
+        <input type="text" id="node-config-input-serverLocation" placeholder="Server Location">
+        <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
+        </div>
     </div>
 </script>
 <script type="text/x-red" data-help-name="NICP-Speech Config">
@@ -48,6 +86,10 @@
         defaults: {
             name: {
                 value: "",
+            },
+            botConfigData: {
+                value: "",
+                type: "NICP-Speech Config"
             }
         },
         inputs: 0,
@@ -71,11 +113,16 @@
 
 </script>
 <script type="text/x-red" data-template-name="NICP-Speech In">
+    <!-- 節點名稱 -->
     <div class="form-row">
-        <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+    <!-- Config設置 -->
+    <div class="form-row">
+		<label for="node-input-botConfigData"><i class="icon-tag"></i> Speech Bot</label>
+		<input type="text" id="node-input-botConfigData" placeholder="Speech Bot">
+	</div>
 </script>
 <script type="text/x-red" data-help-name="NICP-Speech In">
 </script>
@@ -99,6 +146,16 @@
         defaults: {
             name: {
                 value: "",
+            },
+            botConfigData: {
+                value: "",
+                type: "NICP-Speech Config"
+            },
+            track: {
+                value: false
+            },
+            outputs: {
+                value: 0
             }
         },
         inputs: 1,
@@ -117,15 +174,29 @@
         oneditprepare: function () {
         },
         oneditsave: function () {
+            let track = $("#node-input-track").is(":checked");
+            this.outputs = track ? 1 : 0;
         }
     });
 
 </script>
 <script type="text/x-red" data-template-name="NICP-Speech Out">
+    <!-- 節點名稱 -->
     <div class="form-row">
-        <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <!-- Config設置 -->
+    <div class="form-row">
+		<label for="node-input-botConfigData"><i class="icon-tag"></i> Speech Bot</label>
+		<input type="text" id="node-input-botConfigData" placeholder="Speech Bot">
+    </div>
+    <!-- 設置對話是否要延續下去，往後面的流程走 -->
+    <div class="form-row">
+        <label for="node-input-track"><i class="icon-envelope"></i> Track Conversation</label>
+        <input type="checkbox" value="true" id="node-input-track">
+        <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
+        </div>
     </div>
 </script>
 <script type="text/x-red" data-help-name="NICP-Speech Out">

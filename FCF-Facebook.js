@@ -625,7 +625,7 @@ module.exports = function (RED) {
         this.name = config.name || "My Facebook In Node";
         this.bot = config.bot;//config.bot是一個類似98bd3fe8.c4eb5這樣的字串
         this.config = RED.nodes.getNode(this.bot);
-
+        
         const node = this;
 
         if (this.config) {
