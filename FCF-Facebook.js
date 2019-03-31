@@ -132,6 +132,50 @@ module.exports = function (RED) {
                         reportError
                     );
                     break;
+                case "receipt-template":
+                    // translate elements into facebook format
+                    elements = msg.payload.elements.map(function (item) {
+                        let element = {
+                            title: item.title,
+                            price: item.price
+                        };
+                        if (!_.isEmpty(item.subtitle)) {
+                            element.subtitle = item.subtitle;
+                        }
+                        if (!_.isEmpty(item.imageUrl)) {
+                            element.image_url = item.imageUrl;
+                        }
+                        if (!_.isEmpty(item.quantity)) {
+                            element.quantity = item.quantity;
+                        }
+                        if (!_.isEmpty(item.currency)) {
+                            element.currency = item.currency;
+                        }
+                        return element;
+                    });
+                    // sends
+                    bot.sendMessage(
+                        msg.payload.chatId,
+                        {
+                            attachment: {
+                                type: "template",
+                                payload: {
+                                    template_type: "receipt",
+                                    recipient_name: msg.payload.recipientName,
+                                    order_number: msg.payload.orderNumber,
+                                    currency: msg.payload.currency,
+                                    payment_method: msg.payload.paymentMethod,
+                                    timestamp: msg.payload.timestamp,
+                                    summary: {
+                                        total_cost: msg.payload.summary.totalCost
+                                    },
+                                    elements: elements
+                                }
+                            }
+                        },
+                        reportError
+                    );
+                    break;
                 case "account-link":
                     let attachment = {
                         "type": "template",
