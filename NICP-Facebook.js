@@ -777,10 +777,6 @@ module.exports = function (RED) {
             }
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
-        console.log(`node.id:`);
-        console.log(node.id);
-        console.log(`config.id:`);
-        console.log(config.id);
         RED.events.on("node:" + config.id, handler);
 
         this.on("input", function (msg) {

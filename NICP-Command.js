@@ -86,7 +86,7 @@ module.exports = function (RED) {
         this.message = config.message;
         this.answer = config.answer;
         this.parse_mode = config.parse_mode;
-        this.transports = ["telegram", "slack", "facebook", "smooch"];
+        this.transports = ["telegram", "slack", "facebook", "smooch", "speech"];
 
         //此函式會隨機抓一個訊息回傳
         this.pickOne = function (messages) {
@@ -111,6 +111,7 @@ module.exports = function (RED) {
             let messageId = utils.getMessageId(msg);
             let template = MessageTemplate(msg, node);
             let is_json = false;
+            let botName = msg.payload.botName;
 
             // check transport compatibility
             if (!utils.matchTransport(node, msg)) {
@@ -166,7 +167,8 @@ module.exports = function (RED) {
                     content: emoji.emojify(template(message)),
                     chatId: chatId,
                     messageId: messageId,
-                    inbound: false
+                    inbound: false,
+                    roleName: botName
                 };
                 if (msg.whetherToSendLocation) {
                     msg.payload.type = "request";//將type設為request才能在Facebook Out送出詢問位置的請求

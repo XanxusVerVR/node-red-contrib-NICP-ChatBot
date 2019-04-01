@@ -1,15 +1,19 @@
 const q = require("./lib/xanxus-queue");
+const speechConversationContext = require("./lib/SpeechConversationContext");
+const SpeechConversationContext = speechConversationContext.SpeechConversationContext;
 const _ = require("underscore");
 const rp = require("request-promise");
 const moment = require("moment");
 const request = require("request");
+const crypto = require("crypto"); //引用可以產生亂數字串的模組
+// crypto.randomBytes(43).toString("hex")
 const cors = require("cors");
 const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
 const redBright = clc.redBright;
 const grey = clc.blackBright;
-
+let currentConversationNode;
 module.exports = function (RED) {
 
     function SpeechConfig(config) {
@@ -20,6 +24,9 @@ module.exports = function (RED) {
         this.webhookPath = `/nicp${config.webhookPath}`;
         this.isHttps = config.isHttps;
         this.serverLocation = config.serverLocation;
+
+        let context = new SpeechConversationContext();
+        // context.speechOutNodeId = "OPOP";
 
         const node = this;
 
@@ -43,10 +50,31 @@ module.exports = function (RED) {
             }
 
             let msg = {
-                payload: req.body
+                payload: {
+                    botName: node.botName,
+                    chatId: req.body.senderId,
+                    roleName: req.body.roleName,
+                    messageId: crypto.randomBytes(43).toString("hex"),
+                    type: "message",
+                    content: req.body.message.text,
+                    date: req.body.date,
+                },
+                originalMessage: {
+                    transport: "speech",
+                    chat: {
+                        id: req.body.senderId
+                    }
+                }
             };
-            msg.payload.botName = node.botName;
-            node.emit("relay", msg);
+            msg.context = context;
+            if (msg.context.speechOutNodeId) {
+                console.log(`msg.context.speechOutNodeId存在:`);
+                console.log(msg.context.speechOutNodeId);
+                // RED.events.emit("node:" + currentConversationNode, msg);
+            }
+            else {
+                node.emit("relay", msg);
+            }
             res.status(response.statusCode).send(response);
         };
 
@@ -133,6 +161,7 @@ module.exports = function (RED) {
         this.name = config.name || "My Speech Out Node";
         this.botConfigData = RED.nodes.getNode(config.botConfigData);
         this.speechConfigRoleNode = RED.nodes.getNode(config.speechConfigRoleNode);
+        this.track = config.track;
         this.outputs = config.outputs;
 
         const node = this;
@@ -160,20 +189,25 @@ module.exports = function (RED) {
         else {
             outputRoleUserID = "";
         }
-        // console.log(`outputRoleUserID:`);
-        // console.log(outputRoleUserID);
+        let handler = function _handler(msg) {
+            console.log("這在handler:");
+        };
+        currentConversationNode = node.id;
+        RED.events.on("node:" + node.id, handler);
 
         let inputCallback = function _inputCallback(msg) {
-            // console.log(msg);
+            // if (node.track && !_.isEmpty(node.wires[0])) {
+            //     msg.context.speechOutNodeId = node.id;
+            // }
             let options = {
                 method: "POST",
                 uri: node.botConfigData.sendAPIUrl,
                 body: {
                     roleName: msg.payload.botName,
-                    recipientId: "8012012189105650",//老闆的ID 這裡要再做個處理，如果節點上有設置角色，那就用節點的，不然就用原本前面流程的顧客ID ??
+                    recipientId: msg.payload.chatId,//老闆的ID 這裡要再做個處理，如果節點上有設置角色，那就用節點的，不然就用原本前面流程的顧客ID ??
                     originalSenderId: "1254459154682919",//Messenger端的顧客User ID
                     message: {
-                        text: "老闆，26桌的顧客要開電扇，你要讓他開嗎？"
+                        text: msg.payload.content
                     }
                 },
                 json: true // Automatically stringifies the body to JSON
@@ -189,6 +223,9 @@ module.exports = function (RED) {
                 });
         };
         node.on("input", inputCallback);
+        node.on("close", function () {
+            RED.events.removeListener("node:" + node.id, handler);
+        });
     }
     RED.nodes.registerType("NICP-Speech Out", SpeechOut);
 
