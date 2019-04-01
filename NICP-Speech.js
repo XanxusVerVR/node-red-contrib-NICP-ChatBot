@@ -4,16 +4,12 @@ const SpeechConversationContext = speechConversationContext.SpeechConversationCo
 const _ = require("underscore");
 const rp = require("request-promise");
 const moment = require("moment");
-const request = require("request");
 const crypto = require("crypto"); //引用可以產生亂數字串的模組
-// crypto.randomBytes(43).toString("hex")
 const cors = require("cors");
 const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
-const redBright = clc.redBright;
 const grey = clc.blackBright;
-let currentConversationNode;
 module.exports = function (RED) {
 
     function SpeechConfig(config) {
@@ -26,7 +22,6 @@ module.exports = function (RED) {
         this.serverLocation = config.serverLocation;
 
         let context = new SpeechConversationContext();
-        // context.speechOutNodeId = "OPOP";
 
         const node = this;
 
@@ -48,7 +43,6 @@ module.exports = function (RED) {
             else {
                 response.statusCode = 200;
             }
-
             let msg = {
                 payload: {
                     botName: node.botName,
@@ -67,10 +61,9 @@ module.exports = function (RED) {
                 }
             };
             msg.context = context;
-            if (msg.context.speechOutNodeId) {
-                console.log(`msg.context.speechOutNodeId存在:`);
-                console.log(msg.context.speechOutNodeId);
-                // RED.events.emit("node:" + currentConversationNode, msg);
+            if (msg.context.speechOutNodeId) {//這裡就等於在呼叫get()了
+                RED.events.emit("node:" + msg.context.speechOutNodeId, msg);
+                msg.context.speechOutNodeId = "";
             }
             else {
                 node.emit("relay", msg);
@@ -189,16 +182,16 @@ module.exports = function (RED) {
         else {
             outputRoleUserID = "";
         }
+
         let handler = function _handler(msg) {
-            console.log("這在handler:");
+            node.send(msg);
         };
-        currentConversationNode = node.id;
         RED.events.on("node:" + node.id, handler);
 
         let inputCallback = function _inputCallback(msg) {
-            // if (node.track && !_.isEmpty(node.wires[0])) {
-            //     msg.context.speechOutNodeId = node.id;
-            // }
+            if (node.track && !_.isEmpty(node.wires[0])) {
+                msg.context.speechOutNodeId = node.id;
+            }
             let options = {
                 method: "POST",
                 uri: node.botConfigData.sendAPIUrl,
