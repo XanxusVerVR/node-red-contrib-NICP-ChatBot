@@ -3,7 +3,7 @@ const chai = require("chai");
 const helper = require("node-red-node-test-helper");
 const fcfCommandNode = require("../NICP-Command.js");
 const Context = require("../red/runtime/nodes/context");
-
+//重設了Jenkins Webhook
 describe("Message節點測試", function () {
 
     beforeEach(function (done) {
