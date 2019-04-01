@@ -3,7 +3,7 @@ const should = require("should");
 const chai = require("chai");
 const helper = require("node-red-node-test-helper");
 const assert = require("assert");
-const fcfFrameNode = require("../FCF-Frame.js");
+const fcfFrameNode = require("../NICP-Frame.js");
 const Context = require("../red/runtime/nodes/context");
 
 describe("Frame節點測試", function () {
@@ -26,7 +26,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "553085be.2da87c",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "className": "",
@@ -49,7 +49,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -74,7 +74,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -134,7 +134,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -198,7 +198,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -263,7 +263,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -329,7 +329,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -395,7 +395,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -455,7 +455,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -524,7 +524,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -592,7 +592,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -661,7 +661,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -733,7 +733,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",
@@ -814,7 +814,7 @@ describe("Frame節點測試", function () {
         let frameNode = JSON.parse(`[
             {
                 "id": "e62c9a56.7fd688",
-                "type": "FCF-Frame",
+                "type": "NICP-Frame",
                 "z": "9fdb8a20.7c04d8",
                 "name": "phone",
                 "className": "phone",

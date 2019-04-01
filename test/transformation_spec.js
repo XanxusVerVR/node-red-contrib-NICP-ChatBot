@@ -17,7 +17,7 @@
 var should = require("should");
 var sinon = require("sinon");
 
-var changeNode = require("../FCF-Transformation.js");
+var changeNode = require("../NICP-Transformation.js");
 var Context = require("../red/runtime/nodes/context");
 var helper = require("node-red-node-test-helper");
 
@@ -54,7 +54,7 @@ describe('Transformation節點測試', function () {
     });
 
     it('should load node with defaults', function (done) {
-        var flow = [{ id: "c1", type: "FCF-Transformation", name: "change1" }];
+        var flow = [{ id: "c1", type: "NICP-Transformation", name: "change1" }];
         helper.load(changeNode, flow, function () {
             helper.getNode("c1").should.have.property("name", "change1");
             helper.getNode("c1").should.have.property("rules", [{ fromt: 'str', pt: 'msg', tot: 'str', t: undefined, p: '' }]);
@@ -62,7 +62,7 @@ describe('Transformation節點測試', function () {
         });
     });
     it('should load defaults if set to replace', function (done) {
-        var flow = [{ id: "c1", type: "FCF-Transformation", name: "change1", action: "replace" }];
+        var flow = [{ id: "c1", type: "NICP-Transformation", name: "change1", action: "replace" }];
         helper.load(changeNode, flow, function () {
             helper.getNode("c1").should.have.property("name", "change1");
             helper.getNode("c1").should.have.property("rules", [{ fromt: 'str', p: '', pt: 'msg', t: 'set', to: '', tot: 'str' }]);
@@ -70,7 +70,7 @@ describe('Transformation節點測試', function () {
         });
     });
     it('should load defaults if set to change', function (done) {
-        var flow = [{ id: "c1", type: "FCF-Transformation", name: "change1", action: "change" }];
+        var flow = [{ id: "c1", type: "NICP-Transformation", name: "change1", action: "change" }];
         helper.load(changeNode, flow, function () {
             helper.getNode("c1").should.have.property("name", "change1");
             helper.getNode("c1").should.have.property("rules", [{ from: '', fromRE: /(?:)/g, fromt: 'str', p: '', pt: 'msg', re: undefined, t: 'change', to: '', tot: 'str' }]);
@@ -78,7 +78,7 @@ describe('Transformation節點測試', function () {
         });
     });
     it('should no-op if there are no rules', function (done) {
-        var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "rules": [], "action": "", "property": "", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+        var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "rules": [], "action": "", "property": "", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
         { id: "helperNode1", type: "helper", wires: [] }];
         helper.load(changeNode, flow, function () {
             var changeNode1 = helper.getNode("changeNode1");
@@ -99,7 +99,7 @@ describe('Transformation節點測試', function () {
     describe('#set', function () {
 
         it('sets the value of the message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "payload", "from": "", "to": "changed", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "payload", "from": "", "to": "changed", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -118,7 +118,7 @@ describe('Transformation節點測試', function () {
 
         it('sets the value of global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "globalValue", "pt": "global", "to": "changed", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "globalValue", "pt": "global", "to": "changed", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -138,7 +138,7 @@ describe('Transformation節點測試', function () {
 
         it('sets the value of persistable global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "#:(memory1)::globalValue", "pt": "global", "to": "changed", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "#:(memory1)::globalValue", "pt": "global", "to": "changed", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -162,7 +162,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sets the value and type of the message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "pt": "msg", "to": "12345", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "pt": "msg", "to": "12345", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -182,7 +182,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sets the value of an already set multi-level message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "bar", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "bar", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -200,7 +200,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sets the value of an empty multi-level message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "bar", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "bar", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -218,7 +218,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sets the value of a message property to another message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "foo", "from": "", "to": "msg.fred", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "foo", "from": "", "to": "msg.fred", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -239,7 +239,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sets the value of a multi-level message property to another multi-level message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "msg.fred.red", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "msg.fred.red", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -257,7 +257,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('doesn\'t set the value of a message property when the \'to\' message property does not exist', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "msg.fred.red", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "msg.fred.red", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -275,7 +275,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('overrides the value of a message property when the \'to\' message property does not exist', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "payload", "from": "", "to": "msg.foo", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "payload", "from": "", "to": "msg.foo", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -293,7 +293,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sets the message property to null when the \'to\' message property equals null', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "payload", "from": "", "to": "msg.foo", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "payload", "from": "", "to": "msg.foo", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -311,7 +311,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('does not set other properties using = inside to property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "payload", "from": "", "to": "msg.otherProp=10", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "payload", "from": "", "to": "msg.otherProp=10", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -329,7 +329,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('splits dot delimited properties into objects', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "replace", "property": "pay.load", "from": "", "to": "10", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "pay.load", "from": "", "to": "10", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -348,7 +348,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value to flow context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "flowValue", "tot": "flow" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "flowValue", "tot": "flow" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -368,7 +368,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value to persistable flow context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "#:(memory1)::flowValue", "tot": "flow" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "#:(memory1)::flowValue", "tot": "flow" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -391,7 +391,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value to global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "globalValue", "tot": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "globalValue", "tot": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -411,7 +411,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value to persistable global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "#:(memory1)::globalValue", "tot": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "#:(memory1)::globalValue", "tot": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -433,7 +433,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value to a number', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "123", "tot": "num" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "123", "tot": "num" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -451,7 +451,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value to a boolean value', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "true", "tot": "bool" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "true", "tot": "bool" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -469,7 +469,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value to a js object', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": '{"a":123}', "tot": "json" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": '{"a":123}', "tot": "json" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -487,7 +487,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value to a buffer object', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "[72,101,108,108,111,32,87,111,114,108,100]", "tot": "bin" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "[72,101,108,108,111,32,87,111,114,108,100]", "tot": "bin" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -506,7 +506,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sets the value of the message property to the current timestamp', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "rules": [{ "t": "set", "p": "ts", "pt": "msg", "to": "", "tot": "date" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "rules": [{ "t": "set", "p": "ts", "pt": "msg", "to": "", "tot": "date" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -532,7 +532,7 @@ describe('Transformation節點測試', function () {
         //         delete process.env.NR_TEST_A;
         //     })
         //     it('sets the value using env property', function (done) {
-        //         var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "pt": "msg", "to": "NR_TEST_A", "tot": "env" }], "name": "changeNode", "wires": [["helperNode1"]] },
+        //         var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "pt": "msg", "to": "NR_TEST_A", "tot": "env" }], "name": "changeNode", "wires": [["helperNode1"]] },
         //         { id: "helperNode1", type: "helper", wires: [] }];
         //         helper.load(changeNode, flow, function () {
         //             var changeNode1 = helper.getNode("changeNode1");
@@ -556,7 +556,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using jsonata', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$length(payload)", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$length(payload)", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -574,7 +574,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('reports invalid jsonata expression', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$invalid(payload)", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$invalid(payload)", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -597,7 +597,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using flow context with jsonata', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$flowContext(\"foo\")", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$flowContext(\"foo\")", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }, { "id": "flow", "type": "tab" }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -617,7 +617,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using global context with jsonata', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$globalContext(\"foo\")", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "to": "$globalContext(\"foo\")", "tot": "jsonata" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }, { "id": "flow", "type": "tab" }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -638,7 +638,7 @@ describe('Transformation節點測試', function () {
     });
     describe('#change', function () {
         it('changes the value of the message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "change", "property": "payload", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "change", "property": "payload", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -656,7 +656,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value and doesnt change type of the message property for partial match', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "msg", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "msg", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -676,7 +676,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value and type of the message property if a complete match', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "msg", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "msg", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -696,7 +696,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value of a multi-level message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "change", "property": "foo.bar", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "change", "property": "foo.bar", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -714,7 +714,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sends unaltered message if the changed message property does not exist', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "change", "property": "foo", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "change", "property": "foo", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -732,7 +732,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sends unaltered message if a changed multi-level message property does not exist', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "change", "property": "foo.bar", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "change", "property": "foo.bar", "from": "Hello", "to": "Goodbye", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -750,7 +750,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value of the message property based on a regex', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "change", "property": "payload", "from": "\\d+", "to": "NUMBER", "reg": true, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "change", "property": "payload", "from": "\\d+", "to": "NUMBER", "reg": true, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -768,7 +768,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('supports regex groups', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "change", "property": "payload", "from": "(Hello)", "to": "$1-$1-$1", "reg": true, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "change", "property": "payload", "from": "(Hello)", "to": "$1-$1-$1", "reg": true, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -786,7 +786,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('supports regex groups - new rule format', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "(Hello)", "to": "$1-$1-$1", "fromt": "re", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "(Hello)", "to": "$1-$1-$1", "fromt": "re", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -804,7 +804,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value - new rule format', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "ABC", "to": "123", "fromt": "str", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "ABC", "to": "123", "fromt": "str", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -822,7 +822,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value using msg property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "123", "fromt": "msg", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "123", "fromt": "msg", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -841,7 +841,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using flow context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "123", "fromt": "flow", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "123", "fromt": "flow", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -861,7 +861,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using persistable flow context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "#:(memory1)::topic", "to": "123", "fromt": "flow", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "#:(memory1)::topic", "to": "123", "fromt": "flow", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -884,7 +884,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "123", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "123", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -904,7 +904,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using persistable global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "#:(memory1)::topic", "to": "123", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "#:(memory1)::topic", "to": "123", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -927,7 +927,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the number using global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "ABC", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "ABC", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -947,7 +947,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the number using persistable global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "#:(memory1)::topic", "to": "ABC", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "#:(memory1)::topic", "to": "ABC", "fromt": "global", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -969,7 +969,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value using number - string payload', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "123", "to": "456", "fromt": "num", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "123", "to": "456", "fromt": "num", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -987,7 +987,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value using number - number payload', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "123", "to": "abc", "fromt": "num", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "123", "to": "abc", "fromt": "num", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1005,7 +1005,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value using boolean - string payload', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "true", "to": "xxx", "fromt": "bool", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "true", "to": "xxx", "fromt": "bool", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1023,7 +1023,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('changes the value using boolean - boolean payload', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "true", "to": "xxx", "fromt": "bool", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "true", "to": "xxx", "fromt": "bool", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1042,7 +1042,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value of the global context', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "global", "from": "Hello", "fromt": "str", "to": "Goodbye", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "global", "from": "Hello", "fromt": "str", "to": "Goodbye", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1062,7 +1062,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value of the persistable global context', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "global", "from": "Hello", "fromt": "str", "to": "Goodbye", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "global", "from": "Hello", "fromt": "str", "to": "Goodbye", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -1087,7 +1087,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value and doesnt change type of the flow context for partial match', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1108,7 +1108,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value and doesnt change type of the persistable flow context for partial match', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -1134,7 +1134,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value and type of the flow context if a complete match', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1155,7 +1155,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value and type of the persistable flow context if a complete match', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "123", "fromt": "str", "to": "456", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -1181,7 +1181,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using number - number flow context', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "123", "fromt": "num", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "123", "fromt": "num", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1201,7 +1201,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using number - number persistable flow context', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "123", "fromt": "num", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "123", "fromt": "num", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -1226,7 +1226,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using boolean - boolean flow context', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "true", "fromt": "bool", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "pt": "flow", "from": "true", "fromt": "bool", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1246,7 +1246,7 @@ describe('Transformation節點測試', function () {
 
         it('changes the value using boolean - boolean persistable flow context', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "true", "fromt": "bool", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "#:(memory1)::payload", "pt": "flow", "from": "true", "fromt": "bool", "to": "abc", "tot": "str" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]], "z": "flow" },
             { id: "helperNode1", type: "helper", wires: [], "z": "flow" }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -1270,7 +1270,7 @@ describe('Transformation節點測試', function () {
         });
 
         // it('reports invalid fromValue', function (done) {
-        //     var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "null", "fromt": "msg", "to": "abc", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
+        //     var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "null", "fromt": "msg", "to": "abc", "tot": "str" }], "name": "changeNode", "wires": [["helperNode1"]] },
         //     { id: "helperNode1", type: "helper", wires: [] }];
         //     helper.load(changeNode, flow, function () {
         //         var changeNode1 = helper.getNode("changeNode1");
@@ -1297,7 +1297,7 @@ describe('Transformation節點測試', function () {
         //         delete process.env.NR_TEST_A;
         //     })
         //     it('changes the value using env property', function (done) {
-        //         var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "NR_TEST_A", "fromt": "msg", "tot": "env" }], "name": "changeNode", "wires": [["helperNode1"]] },
+        //         var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "change", "p": "payload", "from": "topic", "to": "NR_TEST_A", "fromt": "msg", "tot": "env" }], "name": "changeNode", "wires": [["helperNode1"]] },
         //         { id: "helperNode1", type: "helper", wires: [] }];
         //         helper.load(changeNode, flow, function () {
         //             var changeNode1 = helper.getNode("changeNode1");
@@ -1319,7 +1319,7 @@ describe('Transformation節點測試', function () {
 
     describe("#delete", function () {
         it('deletes the value of the message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "delete", "property": "payload", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "delete", "property": "payload", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1338,7 +1338,7 @@ describe('Transformation節點測試', function () {
 
         it('deletes the value of global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "delete", "p": "globalValue", "pt": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "delete", "p": "globalValue", "pt": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1358,7 +1358,7 @@ describe('Transformation節點測試', function () {
 
         it('deletes the value of persistable global context property', function (done) {
             setTimeout(done, 1000);
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", rules: [{ "t": "delete", "p": "#:(memory1)::globalValue", "pt": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "delete", "p": "#:(memory1)::globalValue", "pt": "global" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 initContext(function () {
@@ -1382,7 +1382,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('deletes the value of a multi-level message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "delete", "property": "foo.bar", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "delete", "property": "foo.bar", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1400,7 +1400,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sends unaltered message if the deleted message property does not exist', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "delete", "property": "foo", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "delete", "property": "foo", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1419,7 +1419,7 @@ describe('Transformation節點測試', function () {
         });
 
         it('sends unaltered message if a deleted multi-level message property does not exist', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "action": "delete", "property": "foo.bar", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "delete", "property": "foo.bar", "from": "", "to": "", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1440,7 +1440,7 @@ describe('Transformation節點測試', function () {
 
     describe("#move", function () {
         it('moves the value of the message property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "rules": [{ "t": "move", "p": "topic", "pt": "msg", "to": "payload", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "rules": [{ "t": "move", "p": "topic", "pt": "msg", "to": "payload", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1459,7 +1459,7 @@ describe('Transformation節點測試', function () {
             });
         });
         it('moves the value of a message property object', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "rules": [{ "t": "move", "p": "topic", "pt": "msg", "to": "payload", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "rules": [{ "t": "move", "p": "topic", "pt": "msg", "to": "payload", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1480,7 +1480,7 @@ describe('Transformation節點測試', function () {
             });
         });
         it('moves the value of a message property object to a sub-property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "rules": [{ "t": "move", "p": "payload", "pt": "msg", "to": "payload.foo", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "rules": [{ "t": "move", "p": "payload", "pt": "msg", "to": "payload.foo", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1499,7 +1499,7 @@ describe('Transformation節點測試', function () {
             });
         });
         it('moves the value of a message sub-property object to a property', function (done) {
-            var flow = [{ "id": "changeNode1", "type": "FCF-Transformation", "rules": [{ "t": "move", "p": "payload.foo", "pt": "msg", "to": "payload", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
+            var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "rules": [{ "t": "move", "p": "payload.foo", "pt": "msg", "to": "payload", "tot": "msg" }], "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
                 var changeNode1 = helper.getNode("changeNode1");
@@ -1522,7 +1522,7 @@ describe('Transformation節點測試', function () {
     describe('- multiple rules', function () {
         it('handles multiple rules', function (done) {
             var flow = [{
-                "id": "changeNode1", "type": "FCF-Transformation", "wires": [["helperNode1"]],
+                "id": "changeNode1", "type": "NICP-Transformation", "wires": [["helperNode1"]],
                 rules: [
                     { t: "set", p: "payload", to: "newValue" },
                     { t: "change", p: "changeProperty", from: "this", to: "that" },
@@ -1553,7 +1553,7 @@ describe('Transformation節點測試', function () {
 
         it('applies multiple rules in order', function (done) {
             var flow = [{
-                "id": "changeNode1", "type": "FCF-Transformation", "wires": [["helperNode1"]],
+                "id": "changeNode1", "type": "NICP-Transformation", "wires": [["helperNode1"]],
                 rules: [
                     { t: "set", p: "payload", to: "a this (hi)" },
                     { t: "change", p: "payload", from: "this", to: "that" },
@@ -1579,7 +1579,7 @@ describe('Transformation節點測試', function () {
         });
 
         // it('can access two persistable flow context property', function(done) {
-        //     var flow = [{"id":"changeNode1", "z":"t1", "type":"FCF-Transformation",
+        //     var flow = [{"id":"changeNode1", "z":"t1", "type":"NICP-Transformation",
         //                  "wires":[["helperNode1"]],
         //                  rules:[
         //                      {"t":"set", "p":"val0", "to":"#:(memory0)::val", "tot":"flow"},
@@ -1611,7 +1611,7 @@ describe('Transformation節點測試', function () {
 
         // it('can access two persistable global context property', function (done) {
         //     var flow = [{
-        //         "id": "changeNode1", "z": "t1", "type": "FCF-Transformation",
+        //         "id": "changeNode1", "z": "t1", "type": "NICP-Transformation",
         //         "wires": [["helperNode1"]],
         //         rules: [
         //             { "t": "set", "p": "val0", "to": "#:(memory0)::val", "tot": "global" },
@@ -1645,7 +1645,7 @@ describe('Transformation節點測試', function () {
         it('can access persistable global & flow context property', function (done) {
             setTimeout(done, 1000);
             var flow = [{
-                "id": "changeNode1", "z": "t1", "type": "FCF-Transformation",
+                "id": "changeNode1", "z": "t1", "type": "NICP-Transformation",
                 "wires": [["helperNode1"]],
                 rules: [
                     { "t": "set", "p": "val0", "to": "#:(memory0)::val", "tot": "flow" },

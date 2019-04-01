@@ -2,7 +2,7 @@ const colors = require("colors");
 const _ = require("underscore");
 const should = require("should");
 const helper = require("node-red-node-test-helper");
-const fcfStatusNode = require("../FCF-Status.js");
+const fcfStatusNode = require("../NICP-Status.js");
 
 describe("Status節點測試", function () {
 
@@ -18,7 +18,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -63,7 +63,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -108,7 +108,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -153,7 +153,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -198,7 +198,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -243,7 +243,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -295,7 +295,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -340,7 +340,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -385,7 +385,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",
@@ -430,7 +430,7 @@ describe("Status節點測試", function () {
         let statusNode = JSON.parse(`[
             {
                 "id": "7ffe7386.e316cc",
-                "type": "FCF-Status",
+                "type": "NICP-Status",
                 "z": "a23eccc3.30fa7",
                 "name": "",
                 "propertyType": "msg",

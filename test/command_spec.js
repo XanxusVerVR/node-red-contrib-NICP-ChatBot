@@ -1,7 +1,7 @@
 const should = require("should");
 const chai = require("chai");
 const helper = require("node-red-node-test-helper");
-const fcfCommandNode = require("../FCF-Command.js");
+const fcfCommandNode = require("../NICP-Command.js");
 const Context = require("../red/runtime/nodes/context");
 
 describe("Message節點測試", function () {
@@ -22,7 +22,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "4ba52d54.d48be4",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "e064253c.b676f8",
                 "name": "",
                 "answer": false,
@@ -57,7 +57,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "4ba52d54.d48be4",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "e064253c.b676f8",
                 "name": "",
                 "answer": false,
@@ -93,7 +93,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "4ba52d54.d48be4",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "e064253c.b676f8",
                 "name": "用來寫測試案例的",
                 "answer": false,
@@ -134,7 +134,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "ccd08f56.81777",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "answer": false,
@@ -184,7 +184,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "ccd08f56.81777",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "answer": false,
@@ -254,7 +254,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "ccd08f56.81777",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "answer": false,
@@ -320,7 +320,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "b2918cce.263e9",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "answer": false,
@@ -380,7 +380,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "6d416c2c.c9c744",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "answer": false,
@@ -440,7 +440,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "4ba52d54.d48be4",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "e064253c.b676f8",
                 "name": "用來寫測試案例的",
                 "answer": false,
@@ -488,7 +488,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "12997229.75adbe",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "和使用者確認E-mail",
                 "answer": false,
@@ -553,7 +553,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "51b6a1f0.2809f",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "answer": false,
@@ -619,7 +619,7 @@ describe("Message節點測試", function () {
         let messageNode = JSON.parse(`[
             {
                 "id": "51b6a1f0.2809f",
-                "type": "FCF-Command",
+                "type": "NICP-Command",
                 "z": "9fdb8a20.7c04d8",
                 "name": "",
                 "answer": false,
