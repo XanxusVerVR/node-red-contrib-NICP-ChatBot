@@ -383,6 +383,7 @@ module.exports = function (RED) {
                     // then first pin, if not second pin
                     //currentConversationNode存著現在這個將Track Conversation打勾的Facebook Out節點的id，如：fe1956ef.c91568
                     //前面是用來判斷是不是顧客，後面是判斷是不是老闆，如果現在的msg.payload.chatId與設置在Facebook Out的使用者ID相同，表示要將對話轉為等待這個被設置的使用者ID(老闆)
+                    let currentConversationNode = chatContext.get("currentConversationNode");
                     if (chatContext.get("currentConversationNode") != null || globalOutputRoleUserID == msg.payload.chatId) {
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
@@ -625,7 +626,7 @@ module.exports = function (RED) {
         this.name = config.name || "My Facebook In Node";
         this.bot = config.bot;//config.bot是一個類似98bd3fe8.c4eb5這樣的字串
         this.config = RED.nodes.getNode(this.bot);
-        
+
         const node = this;
 
         if (this.config) {
@@ -776,6 +777,10 @@ module.exports = function (RED) {
             }
         };
         //這會註冊一次註冊所有存在的Facebook Out節點，並以類似這樣的node:f48a9360.2482c事件名稱註冊
+        console.log(`node.id:`);
+        console.log(node.id);
+        console.log(`config.id:`);
+        console.log(config.id);
         RED.events.on("node:" + config.id, handler);
 
         this.on("input", function (msg) {

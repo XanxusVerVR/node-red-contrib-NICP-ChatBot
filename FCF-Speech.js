@@ -4,11 +4,11 @@ const rp = require("request-promise");
 const moment = require("moment");
 const request = require("request");
 const cors = require("cors");
-// console.log(moment().format("YYYY-MM-DD HH:mm:ss"));//2019-03-31 22:38:10
 const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
 const redBright = clc.redBright;
+const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
@@ -32,15 +32,39 @@ module.exports = function (RED) {
             RED.httpNode.options("*", corsHandler);
         }
         let postCallback = function _postCallback(req, res) {
+            let response = {
+                date: moment().format("YYYY-MM-DD HH:mm:ss")
+            };
+            if (!req.body.hasOwnProperty("roleName") || !req.body.hasOwnProperty("senderId") || !req.body.hasOwnProperty("message") || !req.body.message.hasOwnProperty("text")) {
+                response.statusCode = 400;
+            }
+            else {
+                response.statusCode = 200;
+            }
+
             let msg = {
                 payload: req.body
             };
             msg.payload.botName = node.botName;
             node.emit("relay", msg);
-            res.status(200).send("POST request is success!");
+            res.status(response.statusCode).send(response);
         };
 
         RED.httpNode.post(node.webhookPath, corsHandler, postCallback);
+
+        if (!_.isEmpty(node.webhookPath) && !_.isEmpty(node.serverLocation)) {
+            console.log(grey("--------------- Speech Webhook Start ----------------"));
+            let port;
+            let uiPort = RED.settings.get("uiPort");
+            if (node.isHttps) {
+                port = "";
+            }
+            else {
+                port = ":" + uiPort;
+            }
+            console.log(green("Webhook URL: ") + white("" + (node.isHttps ? "https" : "http") + "://" + (node.serverLocation ? node.serverLocation : "localhost") + port + node.webhookPath));
+            console.log(grey("--------------- Speech Webhook End ----------------"));
+        }
 
         node.on("close", function () {
             const node = this;
@@ -113,6 +137,21 @@ module.exports = function (RED) {
 
         const node = this;
 
+        if (!_.isEmpty(node.botConfigData)) {
+            node.status({
+                fill: "green",
+                shape: "ring",
+                text: "connected"
+            });
+        }
+        else {
+            node.status({
+                fill: "red",
+                shape: "ring",
+                text: "disconnected"
+            });
+        }
+
         //當Speech Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
         let outputRoleUserID;
         if (node.speechConfigRoleNode) {
@@ -121,11 +160,11 @@ module.exports = function (RED) {
         else {
             outputRoleUserID = "";
         }
-        console.log(`outputRoleUserID:`);
-        console.log(outputRoleUserID);
+        // console.log(`outputRoleUserID:`);
+        // console.log(outputRoleUserID);
 
         let inputCallback = function _inputCallback(msg) {
-            console.log(msg);
+            // console.log(msg);
             let options = {
                 method: "POST",
                 uri: node.botConfigData.sendAPIUrl,
