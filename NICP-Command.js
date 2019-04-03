@@ -111,7 +111,7 @@ module.exports = function (RED) {
             let messageId = utils.getMessageId(msg);
             let template = MessageTemplate(msg, node);
             let is_json = false;
-            let botName = msg.payload.botName;
+            let botName = msg.payload.botName || "";
 
             // check transport compatibility
             if (!utils.matchTransport(node, msg)) {
