@@ -160,8 +160,8 @@ describe("Frame節點測試", function () {
             let n1 = helper.getNode(frameNode[0].id);
             let helperNode = helper.getNode("n2");
             helperNode.on("input", function (msg) {
-                msg.frame.Query.should.have.property("brand", "HTC");
-                msg.frame.Query.should.have.property("price", "99999");
+                msg.frame.query.should.have.property("brand", "HTC");
+                msg.frame.query.should.have.property("price", "99999");
                 let userDataObjectIsEmpty = _.isEmpty(msg.frame.UserData);
                 assert.equal(userDataObjectIsEmpty, true);
                 let resultObjectIsEmpty = _.isEmpty(msg.frame.Result);
@@ -289,8 +289,8 @@ describe("Frame節點測試", function () {
             let n1 = helper.getNode(frameNode[0].id);
             let helperNode = helper.getNode("n2");
             helperNode.on("input", function (msg) {
-                msg.frame.Result.should.have.property("mobile", "Sony Xperia XZ Premium");
-                msg.frame.Result.should.have.property("id", "S001");
+                msg.frame.result.should.have.property("mobile", "Sony Xperia XZ Premium");
+                msg.frame.result.should.have.property("id", "S001");
                 done();
             });
             n1.receive({
@@ -423,7 +423,7 @@ describe("Frame節點測試", function () {
             helperNode.on("input", function (msg) {
 
                 msg.query.should.have.property("brand", "SONY");
-                msg.frame.Query.should.have.property("brand", "SONY");
+                msg.frame.query.should.have.property("brand", "SONY");
 
                 done();
             });
@@ -483,8 +483,8 @@ describe("Frame節點測試", function () {
             helperNode.on("input", function (msg) {
 
                 msg.should.have.property("payload", "我幫您找到了這台手機：SONY的Sony Xperia XZ Premium。售價為24899元，相機有1900萬畫素，螢幕有5.5吋，容量有64G。請問還可以嗎？");
-                msg.frame.Result.should.have.property("mobile", "Sony Xperia XZ Premium");
-                msg.frame.Result.should.have.property("id", "S001");
+                msg.frame.result.should.have.property("mobile", "Sony Xperia XZ Premium");
+                msg.frame.result.should.have.property("id", "S001");
 
                 done();
             });
@@ -557,7 +557,7 @@ describe("Frame節點測試", function () {
 
                 msg.userData.should.have.property("UserID", "1001653183292396");
                 msg.userData.should.have.property("phone", "098899889");
-                msg.frame.UserData.should.have.property("name", "戴碩泓");
+                msg.frame.userData.should.have.property("name", "戴碩泓");
 
                 done();
             });
@@ -624,8 +624,8 @@ describe("Frame節點測試", function () {
                 assert.equal(userDataObjectIsEmpty, true);
                 assert.equal(resultObjectIsEmpty, true);
                 try {
-                    contextFlowFrame.phone.Query.should.have.property("brand", "HTC");
-                    contextFlowFrame.phone.Query.should.have.property("price", "99999");
+                    contextFlowFrame.phone.query.should.have.property("brand", "HTC");
+                    contextFlowFrame.phone.query.should.have.property("price", "99999");
                     done();
                 } catch (err) {
                     done(err);
@@ -691,8 +691,8 @@ describe("Frame節點測試", function () {
                 let userDataObjectIsEmpty = _.isEmpty(contextFlowFrame.phone.UserData);
                 assert.equal(userDataObjectIsEmpty, true);
                 try {
-                    contextFlowFrame.phone.Result.should.have.property("mobile", "HTC U11");
-                    contextFlowFrame.phone.Result.should.have.property("id", "H001");
+                    contextFlowFrame.phone.result.should.have.property("mobile", "HTC U11");
+                    contextFlowFrame.phone.result.should.have.property("id", "H001");
                     done();
                 } catch (err) {
                     done(err);
@@ -760,11 +760,11 @@ describe("Frame節點測試", function () {
             let helperNode = helper.getNode("n2");
             helperNode.on("input", function (msg) {
                 let contextFlowFrame = n1.context().flow.get("frame");
-                let userDataObjectIsEmpty = _.isEmpty(contextFlowFrame.phone.UserData);
+                let userDataObjectIsEmpty = _.isEmpty(contextFlowFrame.phone.userData);
                 assert.equal(userDataObjectIsEmpty, true);
                 try {
-                    contextFlowFrame.phone.Query.should.have.property("brand", "SONY");
-                    contextFlowFrame.phone.Query.should.have.property("price", "88888");//因下面有set frame，所以這裡才找得到price
+                    contextFlowFrame.phone.query.should.have.property("brand", "SONY");
+                    contextFlowFrame.phone.query.should.have.property("price", "88888");//因下面有set frame，所以這裡才找得到price
                     done();
                 } catch (err) {
                     done(err);
@@ -774,12 +774,12 @@ describe("Frame節點測試", function () {
             //由手機選購機器人案例為例，frame.js裡會再次get一次flow.frame，因此當使用者要更換sony時，frame最後才有price屬性，所以要在這裡設一次frame，才能模擬真實flow執行時的frame的內容和狀態
             n1.context().flow.set("frame", JSON.parse(`{
                 "phone": {
-                    "Query": {
+                    "query": {
                         "brand": "HTC",
                         "price": "88888"
                     },
-                    "UserData": {},
-                    "Result": {
+                    "userData": {},
+                    "result": {
                         "mobile": "HTC U11",
                         "id": "H001"
                     }
