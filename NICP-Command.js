@@ -84,9 +84,7 @@ module.exports = function (RED) {
 
         this.name = config.name || "My Command Node";
         this.message = config.message;
-        this.answer = config.answer;
-        this.parse_mode = config.parse_mode;
-        this.transports = ["telegram", "slack", "facebook", "smooch", "speech"];
+        this.transports = ["telegram", "slack", "facebook", "smooch", "speech"] || "";
 
         //此函式會隨機抓一個訊息回傳
         this.pickOne = function (messages) {
@@ -103,15 +101,12 @@ module.exports = function (RED) {
         let node = this;
 
         this.on("input", function (msg) {
-
             let message = node.message;
-            let answer = node.answer;
-            let parse_mode = node.parse_mode;
             let chatId = utils.getChatId(msg);
             let messageId = utils.getMessageId(msg);
             let template = MessageTemplate(msg, node);
             let is_json = false;
-            let botName = msg.payload.botName || "";
+            let botName = msg.payload.botName || "Default Bot Name";
 
             // check transport compatibility
             if (!utils.matchTransport(node, msg)) {
@@ -172,15 +167,6 @@ module.exports = function (RED) {
                 };
                 if (msg.whetherToSendLocation) {
                     msg.payload.type = "request";//將type設為request才能在Facebook Out送出詢問位置的請求
-                }
-                msg.payload.options = {};
-                // parse mode
-                if (!_.isEmpty(parse_mode)) {
-                    msg.payload.options.parse_mode = parse_mode;
-                }
-                // reply flag
-                if (answer) {
-                    msg.payload.options.reply_to_message_id = messageId;
                 }
                 // send out reply
                 node.send(msg);

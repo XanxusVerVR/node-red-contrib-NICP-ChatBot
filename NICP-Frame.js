@@ -22,9 +22,9 @@ module.exports = function (RED) {
 
             if (!context.get("frame")) {
                 frame[className] = {//將此className設成frame的屬性名稱
-                    Query: {},
-                    UserData: {},
-                    Result: {}
+                    query: {},
+                    userData: {},
+                    result: {}
                 };
                 context.set("frame", frame);
             }
@@ -33,9 +33,9 @@ module.exports = function (RED) {
 
             if (!frame[className]) {
                 frame[className] = {//將此className設成frame的屬性名稱
-                    Query: {},
-                    UserData: {},
-                    Result: {}
+                    query: {},
+                    userData: {},
+                    result: {}
                 };
             }
 
@@ -43,19 +43,19 @@ module.exports = function (RED) {
             if (msg.query != null) {
                 Object.keys(msg.query).map(function (objectKey, index) {
                     let value = msg.query[objectKey];
-                    frame[className].Query[objectKey] = value;
+                    frame[className].query[objectKey] = value;
                 });
             }
             if (msg.userData != null) {
                 Object.keys(msg.userData).map(function (objectKey, index) {
                     let value = msg.userData[objectKey];
-                    frame[className].UserData[objectKey] = value;
+                    frame[className].userData[objectKey] = value;
                 });
             }
             if (msg.result != null) {
                 Object.keys(msg.result).map(function (objectKey, index) {
                     let value = msg.result[objectKey];
-                    frame[className].Result[objectKey] = value;
+                    frame[className].result[objectKey] = value;
                 });
             }
             context.set("frame", frame);

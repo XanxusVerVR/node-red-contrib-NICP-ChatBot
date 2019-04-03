@@ -200,6 +200,9 @@ module.exports = function (RED) {
             let fromRE;
             try {
                 return getToValue(msg, rule).then(value => {
+                    if (_.isEmpty(value)) {
+                        value = {};
+                    }
                     return getFromValue(msg, rule).then(fromParts => {
                         fromValue = fromParts.fromValue;
                         fromType = fromParts.fromType;

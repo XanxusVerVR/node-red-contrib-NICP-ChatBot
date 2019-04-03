@@ -704,3 +704,61 @@ let transformationConfig = {
     y: 280,
     wires: [["6d068677.44d5d8"]]
 };
+
+//Facebook In節點輸出的完整物件
+let FacebookInNodeOutCompleteMsgObject =
+{
+    "payload": {
+        "chatId": "1267275450038190",
+        "messageId": "gb9zEmTseeacE0RrZ65WhB_0GxCFfEUKu9rm71alazfbiprBXWQHVFBmBs-w66xkc4T7W8IdxRXVJO9EQl3iww",
+        "type": "message",
+        "content": "幫我開個電扇",
+        "date": "2019-04-03T12:53:54.139Z",
+        "inbound": true,
+        "first_name": "Zetas",
+        "last_name": "Los"
+    },
+    "originalMessage": {
+        "transport": "facebook",
+        "chat": {
+            "id": "1267275450038190"
+        }
+    },
+    "_msgid": "21570b3e.7ac454"
+};
+
+// DataCollection節點收集完資料後，存到Frame節點中，並且輸出長這樣
+let frameNodeOutputObject =
+{
+    "payload": {
+        "chatId": "1267275450038190",
+        "messageId": "Xu3lOMDPz_o5NBqk_46ndh_0GxCFfEUKu9rm71alazeYQzHGr-gxPL5UneZOsZ9ij-p7r1hm8z4Vp8mqatE2Hw",
+        "type": "message",
+        "content": "172",
+        "date": "2019-04-03T13:26:07.174Z",
+        "inbound": true,
+        "first_name": "Zetas",
+        "last_name": "Los"
+    },
+    "originalMessage": {
+        "transport": "facebook",
+        "chat": {
+            "id": "1267275450038190"
+        }
+    },
+    "_msgid": "545d5004.aa56d",
+    "_event": "node:cf07e194.ca48e",
+    "whetherToSendLocation": false,
+    "query": {
+        "phoneNumber": "09380062826",
+        "tall": "172"
+    },
+    "frame": {
+        "query": {
+            "phoneNumber": "09380062826",
+            "tall": "172"
+        },
+        "userData": {},
+        "result": {}
+    }
+};
