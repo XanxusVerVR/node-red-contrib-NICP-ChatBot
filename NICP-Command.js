@@ -84,7 +84,7 @@ module.exports = function (RED) {
 
         this.name = config.name || "My Command Node";
         this.message = config.message;
-        this.transports = ["telegram", "slack", "facebook", "smooch", "speech"] || "";
+        this.transports = ["telegram", "slack", "facebook", "smooch", "text"] || "";
 
         //此函式會隨機抓一個訊息回傳
         this.pickOne = function (messages) {
