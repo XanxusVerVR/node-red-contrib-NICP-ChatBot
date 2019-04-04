@@ -11,7 +11,7 @@ const green = clc.greenBright;
 const white = clc.white;
 const grey = clc.blackBright;
 module.exports = function (RED) {
-
+    const facebookWithTextContext = new TextConversationContext();
     function TextConfig(config) {
 
         RED.nodes.createNode(this, config);
@@ -21,7 +21,7 @@ module.exports = function (RED) {
         this.isHttps = config.isHttps;
         this.serverLocation = config.serverLocation;
 
-        let context = new TextConversationContext();
+        const context = new TextConversationContext();
 
         const node = this;
 
@@ -46,7 +46,7 @@ module.exports = function (RED) {
             let msg = {
                 payload: {
                     botName: node.botName,
-                    chatId: req.body.senderId,
+                    chatId: facebookWithTextContext.chatId || req.body.senderId,
                     roleName: req.body.roleName,
                     messageId: crypto.randomBytes(43).toString("hex"),
                     type: "message",
@@ -54,7 +54,7 @@ module.exports = function (RED) {
                     date: req.body.date,
                 },
                 originalMessage: {
-                    transport: "text",
+                    transport: facebookWithTextContext.transport || "text",
                     chat: {
                         id: req.body.senderId
                     }
@@ -62,10 +62,17 @@ module.exports = function (RED) {
             };
             msg.context = context;
             if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了
+                console.log(`context 1`);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
                 msg.context.textOutNodeId = "";
             }
-            else {
+            else if (!_.isEmpty(facebookWithTextContext.textOutNodeId)) {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
+                console.log(`Facebook with Text context 2`);
+                RED.events.emit("facebookWithText:" + facebookWithTextContext.textOutNodeId, msg);
+                facebookWithTextContext.clear();
+            }
+            else {// 將訊息傳給 Text In
+                console.log(`從Text In進去 3`);
                 node.emit("relay", msg);
             }
             res.status(response.statusCode).send(response);
@@ -89,6 +96,7 @@ module.exports = function (RED) {
 
         node.on("close", function () {
             const node = this;
+            facebookWithTextContext.clear();
             RED.httpNode._router.stack.forEach(function (route, i, routes) {
                 if (route.route && route.route.path === node.webhookPath) {
                     routes.splice(i, 1);
@@ -183,14 +191,28 @@ module.exports = function (RED) {
             outputRoleUserID = "";
         }
 
-        let handler = function _handler(msg) {
+        //用來給text節點自己用的Handler，如流程中in跟out只有text節點，且有對話追蹤
+        let textHandler = function _textHandler(msg) {
             node.send(msg);
         };
-        RED.events.on("node:" + node.id, handler);
+        //用來給facebook in 連接到 text out，且text out有設定對話追蹤的流程用的Handler
+        let facebookHandler = function _facebookHandler(msg) {
+            node.send(msg);
+        };
+        RED.events.on("node:" + node.id, textHandler);
 
         let inputCallback = function _inputCallback(msg) {
             if (node.track && !_.isEmpty(node.wires[0])) {
-                msg.context.textOutNodeId = node.id;
+                if (msg.originalMessage.transport == "facebook") {
+                    facebookWithTextContext.textOutNodeId = node.id;
+                    facebookWithTextContext.transport = msg.originalMessage.transport;
+                    facebookWithTextContext.chatId = msg.payload.chatId;
+                    RED.events.on("facebookWithText:" + node.id, facebookHandler);
+                }
+                // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Text In進來，這裡的動作才要做。
+                if (!_.isEmpty(msg.context)) {
+                    msg.context.textOutNodeId = node.id;
+                }
             }
             let options = {
                 method: "POST",
@@ -217,7 +239,8 @@ module.exports = function (RED) {
         };
         node.on("input", inputCallback);
         node.on("close", function () {
-            RED.events.removeListener("node:" + node.id, handler);
+            RED.events.removeListener("node:" + node.id, textHandler);
+            RED.events.removeListener("facebookWithText:" + node.id, facebookHandler);
         });
     }
     RED.nodes.registerType("NICP-Text Out", TextOut);
