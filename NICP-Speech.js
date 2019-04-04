@@ -1,6 +1,6 @@
 const q = require("./lib/xanxus-queue");
-const speechConversationContext = require("./lib/SpeechConversationContext");
-const SpeechConversationContext = speechConversationContext.SpeechConversationContext;
+const textConversationContext = require("./lib/TextConversationContext");
+const TextConversationContext = textConversationContext.TextConversationContext;
 const _ = require("underscore");
 const rp = require("request-promise");
 const moment = require("moment");
@@ -12,7 +12,7 @@ const white = clc.white;
 const grey = clc.blackBright;
 module.exports = function (RED) {
 
-    function SpeechConfig(config) {
+    function TextConfig(config) {
 
         RED.nodes.createNode(this, config);
         this.botName = config.botName;
@@ -21,7 +21,7 @@ module.exports = function (RED) {
         this.isHttps = config.isHttps;
         this.serverLocation = config.serverLocation;
 
-        let context = new SpeechConversationContext();
+        let context = new TextConversationContext();
 
         const node = this;
 
@@ -54,16 +54,16 @@ module.exports = function (RED) {
                     date: req.body.date,
                 },
                 originalMessage: {
-                    transport: "speech",
+                    transport: "text",
                     chat: {
                         id: req.body.senderId
                     }
                 }
             };
             msg.context = context;
-            if (msg.context.speechOutNodeId) {//這裡就等於在呼叫get()了
-                RED.events.emit("node:" + msg.context.speechOutNodeId, msg);
-                msg.context.speechOutNodeId = "";
+            if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了
+                RED.events.emit("node:" + msg.context.textOutNodeId, msg);
+                msg.context.textOutNodeId = "";
             }
             else {
                 node.emit("relay", msg);
@@ -74,7 +74,7 @@ module.exports = function (RED) {
         RED.httpNode.post(node.webhookPath, corsHandler, postCallback);
 
         if (!_.isEmpty(node.webhookPath) && !_.isEmpty(node.serverLocation)) {
-            console.log(grey("--------------- Speech Webhook Start ----------------"));
+            console.log(grey("--------------- Text Webhook Start ----------------"));
             let port;
             let uiPort = RED.settings.get("uiPort");
             if (node.isHttps) {
@@ -84,7 +84,7 @@ module.exports = function (RED) {
                 port = ":" + uiPort;
             }
             console.log(green("Webhook URL: ") + white("" + (node.isHttps ? "https" : "http") + "://" + (node.serverLocation ? node.serverLocation : "localhost") + port + node.webhookPath));
-            console.log(grey("--------------- Speech Webhook End ----------------"));
+            console.log(grey("--------------- Text Webhook End ----------------"));
         }
 
         node.on("close", function () {
@@ -96,7 +96,7 @@ module.exports = function (RED) {
             });
         });
     }
-    RED.nodes.registerType("NICP-Speech Config", SpeechConfig);
+    RED.nodes.registerType("NICP-Text Config", TextConfig);
 
 
 
@@ -107,12 +107,12 @@ module.exports = function (RED) {
 
 
 
-    function SpeechIn(config) {
+    function TextIn(config) {
 
         RED.nodes.createNode(this, config);
 
         this.botConfigData = RED.nodes.getNode(config.botConfigData);
-        this.name = config.name || "My Speech In Node";
+        this.name = config.name || "My Text In Node";
 
         const node = this;
 
@@ -139,7 +139,7 @@ module.exports = function (RED) {
             }
         });
     }
-    RED.nodes.registerType("NICP-Speech In", SpeechIn);
+    RED.nodes.registerType("NICP-Text In", TextIn);
 
 
 
@@ -147,13 +147,13 @@ module.exports = function (RED) {
 
 
 
-    function SpeechOut(config) {
+    function TextOut(config) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name || "My Speech Out Node";
+        this.name = config.name || "My Text Out Node";
         this.botConfigData = RED.nodes.getNode(config.botConfigData);
-        this.speechConfigRoleNode = RED.nodes.getNode(config.speechConfigRoleNode);
+        this.textConfigRoleNode = RED.nodes.getNode(config.textConfigRoleNode);
         this.track = config.track;
         this.outputs = config.outputs;
 
@@ -174,10 +174,10 @@ module.exports = function (RED) {
             });
         }
 
-        //當Speech Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
+        //當Text Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
         let outputRoleUserID;
-        if (node.speechConfigRoleNode) {
-            outputRoleUserID = node.speechConfigRoleNode.credentials.targetUserID;
+        if (node.textConfigRoleNode) {
+            outputRoleUserID = node.textConfigRoleNode.credentials.targetUserID;
         }
         else {
             outputRoleUserID = "";
@@ -190,7 +190,7 @@ module.exports = function (RED) {
 
         let inputCallback = function _inputCallback(msg) {
             if (node.track && !_.isEmpty(node.wires[0])) {
-                msg.context.speechOutNodeId = node.id;
+                msg.context.textOutNodeId = node.id;
             }
             let options = {
                 method: "POST",
@@ -220,7 +220,7 @@ module.exports = function (RED) {
             RED.events.removeListener("node:" + node.id, handler);
         });
     }
-    RED.nodes.registerType("NICP-Speech Out", SpeechOut);
+    RED.nodes.registerType("NICP-Text Out", TextOut);
 
 
 
@@ -232,10 +232,10 @@ module.exports = function (RED) {
 
 
     //定義角色的節點在這
-    function SpeechRole(config) {
+    function TextRole(config) {
         RED.nodes.createNode(this, config);
     }
-    RED.nodes.registerType("NICP-Speech Config Role", SpeechRole, {
+    RED.nodes.registerType("NICP-Text Config Role", TextRole, {
         credentials: {
             targetUserID: {
                 type: "text"

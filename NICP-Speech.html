@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Speech Config", {
+    RED.nodes.registerType("NICP-Text Config", {
         category: "config",
         defaults: {
             botName: {
@@ -22,7 +22,7 @@
                 required: false
             }
         },
-        paletteName: "Speech Config",
+        paletteName: "Text Config",
         label: function () {
             return this.botName;
         },
@@ -31,7 +31,7 @@
     });
 
 </script>
-<script type="text/x-red" data-template-name="NICP-Speech Config">
+<script type="text/x-red" data-template-name="NICP-Text Config">
     <!-- 給一個這個外部系統的機器人名稱 -->
     <div class="form-row">
         <label for="node-config-input-botName"><i class="icon-bookmark"></i> Bot Name</label>
@@ -64,7 +64,7 @@
         </div>
     </div>
 </script>
-<script type="text/x-red" data-help-name="NICP-Speech Config">
+<script type="text/x-red" data-help-name="NICP-Text Config">
 </script>
 
 
@@ -80,7 +80,7 @@
 
 
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Speech In", {
+    RED.nodes.registerType("NICP-Text In", {
         category: "NICP",
         color: "#9999cc",
         defaults: {
@@ -89,15 +89,15 @@
             },
             botConfigData: {
                 value: "",
-                type: "NICP-Speech Config"
+                type: "NICP-Text Config"
             }
         },
         inputs: 0,
         outputs: 1,
         icon: "arrow-in.png",
-        paletteLabel: "Speech In",
+        paletteLabel: "Text In",
         label: function () {
-            let labelName = "Speech In";
+            let labelName = "Text In";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -112,7 +112,7 @@
     });
 
 </script>
-<script type="text/x-red" data-template-name="NICP-Speech In">
+<script type="text/x-red" data-template-name="NICP-Text In">
     <!-- 節點名稱 -->
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -120,11 +120,11 @@
     </div>
     <!-- Config設置 -->
     <div class="form-row">
-		<label for="node-input-botConfigData"><i class="icon-tag"></i> Speech Bot</label>
-		<input type="text" id="node-input-botConfigData" placeholder="Speech Bot">
+		<label for="node-input-botConfigData"><i class="icon-tag"></i> Text Bot</label>
+		<input type="text" id="node-input-botConfigData" placeholder="Text Bot">
 	</div>
 </script>
-<script type="text/x-red" data-help-name="NICP-Speech In">
+<script type="text/x-red" data-help-name="NICP-Text In">
 </script>
 
 
@@ -140,7 +140,7 @@
 
 
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Speech Out", {
+    RED.nodes.registerType("NICP-Text Out", {
         category: "NICP",
         color: "#9999cc",
         defaults: {
@@ -149,7 +149,7 @@
             },
             botConfigData: {
                 value: "",
-                type: "NICP-Speech Config"
+                type: "NICP-Text Config"
             },
             track: {
                 value: false
@@ -157,18 +157,18 @@
             outputs: {
                 value: 0
             },
-            speechConfigRoleNode: {
+            textConfigRoleNode: {
                 value: "",
-                type: "NICP-Speech Config Role",
+                type: "NICP-Text Config Role",
                 required: false
             }
         },
         inputs: 1,
         outputs: 0,
         icon: "bridge-dash.png",
-        paletteLabel: "Speech Out",
+        paletteLabel: "Text Out",
         label: function () {
-            let labelName = "Speech Out";
+            let labelName = "Text Out";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -185,7 +185,7 @@
     });
 
 </script>
-<script type="text/x-red" data-template-name="NICP-Speech Out">
+<script type="text/x-red" data-template-name="NICP-Text Out">
     <!-- 節點名稱 -->
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -193,13 +193,13 @@
     </div>
     <!-- Config設置 -->
     <div class="form-row">
-		<label for="node-input-botConfigData"><i class="icon-tag"></i> Speech Bot</label>
-		<input type="text" id="node-input-botConfigData" placeholder="Speech Bot">
+		<label for="node-input-botConfigData"><i class="icon-tag"></i> Text Bot</label>
+		<input type="text" id="node-input-botConfigData" placeholder="Text Bot">
     </div>
     <!-- 提供設置要輸出給外部系統的某個角色ID -->
     <div class="form-row">
-        <label for="node-input-speechConfigRoleNode"><i class="icon-bookmark"></i> Role</label>
-        <input type="text" id="node-input-speechConfigRoleNode">
+        <label for="node-input-textConfigRoleNode"><i class="icon-bookmark"></i> Role</label>
+        <input type="text" id="node-input-textConfigRoleNode">
     </div>
     <!-- 設置對話是否要延續下去，往後面的流程走 -->
     <div class="form-row">
@@ -209,7 +209,7 @@
         </div>
     </div>
 </script>
-<script type="text/x-red" data-help-name="NICP-Speech Out">
+<script type="text/x-red" data-help-name="NICP-Text Out">
 </script>
 
 
@@ -229,7 +229,7 @@
 
 <!-- 設置角色的節點 -->
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Speech Config Role", {
+    RED.nodes.registerType("NICP-Text Config Role", {
         category: "config",
         defaults: {
             name: {
@@ -244,12 +244,12 @@
         },
         //定義這個config形式的節點在別的節點的dialog所呈現的字串，和在右邊的config sidebar所呈現的字串
         label: function () {
-            return this.name || "NICP-Speech Config Role";
+            return this.name || "NICP-Text Config Role";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="NICP-Speech Config Role">
+<script type="text/x-red" data-template-name="NICP-Text Config Role">
     <!-- 注意這裡的id是node-config-input-開頭 -->
         <!-- 定義這個credential節點的名稱 -->
     <div class="form-row">
