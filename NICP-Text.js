@@ -250,18 +250,25 @@ module.exports = function (RED) {
         RED.events.on("node:" + node.id, textHandler);
         let inputCallback = function _inputCallback(msg) {
             originalMessengeUserIdQueue.add(msg.payload.chatId);
+            console.log(0);
             if (node.track && !_.isEmpty(node.wires[0])) {
+                console.log(1);
                 if (msg.originalMessage.transport == "facebook") {
+                    console.log(2);
                     facebookWithTextContext.textOutNodeId = node.id;
                     facebookWithTextContext.transport = msg.originalMessage.transport;
                     facebookWithTextContext.chatId = msg.payload.chatId;
                 }
                 // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Text In進來，這裡的動作才要做。
                 if (!_.isEmpty(msg.context)) {
+                    console.log(3);
                     msg.context.textOutNodeId = node.id;
                 }
             }
-            if (isFirst) {// 當第一次訊息已經送出，就不要寄出第二次之後的訊息，先把它存到Queue裡
+            // 當第一次訊息已經送出，就不要寄出第二次之後的訊息，先把它存到Queue裡
+            // 當這個Text Out後面沒有接節點了，表示流程要結束。所以如果後面有接節點，表示流程還沒結束，這時就要把訊息存到Queue中
+            if (isFirst && !_.isEmpty(node.wires[0])) {
+                console.log(4);
                 msgQueue.add({
                     waiteThisFacebookOutNodeMsg: msg,
                     waiteThisFacebookOutNode: node
@@ -269,6 +276,7 @@ module.exports = function (RED) {
                 count++;
             }
             else {
+                console.log(5);
                 isFirst = true;// 第一次訊息進來了，設為true，記錄一下
                 sendMessage(msg, node);
             }
