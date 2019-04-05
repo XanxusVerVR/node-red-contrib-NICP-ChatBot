@@ -480,7 +480,6 @@ module.exports = function (RED) {
                 let messageId = botMsg.message != null ? botMsg.message.mid : null;
 
                 if (!_.isEmpty(botMsg.account_linking)) {
-                    console.log("account_linking");
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -499,7 +498,6 @@ module.exports = function (RED) {
 
                 let message = botMsg.message;
                 if (!_.isEmpty(message.quick_reply)) {
-                    console.log("quick_reply");
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -510,7 +508,6 @@ module.exports = function (RED) {
                     });
                     return;
                 } else if (!_.isEmpty(message.text)) {
-                    console.log("text");
                     resolve({
                         chatId: chatId,
                         messageId: messageId,
@@ -523,12 +520,10 @@ module.exports = function (RED) {
                 }
 
                 if (_.isArray(message.attachments) && !_.isEmpty(message.attachments)) {
-                    console.log("attachments");
                     let attachment = message.attachments[0];
                     switch (attachment.type) {
                         case "audio":
                             // download the audio into a buffer
-                            console.log("audio");
                             helpers.downloadFile(attachment.payload.url)
                                 .then(function (buffer) {
                                     resolve({
@@ -546,7 +541,6 @@ module.exports = function (RED) {
                             break;
                         case "image":
                             // download the image into a buffer
-                            console.log("image");
                             helpers.downloadFile(attachment.payload.url)
                                 .then(function (buffer) {
                                     resolve({
@@ -564,7 +558,6 @@ module.exports = function (RED) {
                             break;
                         case "file":
                             // download the image into a buffer
-                            console.log("file");
                             helpers.downloadFile(attachment.payload.url)
                                 .then(function (buffer) {
                                     resolve({
@@ -581,7 +574,6 @@ module.exports = function (RED) {
                                 });
                             break;
                         case "location":
-                            console.log("location");
                             resolve({
                                 chatId: chatId,
                                 messageId: messageId,

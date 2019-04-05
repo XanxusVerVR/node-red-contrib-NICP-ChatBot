@@ -11,10 +11,14 @@ const green = clc.greenBright;
 const white = clc.white;
 const grey = clc.blackBright;
 module.exports = function (RED) {
+    // 此區塊的程式，只有在Node-RED一啟動的時候，才會執行一次
     const facebookWithTextContext = new TextConversationContext();
+    let count = 1;
     function TextConfig(config) {
+        // 每次Node-RED啟動時、重新部署時 會執行一次
 
         RED.nodes.createNode(this, config);
+
         this.botName = config.botName;
         this.sendAPIUrl = config.sendAPIUrl;
         this.webhookPath = `/nicp${config.webhookPath}`;
@@ -65,9 +69,9 @@ module.exports = function (RED) {
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
                 msg.context.textOutNodeId = "";
             }
-            else if (!_.isEmpty(facebookWithTextContext.textOutNodeId)) {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
+            else if (count != 0 || !_.isEmpty(facebookWithTextContext.textOutNodeId)) {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
                 RED.events.emit("facebookWithText:" + facebookWithTextContext.textOutNodeId, msg);
-                facebookWithTextContext.clear();
+                // facebookWithTextContext.clear();
             }
             else {// 將訊息傳給 Text In
                 node.emit("relay", msg);
@@ -161,6 +165,9 @@ module.exports = function (RED) {
         this.textConfigRoleNode = RED.nodes.getNode(config.textConfigRoleNode);
         this.track = config.track;
         this.outputs = config.outputs;
+        let isFirst = false;//用來表示是不是第一次訊息
+        const originalMessengeUserIdQueue = new q();//儲存顧客的使用者ID
+        const msgQueue = new q();
 
         const node = this;
 
@@ -188,30 +195,8 @@ module.exports = function (RED) {
             outputRoleUserID = "";
         }
 
-        //用來給text節點自己用的Handler，如流程中in跟out只有text節點，且有對話追蹤
-        let textHandler = function _textHandler(msg) {
-            node.send(msg);
-        };
-        //用來給facebook in 連接到 text out，且text out有設定對話追蹤的流程用的Handler
-        let facebookHandler = function _facebookHandler(msg) {
-            RED.events.removeListener("facebookWithText:" + node.id, facebookHandler);
-            node.send(msg);
-        };
-        RED.events.on("node:" + node.id, textHandler);
-
-        let inputCallback = function _inputCallback(msg) {
-            if (node.track && !_.isEmpty(node.wires[0])) {
-                if (msg.originalMessage.transport == "facebook") {
-                    facebookWithTextContext.textOutNodeId = node.id;
-                    facebookWithTextContext.transport = msg.originalMessage.transport;
-                    facebookWithTextContext.chatId = msg.payload.chatId;
-                    RED.events.on("facebookWithText:" + node.id, facebookHandler);
-                }
-                // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Text In進來，這裡的動作才要做。
-                if (!_.isEmpty(msg.context)) {
-                    msg.context.textOutNodeId = node.id;
-                }
-            }
+        // 將訊息傳給外部訊息平台
+        let sendMessage = function _sendMessage(msg, node) {
             let options = {
                 method: "POST",
                 uri: node.botConfigData.sendAPIUrl,
@@ -225,7 +210,6 @@ module.exports = function (RED) {
                 },
                 json: true // Automatically stringifies the body to JSON
             };
-
             rp(options)
                 .then(function (parsedBody) {
                 })
@@ -234,6 +218,60 @@ module.exports = function (RED) {
                         console.log(err);
                     }
                 });
+        };
+
+        //用來給text節點自己用的Handler，如流程中in跟out只有text節點，且有對話追蹤
+        let textHandler = function _textHandler(msg) {
+            node.send(msg);
+        };
+        // Facebook Id 魯夫 2406573282726943
+        // Facebook Id 樹懶 2227048243983599
+        //用來給facebook in 連接到 text out，且text out有設定對話追蹤的流程用的Handler
+        let facebookHandler = function _facebookHandler(msg) {
+            let m = originalMessengeUserIdQueue.last();
+            msg.payload.chatId = m;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
+            originalMessengeUserIdQueue.remove();
+            // RED.events.removeListener("facebookWithText:" + node.id, facebookHandler);
+            node.send(msg);
+            count--;
+
+            if (msgQueue.size() != 0) {
+                let msgAndNodeObject = msgQueue.last();
+                setTimeout(function () {
+                    sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode);
+                }, 600);
+                msgQueue.remove();
+            }
+            else {
+                isFirst = false;
+            }
+        };
+        RED.events.on("facebookWithText:" + node.id, facebookHandler);
+        RED.events.on("node:" + node.id, textHandler);
+        let inputCallback = function _inputCallback(msg) {
+            originalMessengeUserIdQueue.add(msg.payload.chatId);
+            if (node.track && !_.isEmpty(node.wires[0])) {
+                if (msg.originalMessage.transport == "facebook") {
+                    facebookWithTextContext.textOutNodeId = node.id;
+                    facebookWithTextContext.transport = msg.originalMessage.transport;
+                    facebookWithTextContext.chatId = msg.payload.chatId;
+                }
+                // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Text In進來，這裡的動作才要做。
+                if (!_.isEmpty(msg.context)) {
+                    msg.context.textOutNodeId = node.id;
+                }
+            }
+            if (isFirst) {// 當第一次訊息已經送出，就不要寄出第二次之後的訊息，先把它存到Queue裡
+                msgQueue.add({
+                    waiteThisFacebookOutNodeMsg: msg,
+                    waiteThisFacebookOutNode: node
+                });
+                count++;
+            }
+            else {
+                isFirst = true;// 第一次訊息進來了，設為true，記錄一下
+                sendMessage(msg, node);
+            }
         };
         node.on("input", inputCallback);
         node.on("close", function () {
