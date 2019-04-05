@@ -224,14 +224,12 @@ module.exports = function (RED) {
         let textHandler = function _textHandler(msg) {
             node.send(msg);
         };
-        // Facebook Id 魯夫 2406573282726943
-        // Facebook Id 樹懶 2227048243983599
+
         //用來給facebook in 連接到 text out，且text out有設定對話追蹤的流程用的Handler
         let facebookHandler = function _facebookHandler(msg) {
             let m = originalMessengeUserIdQueue.last();
             msg.payload.chatId = m;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
             originalMessengeUserIdQueue.remove();
-            // RED.events.removeListener("facebookWithText:" + node.id, facebookHandler);
             node.send(msg);
             count--;
 
@@ -246,29 +244,26 @@ module.exports = function (RED) {
                 isFirst = false;
             }
         };
+
         RED.events.on("facebookWithText:" + node.id, facebookHandler);
         RED.events.on("node:" + node.id, textHandler);
+
         let inputCallback = function _inputCallback(msg) {
             originalMessengeUserIdQueue.add(msg.payload.chatId);
-            console.log(0);
             if (node.track && !_.isEmpty(node.wires[0])) {
-                console.log(1);
                 if (msg.originalMessage.transport == "facebook") {
-                    console.log(2);
                     facebookWithTextContext.textOutNodeId = node.id;
                     facebookWithTextContext.transport = msg.originalMessage.transport;
                     facebookWithTextContext.chatId = msg.payload.chatId;
                 }
                 // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Text In進來，這裡的動作才要做。
                 if (!_.isEmpty(msg.context)) {
-                    console.log(3);
                     msg.context.textOutNodeId = node.id;
                 }
             }
             // 當第一次訊息已經送出，就不要寄出第二次之後的訊息，先把它存到Queue裡
             // 當這個Text Out後面沒有接節點了，表示流程要結束。所以如果後面有接節點，表示流程還沒結束，這時就要把訊息存到Queue中
             if (isFirst && !_.isEmpty(node.wires[0])) {
-                console.log(4);
                 msgQueue.add({
                     waiteThisFacebookOutNodeMsg: msg,
                     waiteThisFacebookOutNode: node
@@ -276,13 +271,15 @@ module.exports = function (RED) {
                 count++;
             }
             else {
-                console.log(5);
                 isFirst = true;// 第一次訊息進來了，設為true，記錄一下
                 sendMessage(msg, node);
             }
         };
         node.on("input", inputCallback);
         node.on("close", function () {
+            isFirst = false;
+            originalMessengeUserIdQueue.clear();
+            msgQueue.clear();
             RED.events.removeListener("node:" + node.id, textHandler);
             RED.events.removeListener("facebookWithText:" + node.id, facebookHandler);
             RED.events.removeAllListeners();
