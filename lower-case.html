@@ -66,11 +66,11 @@
 							}
 						});
 					}
-
-					$("#node-input-nodeContextConfigDats").change(function () {
+					let updateData = function _updateData(id) {
+						if (!id) {
+							id = $("#node-input-nodeContextConfigDats").children("option:selected").val();
+						}
 						$("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
-						//$(this).val()會印出這個被選中的option的值
-						let id = $(this).val();
 						//找出被選中的資料
 						for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
 							if (theNodeConfigDatasArray[i].id == id) {
@@ -84,7 +84,12 @@
 							let data = node.datas[i];
 							$("#node-input-rule-container").editableList("addItem", data);
 						}
+					}
+					$("#node-input-nodeContextConfigDats").change(function () {
+						let id = $(this).val();
+						updateData(id);
 					});
+					updateData();
 				}).fail(function (problem) {
 					console.log(problem);
 				});

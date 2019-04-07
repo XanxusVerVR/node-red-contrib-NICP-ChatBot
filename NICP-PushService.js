@@ -28,10 +28,23 @@ module.exports = function (RED) {
             //當config屬性存在，表示有資料需要設定並儲存
             if (!_.isEmpty(req.body.config)) {// 當_.isEmpty()參數中的物件是  未定義 null "" {}  等等這四個情況時，就會是true
                 let contextFileSystemNodeTypeKey = flowContext.get(req.body.config.type, "xanxusContext");
-                //如果這個屬性存在，那就拿出來，放新的進去
+                //如果這個類型的節點存在，那就拿出來，放新的進去
                 if (contextFileSystemNodeTypeKey) {
-                    contextFileSystemNodeTypeKey.push(req.body.config);
-                    flowContext.set(req.body.config.type, contextFileSystemNodeTypeKey, "xanxusContext");
+                    let isExist = false;
+                    // 做更新設定腳本的動作
+                    for (let i = 0; i < contextFileSystemNodeTypeKey.length; i++) {
+                        if (contextFileSystemNodeTypeKey[i].name == req.body.config.name) {// 從檔案系統開始找，如果找到和剛剛傳進來的名稱一樣，表示要更新
+                            contextFileSystemNodeTypeKey[i] = req.body.config;// 更新
+                            isExist = true;
+                        }
+                    }
+                    if (isExist) {
+                        flowContext.set(req.body.config.type, contextFileSystemNodeTypeKey, "xanxusContext");
+                    }
+                    else {
+                        contextFileSystemNodeTypeKey.push(req.body.config);
+                        flowContext.set(req.body.config.type, contextFileSystemNodeTypeKey, "xanxusContext");
+                    }
                 }
                 //如果不存在，就創造新的，並放進去
                 else {

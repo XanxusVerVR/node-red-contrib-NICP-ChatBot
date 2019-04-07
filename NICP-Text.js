@@ -66,14 +66,17 @@ module.exports = function (RED) {
             };
             msg.context = context;
             if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了
+                console.log(1);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
                 msg.context.textOutNodeId = "";
             }
             else if (count != 0 || !_.isEmpty(facebookWithTextContext.textOutNodeId)) {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
+                console.log(2);
                 RED.events.emit("facebookWithText:" + facebookWithTextContext.textOutNodeId, msg);
                 // facebookWithTextContext.clear();
             }
             else {// 將訊息傳給 Text In
+                console.log(3);
                 node.emit("relay", msg);
             }
             res.status(response.statusCode).send(response);
@@ -282,7 +285,7 @@ module.exports = function (RED) {
             msgQueue.clear();
             RED.events.removeListener("node:" + node.id, textHandler);
             RED.events.removeListener("facebookWithText:" + node.id, facebookHandler);
-            RED.events.removeAllListeners();
+            // RED.events.removeAllListeners(); //這行很像會影響到Facebook的Webhook端點，就是重新部署後，明明有接收到Messenger傳來的訊息，但流程中訊息卻沒輸出、出現。
         });
     }
     RED.nodes.registerType("NICP-Text Out", TextOut);

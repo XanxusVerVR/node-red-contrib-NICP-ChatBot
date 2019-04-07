@@ -12,6 +12,10 @@
         <select id="node-input-gateType" name="node-input-gateType">
             <option value="and">AND</option>
             <option value="nand">NAND</option>
+            <option value="or">OR</option>
+            <option value="nor">NOR</option>
+            <option value="xor">XOR</option>
+            <option value="xnor">XNOR</option>
         </select>
     </div>
     <div class="form-row">
@@ -89,17 +93,34 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('NICP-BooleanGate', {
+    RED.nodes.registerType("NICP-BooleanGate", {
         color: "#be77ff",
-        category: 'NICP',
+        category: "NICP",
         defaults: {
-            name: { value: "" },
-            rules: { value: [{ topic: "", property: "payload", propertyType: "msg", t: "eq", v: "" }] },
-            outputTopic: { value: "" },
-            gateType: { value: "and", required: true },
-            emitOnlyIfTrue: { value: false },
+            name: {
+                value: ""
+            },
+            rules: {
+                value: [{
+                    topic: "",
+                    property: "payload",
+                    propertyType: "msg",
+                    t: "eq",
+                    v: ""
+                }]
+            },
+            outputTopic: {
+                value: ""
+            },
+            gateType: {
+                value: "and",
+                required: true
+            },
+            emitOnlyIfTrue: {
+                value: false
+            },
         },
-        paletteLabel: "AND",
+        paletteLabel: "Boolean Gate",
         inputs: 1,
         inputLabels: "Msg to evaluate / trigger",
         outputs: 1,
@@ -109,10 +130,10 @@
             return this.name || this.gateType + " gate";
         },
         oneditprepare: function () {
-            var node = this;
+            let node = this;
             // Adding this type for typed input
-            var previousValueType = { value: "prev", label: "previous value", hasValue: false };
-            var operators = [
+            let previousValueType = { value: "prev", label: "previous value", hasValue: false };
+            let operators = [
                 { v: "eq", t: "==" },
                 { v: "neq", t: "!=" },
                 { v: "lt", t: "<" },
@@ -128,25 +149,25 @@
                 { v: "nnull", t: "is not null" }
             ];
 
-            var andLabel = "and";
-            var caseLabel = "ignore case";
+            let andLabel = "and";
+            let caseLabel = "ignore case";
 
             function resizeRule(rule) {
-                var newWidth = rule.width();
-                var topicField = rule.find(".node-input-rule-input-topic");
+                let newWidth = rule.width();
+                let topicField = rule.find(".node-input-rule-input-topic");
                 topicField.typedInput("width", "95%");
-                var propertyField = rule.find(".node-input-rule-property");
-                var selectField = rule.find("select");
+                let propertyField = rule.find(".node-input-rule-property");
+                let selectField = rule.find("select");
                 propertyField.typedInput("width", Math.trunc(newWidth / 2) - 10);
                 selectField.width(Math.trunc(newWidth / 2) - 25);
-                var type = selectField.val() || "eq";
-                var valueField = rule.find(".node-input-rule-value");
-                var btwnField1 = rule.find(".node-input-rule-btwn-value");
-                var btwnLabel = rule.find(".node-input-rule-btwn-label");
-                var btwnField2 = rule.find(".node-input-rule-btwn-value2");
-                var regexField = rule.find(".node-input-rule-regex");
-                var caseSensitive = rule.find(".node-input-rule-case");
-                var caseLabel = rule.find(".node-input-rule-case-label");
+                let type = selectField.val() || "eq";
+                let valueField = rule.find(".node-input-rule-value");
+                let btwnField1 = rule.find(".node-input-rule-btwn-value");
+                let btwnLabel = rule.find(".node-input-rule-btwn-label");
+                let btwnField2 = rule.find(".node-input-rule-btwn-value2");
+                let regexField = rule.find(".node-input-rule-regex");
+                let caseSensitive = rule.find(".node-input-rule-case");
+                let caseLabel = rule.find(".node-input-rule-case-label");
 
                 switch (type) {
                     case "btwn": {
@@ -165,55 +186,55 @@
                 }
             }
 
-            $("#node-input-rule-container").css('min-height', '250px').css('min-width', '450px').editableList({
+            $("#node-input-rule-container").css("min-height", "250px").css("min-width", "450px").editableList({
                 addItem: function (container, i, opt) {
-                    var rule = opt;
+                    let rule = opt;
 
-                    // If t isn't defined, set equal as default value
-                    if (!rule.hasOwnProperty('t')) {
-                        rule.t = 'eq';
+                    // If t isn"t defined, set equal as default value
+                    if (!rule.hasOwnProperty("t")) {
+                        rule.t = "eq";
                     }
 
                     //Adding row to the list
-                    var topicRow = $('<div/>').appendTo(container);
-                    var propertyRow = $('<div/>', { style: "padding-top: 5px;" }).appendTo(container);
-                    var valueRow = $('<div/>', { style: "padding-top: 5px;" }).appendTo(container);
+                    let topicRow = $("<div/>").appendTo(container);
+                    let propertyRow = $("<div/>", { style: "padding-top: 5px;" }).appendTo(container);
+                    let valueRow = $("<div/>", { style: "padding-top: 5px;" }).appendTo(container);
 
-                    var topicField = $('<input/>', { class: "node-input-rule-input-topic", type: "text", style: "margin-left: 5px;", placeholder: "input message topic" }).appendTo(topicRow).typedInput({ default: 'str', types: ['str'] });
-                    var propertyField = $('<input/>', { class: "node-input-rule-property", type: "text", style: "margin-left: 5px;" }).appendTo(propertyRow).typedInput({ default: rule.propertyType || 'msg', types: ['msg', 'flow', 'global'] });
-                    var selectField = $('<select/>', { style: "width:120px; margin-left: 5px; text-align: center;" }).appendTo(propertyRow);
-                    for (var d in operators) {
+                    let topicField = $("<input/>", { class: "node-input-rule-input-topic", type: "text", style: "margin-left: 5px;", placeholder: "input message topic" }).appendTo(topicRow).typedInput({ default: "str", types: ["str"] });
+                    let propertyField = $("<input/>", { class: "node-input-rule-property", type: "text", style: "margin-left: 5px;" }).appendTo(propertyRow).typedInput({ default: rule.propertyType || "msg", types: ["msg", "flow", "global"] });
+                    let selectField = $("<select/>", { style: "width:120px; margin-left: 5px; text-align: center;" }).appendTo(propertyRow);
+                    for (let d in operators) {
                         selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
                     }
 
-                    var valueField = $('<input/>', { class: "node-input-rule-value", type: "text", style: "margin-left: 5px;", placeholder: "value" }).appendTo(valueRow).typedInput({ default: 'str', types: ['msg', 'flow', 'global', 'str', 'num', previousValueType] });
-                    var btwnValueField = $('<input/>', { class: "node-input-rule-btwn-value", type: "text", style: "margin-left: 5px;" }).appendTo(valueRow).typedInput({ default: 'num', types: ['msg', 'flow', 'global', 'num', previousValueType] });
-                    var btwnAndLabel = $('<span/>', { class: "node-input-rule-btwn-label" }).text(" " + andLabel + " ").appendTo(valueRow);
-                    var btwnValue2Field = $('<input/>', { class: "node-input-rule-btwn-value2", type: "text", style: "margin-left:2px;" }).appendTo(valueRow).typedInput({ default: 'num', types: ['msg', 'flow', 'global', 'num', previousValueType] });
-                    var regexField = $('<input/>', { class: "node-input-rule-regex", type: "text", style: "margin-left:5px;" }).appendTo(valueRow).typedInput({ default: 're', types: ['re'] });
-                    var caseSensitive = $('<input/>', { class: "node-input-rule-case", type: "checkbox", style: "margin-left:5px;width:auto;" }).appendTo(valueRow);
-                    var formCaseLabel = $('<label/>', { class: "node-input-rule-case-label", for: "node-input-rule-case", style: "margin-left: 3px;" }).text(caseLabel).appendTo(valueRow);
+                    let valueField = $("<input/>", { class: "node-input-rule-value", type: "text", style: "margin-left: 5px;", placeholder: "value" }).appendTo(valueRow).typedInput({ default: "str", types: ["msg", "flow", "global", "str", "num", previousValueType] });
+                    let btwnValueField = $("<input/>", { class: "node-input-rule-btwn-value", type: "text", style: "margin-left: 5px;" }).appendTo(valueRow).typedInput({ default: "num", types: ["msg", "flow", "global", "num", previousValueType] });
+                    let btwnAndLabel = $("<span/>", { class: "node-input-rule-btwn-label" }).text(" " + andLabel + " ").appendTo(valueRow);
+                    let btwnValue2Field = $("<input/>", { class: "node-input-rule-btwn-value2", type: "text", style: "margin-left:2px;" }).appendTo(valueRow).typedInput({ default: "num", types: ["msg", "flow", "global", "num", previousValueType] });
+                    let regexField = $("<input/>", { class: "node-input-rule-regex", type: "text", style: "margin-left:5px;" }).appendTo(valueRow).typedInput({ default: "re", types: ["re"] });
+                    let caseSensitive = $("<input/>", { class: "node-input-rule-case", type: "checkbox", style: "margin-left:5px;width:auto;" }).appendTo(valueRow);
+                    let formCaseLabel = $("<label/>", { class: "node-input-rule-case-label", for: "node-input-rule-case", style: "margin-left: 3px;" }).text(caseLabel).appendTo(valueRow);
 
                     selectField.change(function () {
                         resizeRule(container);
-                        var selected = selectField.val() || "eq";
+                        let selected = selectField.val() || "eq";
                         switch (selected) {
                             case "btwn": {
-                                valueField.typedInput('hide');
-                                btwnValueField.typedInput('show');
+                                valueField.typedInput("hide");
+                                btwnValueField.typedInput("show");
                                 btwnAndLabel.show();
-                                btwnValue2Field.typedInput('show');
-                                regexField.typedInput('hide');
+                                btwnValue2Field.typedInput("show");
+                                regexField.typedInput("hide");
                                 caseSensitive.hide();
                                 formCaseLabel.hide();
                                 break;
                             }
                             case "regex": {
-                                valueField.typedInput('hide');
-                                btwnValueField.typedInput('hide');
+                                valueField.typedInput("hide");
+                                btwnValueField.typedInput("hide");
                                 btwnAndLabel.hide();
-                                btwnValue2Field.typedInput('hide');
-                                regexField.typedInput('show');
+                                btwnValue2Field.typedInput("hide");
+                                regexField.typedInput("show");
                                 caseSensitive.show();
                                 formCaseLabel.show();
                                 break;
@@ -222,21 +243,21 @@
                             case "false":
                             case "null":
                             case "nnull": {
-                                valueField.typedInput('hide');
-                                btwnValueField.typedInput('hide');
+                                valueField.typedInput("hide");
+                                btwnValueField.typedInput("hide");
                                 btwnAndLabel.hide();
-                                btwnValue2Field.typedInput('hide');
-                                regexField.typedInput('hide');
+                                btwnValue2Field.typedInput("hide");
+                                regexField.typedInput("hide");
                                 caseSensitive.hide();
                                 formCaseLabel.hide();
                                 break;
                             }
                             default: {
-                                valueField.typedInput('show');
-                                btwnValueField.typedInput('hide');
+                                valueField.typedInput("show");
+                                btwnValueField.typedInput("hide");
                                 btwnAndLabel.hide();
-                                btwnValue2Field.typedInput('hide');
-                                regexField.typedInput('hide');
+                                btwnValue2Field.typedInput("hide");
+                                regexField.typedInput("hide");
                                 caseSensitive.hide();
                                 formCaseLabel.hide();
                                 break;
@@ -248,35 +269,35 @@
                     propertyField.change(function (type, value) {
                         resizeRule(container);
                         if (value === "msg")
-                            topicField.typedInput('show');
+                            topicField.typedInput("show");
                         else if (value != undefined)
-                            topicField.typedInput('hide');
+                            topicField.typedInput("hide");
                     });
 
                     //save the selected field
                     selectField.val(rule.t);
 
                     //set value as defined
-                    propertyField.typedInput('value', rule.property || 'payload');
-                    propertyField.typedInput('type', rule.propertyType || 'msg');
-                    topicField.typedInput('value', rule.topic);
+                    propertyField.typedInput("value", rule.property || "payload");
+                    propertyField.typedInput("type", rule.propertyType || "msg");
+                    topicField.typedInput("value", rule.topic);
                     if (rule.t == "btwn") {
-                        btwnValueField.typedInput('value', rule.v);
-                        btwnValueField.typedInput('type', rule.vt || 'num');
-                        btwnValue2Field.typedInput('value', rule.v2);
-                        btwnValue2Field.typedInput('type', rule.v2t || 'num');
+                        btwnValueField.typedInput("value", rule.v);
+                        btwnValueField.typedInput("type", rule.vt || "num");
+                        btwnValue2Field.typedInput("value", rule.v2);
+                        btwnValue2Field.typedInput("type", rule.v2t || "num");
                     } else if (typeof rule.v != "undefined") {
                         if (rule.t == "regex") {
-                            regexField.typedInput('value', rule.v)
+                            regexField.typedInput("value", rule.v)
                         } else {
-                            valueField.typedInput('value', rule.v);
-                            valueField.typedInput('type', rule.vt || 'str');
+                            valueField.typedInput("value", rule.v);
+                            valueField.typedInput("type", rule.vt || "str");
                         }
                     }
                     if (rule.case) {
-                        caseSensitive.prop('checked', true);
+                        caseSensitive.prop("checked", true);
                     } else {
-                        caseSensitive.prop('checked', false);
+                        caseSensitive.prop("checked", false);
                     }
                     selectField.change();
                 },
@@ -284,54 +305,54 @@
                 sortable: false,
                 removable: true
             });
-            for (var i = 0; i < this.rules.length; i++) {
-                var rule = this.rules[i];
-                $("#node-input-rule-container").editableList('addItem', rule);
+            for (let i = 0; i < this.rules.length; i++) {
+                let rule = this.rules[i];
+                $("#node-input-rule-container").editableList("addItem", rule);
             }
         },
         oneditsave: function () {
-            var rules = $("#node-input-rule-container").editableList('items');
-            var node = this;
+            let rules = $("#node-input-rule-container").editableList("items");
+            let node = this;
             node.rules = [];
             rules.each(function (i) {
-                var rule = $(this);
+                let rule = $(this);
                 // Get the selected operator
-                var type = rule.find("select").val();
+                let type = rule.find("select").val();
                 // format rule
-                var r = { t: type };
+                let r = { t: type };
                 if (!(type === "true" || type === "false" || type === "null" || type === "nnull")) {
                     if (type === "btwn") {
-                        r.v = rule.find(".node-input-rule-btwn-value").typedInput('value');
-                        r.vt = rule.find(".node-input-rule-btwn-value").typedInput('type');
-                        r.v2 = rule.find(".node-input-rule-btwn-value2").typedInput('value');
-                        r.v2t = rule.find(".node-input-rule-btwn-value2").typedInput('type');
+                        r.v = rule.find(".node-input-rule-btwn-value").typedInput("value");
+                        r.vt = rule.find(".node-input-rule-btwn-value").typedInput("type");
+                        r.v2 = rule.find(".node-input-rule-btwn-value2").typedInput("value");
+                        r.v2t = rule.find(".node-input-rule-btwn-value2").typedInput("type");
                     } else {
-                        r.v = rule.find(".node-input-rule-value").typedInput('value');
-                        r.vt = rule.find(".node-input-rule-value").typedInput('type');
+                        r.v = rule.find(".node-input-rule-value").typedInput("value");
+                        r.vt = rule.find(".node-input-rule-value").typedInput("type");
                     }
                     if (type === "regex") {
-                        r.v = rule.find(".node-input-rule-regex").typedInput('value');
+                        r.v = rule.find(".node-input-rule-regex").typedInput("value");
                         r.case = rule.find(".node-input-rule-case").prop("checked");
                     }
                 }
-                r.propertyType = rule.find(".node-input-rule-property").typedInput('type');
-                r.property = rule.find(".node-input-rule-property").typedInput('value');
+                r.propertyType = rule.find(".node-input-rule-property").typedInput("type");
+                r.property = rule.find(".node-input-rule-property").typedInput("value");
 
-                if (r.propertyType === "msg") { // if it's a message, store the message topic
-                    r.topic = rule.find(".node-input-rule-input-topic").typedInput('value');
+                if (r.propertyType === "msg") { // if it"s a message, store the message topic
+                    r.topic = rule.find(".node-input-rule-input-topic").typedInput("value");
                 }
                 node.rules.push(r);
             });
         },
         oneditresize: function (size) {
-            var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
-            var height = size.height;
-            for (var i = 0; i < rows.size(); i++) {
+            let rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
+            let height = size.height;
+            for (let i = 0; i < rows.size(); i++) {
                 height -= $(rows[i]).outerHeight(true);
             }
-            var editorRow = $("#dialog-form>div.node-input-rule-container-row");
+            let editorRow = $("#dialog-form>div.node-input-rule-container-row");
             height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
-            $("#node-input-rule-container").editableList('height', height);
+            $("#node-input-rule-container").editableList("height", height);
         }
     });
 
