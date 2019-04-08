@@ -65,12 +65,14 @@ module.exports = function (RED) {
                 }
             };
             msg.context = context;
-            if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了
+            if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了。這是要給Text節點自己的Track Conversation用的
                 console.log(1);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
                 msg.context.textOutNodeId = "";
             }
-            else if (count != 0 || !_.isEmpty(facebookWithTextContext.textOutNodeId)) {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
+            else if ((count != 0 || !_.isEmpty(facebookWithTextContext.textOutNodeId)) && msg.originalMessage.transport == "facebook") {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
+                console.log(`msg:`);
+                console.log(msg);
                 console.log(2);
                 RED.events.emit("facebookWithText:" + facebookWithTextContext.textOutNodeId, msg);
                 // facebookWithTextContext.clear();
@@ -230,6 +232,7 @@ module.exports = function (RED) {
 
         //用來給facebook in 連接到 text out，且text out有設定對話追蹤的流程用的Handler
         let facebookHandler = function _facebookHandler(msg) {
+            console.log(`facebookHandler function`);
             let m = originalMessengeUserIdQueue.last();
             msg.payload.chatId = m;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
             originalMessengeUserIdQueue.remove();

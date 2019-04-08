@@ -7,6 +7,13 @@
         <label for="node-input-outputTopic"><i class="fa fa-tasks"></i> Topic</label>
         <input type="text" id="node-input-outputTopic" placeholder="Topic" />
     </div>
+    <!-- select option：看使用者要選哪一筆context節點資料 -->
+	<div class="form-row nodeConfigDataOption">
+        <label for="node-input-nodeContextConfigDats"> Node Config Data </label>
+        <select id="node-input-nodeContextConfigDats" class="nodeConfigDataOption">
+            <!-- <option value="red">red</option> -->
+        </select>
+    </div>
     <div class="form-row">
         <label for="node-input-gateType"><i class="fa fa-cog"></i> Type</label>
         <select id="node-input-gateType" name="node-input-gateType">
@@ -109,6 +116,9 @@
                     v: ""
                 }]
             },
+            configDataId: {
+                value: ""
+            },
             outputTopic: {
                 value: ""
             },
@@ -130,6 +140,65 @@
             return this.name || this.gateType + " gate";
         },
         oneditprepare: function () {
+            // this.type是這個節點的類型，如：lower-case。為字串
+            let showContextList = function () {
+                $.when(
+                    $.getJSON(`context/flow/${this.z}`)
+                ).then((data1) => {
+                    let theNodeConfigDatasArray = JSON.parse(data1.xanxusContext[this.type].msg);
+                    let node = this;
+                    // 動態生成option
+                    let nodeContextConfigDatsOption = [];
+                    for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
+                        let optionObject = {
+                            v: theNodeConfigDatasArray[i].id,
+                            l: theNodeConfigDatasArray[i].name
+                        }
+                        nodeContextConfigDatsOption.push(optionObject);
+                    }
+                    $("#node-input-nodeContextConfigDats").append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+                    for (let i = 0; i < nodeContextConfigDatsOption.length; i++) {
+                        $("#node-input-nodeContextConfigDats").append($("<option></option>").val(nodeContextConfigDatsOption[i].v).text(nodeContextConfigDatsOption[i].l));
+                    }
+                    // 如果上次有設置了某節點資料，則找到他，並把option設為上次選中的那筆資料
+                    if (this.configDataId && this.configDataId != "--") {
+                        $("#node-input-nodeContextConfigDats option").each(function () {
+                            if ($(this).val() == node.configDataId) {
+                                $(this).prop("selected", true);
+                            }
+                        });
+                    }
+                    // let updateData = function _updateData(id) {
+                    //     if (!id) {
+                    //         id = $("#node-input-nodeContextConfigDats").children("option:selected").val();
+                    //     }
+                    //     $("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
+                    //     //找出被選中的資料
+                    //     for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
+                    //         if (theNodeConfigDatasArray[i].id == id) {
+                    //             node.name2 = theNodeConfigDatasArray[i].name2;
+                    //             node.datas = theNodeConfigDatasArray[i].datas;
+                    //         }
+                    //     }
+                    //     // 把context的值存進addItem DOM物件中
+                    //     $("#node-input-name2").val(node.name2);
+                    //     for (let i = 0; i < node.datas.length; i++) {
+                    //         let data = node.datas[i];
+                    //         $("#node-input-rule-container").editableList("addItem", data);
+                    //     }
+                    // }
+                    // $("#node-input-nodeContextConfigDats").change(function () {
+                    //     let id = $(this).val();
+                    //     updateData(id);
+                    // });
+                    // updateData();
+                }).fail(function (problem) {
+                    console.log(problem);
+                });
+            }.bind(this);
+
+            showContextList();
+
             let node = this;
             // Adding this type for typed input
             let previousValueType = { value: "prev", label: "previous value", hasValue: false };
@@ -343,6 +412,7 @@
                 }
                 node.rules.push(r);
             });
+            node.configDataId = $("#node-input-nodeContextConfigDats").children("option:selected").val();
         },
         oneditresize: function (size) {
             let rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
