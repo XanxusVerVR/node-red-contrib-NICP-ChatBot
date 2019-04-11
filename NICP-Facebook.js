@@ -15,8 +15,6 @@ const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
-    let globalOutputRoleUserID;//當Facebook Out節點有設置角色ID時，將Messenger ID存入這個變數中
-    let trackOpenFacebookOutNodeId;//儲存有打勾Tracking Answer功能的Facebook Out節點的ID
     function FacebookBotNode(config) {
 
         RED.nodes.createNode(this, config);
@@ -82,8 +80,6 @@ module.exports = function (RED) {
                     chatContext.set("message", payload.content);
 
                     let chatLog = new ChatLog(chatContext);
-                    payload.first_name = profile.first_name;
-                    payload.last_name = profile.last_name;
                     return chatLog.log({
                         payload: payload,
                         originalMessage: {
@@ -357,18 +353,6 @@ module.exports = function (RED) {
         this.track = config.track;
 
         this.config = RED.nodes.getNode(this.bot);
-        let isFirst = false;//用來表示是不是第一次訊息
-        const originalMessengeUserIdQueue = new q();//儲存顧客的使用者ID
-        const msgQueue = new q();
-
-        //當Facebook Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
-        let outputRoleUserID;
-        if (node.fcfFacebookRoleNode) {
-            outputRoleUserID = node.fcfFacebookRoleNode.credentials.targetUserID;
-        }
-        else {
-            outputRoleUserID = "";
-        }
         if (this.config) {
             this.status({ fill: "red", shape: "ring", text: "disconnected" });
 
@@ -418,16 +402,15 @@ module.exports = function (RED) {
             });
         }
 
-        //此方法用來將機器人處理好的訊息傳給Messenger平台的使用者
-        let sendMessage = function _sendMessage(msg, node) {
-            return new Promise((resolve, reject) => {
+        function sendMessage(msg) {
+
+            return new Promise(function (resolve, reject) {
+
                 let type = msg.payload.type;
                 let bot = node.bot;
                 let credentials = node.config.credentials;
-                //多一個elements的宣告
                 let elements = null;
-
-                let reportError = (err) => {
+                let reportError = function (err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -450,18 +433,23 @@ module.exports = function (RED) {
                         break;
 
                     case "request":
+
                         // todo error if not location
                         // send
                         bot.sendMessage(
-                            msg.payload.chatId, {
+                            msg.payload.chatId,
+                            {
                                 text: msg.payload.content,
-                                quick_replies: [{
-                                    "content_type": "location"
-                                }]
+                                quick_replies: [
+                                    {
+                                        "content_type": "location"
+                                    }
+                                ]
                             },
                             reportError
                         );
                         break;
+
                     case "list-template":
                         // translate elements into facebook format
                         elements = msg.payload.elements.map(function (item) {
@@ -577,25 +565,6 @@ module.exports = function (RED) {
                             reportError
                         );
                         break;
-                    case "account-link":
-                        let attachment = {
-                            "type": "template",
-                            "payload": {
-                                "template_type": "button",
-                                "text": msg.payload.content,
-                                "buttons": [{
-                                    "type": "account_link",
-                                    "url": msg.payload.authUrl
-                                }]
-                            }
-                        };
-                        bot.sendMessage(
-                            msg.payload.chatId, {
-                                attachment: attachment
-                            },
-                            reportError
-                        );
-                        break;
                     case "quick-replies":
                         // send
                         bot.sendMessage(
@@ -626,9 +595,13 @@ module.exports = function (RED) {
                         break;
 
                     case "message":
-                        bot.sendMessage(msg.payload.chatId, {
-                            text: msg.payload.content
-                        }, reportError);
+                        bot.sendMessage(
+                            msg.payload.chatId,
+                            {
+                                text: msg.payload.content
+                            },
+                            reportError
+                        );
                         break;
 
                     case "location":
@@ -642,8 +615,8 @@ module.exports = function (RED) {
                                 "elements": {
                                     "element": {
                                         "title": !_.isEmpty(msg.payload.place) ? msg.payload.place : "Position",
-                                        "image_url": "https:\/\/maps.googleapis.com\/maps\/api\/staticmap?size=764x400&center=" +
-                                            lat + "," + lon + "&zoom=16&markers=" + lat + "," + lon,
+                                        "image_url": "https:\/\/maps.googleapis.com\/maps\/api\/staticmap?size=764x400&center="
+                                            + lat + "," + lon + "&zoom=16&markers=" + lat + "," + lon,
                                         "item_url": "http:\/\/maps.apple.com\/maps?q=" + lat + "," + lon + "&z=16"
                                     }
                                 }
@@ -651,7 +624,8 @@ module.exports = function (RED) {
                         };
 
                         bot.sendMessage(
-                            msg.payload.chatId, {
+                            msg.payload.chatId,
+                            {
                                 attachment: locationAttachment
                             },
                             reportError
@@ -684,6 +658,19 @@ module.exports = function (RED) {
                         });
                         break;
 
+                    case "video":
+                        helpers.uploadBuffer({
+                            recipient: msg.payload.chatId,
+                            type: "video",
+                            buffer: msg.payload.content,
+                            token: credentials.token,
+                            filename: msg.payload.filename,
+                            mimeType: msg.payload.mimeType
+                        }).catch(function (err) {
+                            reject(err);
+                        });
+                        break;
+
                     case "photo":
                         let image = msg.payload.content;
                         helpers.uploadBuffer({
@@ -700,44 +687,17 @@ module.exports = function (RED) {
                     default:
                         reject("Unable to prepare unknown message type");
                 }
+
             });
-        };
+        }
 
         // relay message
-        //當使用者一說話，就會觸發這個註冊的函式來傳送訊息
         let handler = function (msg) {
-            //使用者說的話(除了第一句)都會從這裡傳到下個節點
-            //也就是說當此Facebook Out有設置Track Conversation的時候，表示要將訊息傳給下個節點
-            let m = originalMessengeUserIdQueue.last();
-            if (!_.isEmpty(m)) {
-                msg.payload.chatId = m;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
-            }
-            originalMessengeUserIdQueue.remove();
             node.send(msg);
-
-            if (msgQueue.size() != 0) {
-                let msgAndNodeObject = msgQueue.last();
-                setTimeout(function () {
-                    sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode)
-                        .then(function () {
-                            // we"re done
-                        }, function (err) {
-                            node.error(err);
-                        });
-                }, 600);
-                msgQueue.remove();
-            }
-
-            // else {
-            //     globalOutputRoleUserID = "";
-            //     isFirst = false;
-            // }
         };
-
         RED.events.on("node:" + config.id, handler);
 
         this.on("input", function (msg) {
-            // originalMessengeUserIdQueue.add(msg.payload.chatId);
             // check if the message is from facebook
             if (msg.originalMessage != null && msg.originalMessage.transport !== "facebook") {
                 // exit, it"s not from facebook
@@ -773,19 +733,7 @@ module.exports = function (RED) {
 
                             chatLog.log(msg, node.config.log)
                                 .then(function () {
-                                    //如果有設置要輸出的角色，那就把msg物件要輸出的角色ID換成使用者設置的角色ID(老闆)
-                                    msg.payload.chatId = outputRoleUserID || msg.payload.chatId;
-                                    //如果 這個Facebook Out有設置角色ID 而且 角色ID不等於自己(如設定的角色ID為老闆，但原始訊息是顧客，故這樣就不等於自己) 而且 第一次訊息已經送出過了 而且 後面還有串接別的節點
-                                    if (outputRoleUserID && outputRoleUserID != msg.originalMessage.chat.id && isFirst && !_.isEmpty(node.wires[0])) {
-                                        msgQueue.add({
-                                            waiteThisFacebookOutNodeMsg: msg,
-                                            waiteThisFacebookOutNode: node
-                                        });
-                                    }
-                                    else {
-                                        isFirst = true;
-                                        return sendMessage(msg, node);
-                                    }
+                                    return sendMessage(msg);
                                 })
                                 .then(function () {
                                     // we"re done
@@ -798,9 +746,6 @@ module.exports = function (RED) {
         });
         // cleanup on close
         this.on("close", function () {
-            isFirst = false;
-            msgQueue.clear();
-            originalMessengeUserIdQueue.clear();
             RED.events.removeListener("node:" + config.id, handler);
         });
     }
