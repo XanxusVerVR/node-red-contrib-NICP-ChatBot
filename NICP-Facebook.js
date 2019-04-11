@@ -8,24 +8,27 @@ const request = require("request").defaults({ encoding: null });
 const Bot = require("./lib/facebook/messenger-bot");
 const clc = require("cli-color");
 
-const DEBUG = false;
 const green = clc.greenBright;
 const white = clc.white;
 const grey = clc.blackBright;
 
 module.exports = function (RED) {
 
-    function FacebookBotNode(n) {
-        RED.nodes.createNode(this, n);
+    function FacebookBotNode(config) {
 
-        let self = this;
-        this.botname = n.botname;
-        this.log = n.log;
+        RED.nodes.createNode(this, config);
 
+        const node = this;
+
+        this.botname = config.botname;
+        this.log = config.log;
         this.usernames = [];
-        if (n.usernames) {
+        this.serverLocation = config.serverLocation;
+        this.isHttps = config.isHttps;
+        
+        if (config.usernames) {
 
-            this.usernames = _(n.usernames.split(",")).chain()
+            this.usernames = _(config.usernames.split(",")).chain()
                 .map(function (userId) {
                     return userId.match(/^[a-zA-Z0-9_]+?$/) ? userId : null;
                 })
@@ -33,7 +36,6 @@ module.exports = function (RED) {
                 .value();
         }
         this.handleMessage = function (botMsg) {
-
             /*
              { sender: { id: "10153461620831415" },
              recipient: { id: "141972351547" },
@@ -43,19 +45,9 @@ module.exports = function (RED) {
              seq: 334,
              text: "test" },
              transport: "facebook" }
-
              */
 
-            let facebookBot = this;
-
-            if (DEBUG) {
-                // eslint-disable-next-line no-console
-                console.log("START:-------");
-                // eslint-disable-next-line no-console
-                console.log(botMsg);
-                // eslint-disable-next-line no-console
-                console.log("END:-------");
-            }
+            const facebookBot = this;
 
             // mark the original message with the platform
             botMsg = _.extend({}, botMsg, { transport: "facebook" });
@@ -66,14 +58,14 @@ module.exports = function (RED) {
             // todo fix this
             //let isAuthorized = node.config.isAuthorized(username, userId);
             let isAuthorized = true;
-            let chatContext = ChatContextStore.getOrCreateChatContext(self, chatId);
+            let chatContext = ChatContextStore.getOrCreateChatContext(node, chatId);
 
             let payload = null;
             // decode the message, eventually download stuff
-            self.getMessageDetails(botMsg, self.bot)
+            node.getMessageDetails(botMsg, node.bot)
                 .then(function (obj) {
                     payload = obj;
-                    return helpers.getOrFetchProfile(userId, self.bot);
+                    return helpers.getOrFetchProfile(userId, node.bot);
                 })
                 .then(function (profile) {
                     // store some information
@@ -96,9 +88,9 @@ module.exports = function (RED) {
                             }
                         },
                         chat: function () {
-                            return ChatContextStore.getChatContext(self, chatId);
+                            return ChatContextStore.getChatContext(node, chatId);
                         }
-                    }, self.log);
+                    }, node.log);
                 })
                 .then(function (msg) {
                     let currentConversationNode = chatContext.get("currentConversationNode");
@@ -123,6 +115,7 @@ module.exports = function (RED) {
             this.token = this.credentials.token;
             this.app_secret = this.credentials.app_secret;
             this.verify_token = this.credentials.verify_token;
+            this.webhookURL = this.credentials.webhookURL;
 
             if (this.token) {
                 this.token = this.token.trim();
@@ -132,33 +125,38 @@ module.exports = function (RED) {
                     this.bot = new Bot({
                         token: this.token,
                         verify: this.verify_token,
-                        app_secret: this.app_secret
+                        app_secret: this.app_secret,
+                        webhookURL: this.webhookURL
                     });
 
-                    let uiPort = RED.settings.get("uiPort");
-                    console.log("");
-                    console.log(grey("------ Facebook Webhook ----------------"));
-                    console.log(green("Webhook URL: ") + white("http://localhost" + (uiPort != "80" ? ":" + uiPort : "")
-                        + "/nicp/facebook"));
+                    console.log(grey("--------------- Facebook Webhook Start ----------------"));
+                    let port;
+                    if (node.isHttps) {
+                        port = "";
+                    }
+                    else {
+                        port = ":" + RED.settings.get("uiPort");
+                    }
+                    console.log(green("Webhook URL: ") + white("" + (node.isHttps ? "https" : "http") + "://" + (node.serverLocation ? node.serverLocation : "localhost") + port + "/nicp/facebook" + this.webhookURL));
                     console.log(green("Verify token is: ") + white(this.verify_token));
-                    console.log("");
-                    // mount endpoints on local express
-                    this.bot.expressMiddleware(RED.httpNode);
+                    console.log(grey("--------------- Facebook Webhook End ----------------"));
 
+                    this.bot.expressMiddleware(RED.httpNode);
                     this.bot.on("message", this.handleMessage.bind(this.bot));
                     this.bot.on("postback", this.handleMessage.bind(this.bot));
                     this.bot.on("account_linking", this.handleMessage.bind(this.bot));
                 }
             }
         }
-        _(RED.httpNode._router.stack).each(function (route, i, routes) {
-            if (route != null && route.route != null) {
-                console.log(`route.route.path:`);
-                console.log(route.route.path);
-            }
-        });
+        // console.log(`下面是目前存在的Node-RED的服務：`);
+        // _(RED.httpNode._router.stack).each(function (route, i, routes) {
+        //     if (route != null && route.route != null) {
+        //         console.log(`route.route.path:`);
+        //         console.log(route.route.path);
+        //     }
+        // });
         this.on("close", function (done) {
-            let endpoints = ["/nicp/facebook", "/nicp/facebook/_status"];
+            let endpoints = ["/nicp/facebook" + node.credentials.webhookURL];
             // remove middleware for facebook callback
             let routesCount = RED.httpNode._router.stack.length;
             _(RED.httpNode._router.stack).each(function (route, i, routes) {
@@ -176,8 +174,8 @@ module.exports = function (RED) {
         });
 
         this.isAuthorized = function (username, userId) {
-            if (self.usernames.length > 0) {
-                return self.usernames.indexOf(username) != -1 || self.usernames.indexOf(String(userId)) != -1;
+            if (node.usernames.length > 0) {
+                return node.usernames.indexOf(username) != -1 || node.usernames.indexOf(String(userId)) != -1;
             }
             return true;
         };
@@ -316,10 +314,7 @@ module.exports = function (RED) {
             verify_token: {
                 type: "text"
             },
-            key_pem: {
-                type: "text"
-            },
-            cert_pem: {
+            webhookURL: {
                 type: "text"
             }
         }
@@ -327,7 +322,7 @@ module.exports = function (RED) {
 
     function FacebookInNode(config) {
         RED.nodes.createNode(this, config);
-        let node = this;
+        const node = this;
         this.bot = config.bot;
 
         this.config = RED.nodes.getNode(this.bot);
@@ -359,7 +354,7 @@ module.exports = function (RED) {
 
     function FacebookOutNode(config) {
         RED.nodes.createNode(this, config);
-        let node = this;
+        const node = this;
         this.bot = config.bot;
         this.track = config.track;
 
