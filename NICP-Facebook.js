@@ -32,15 +32,6 @@ module.exports = function (RED) {
                 .compact()
                 .value();
         }
-        // _(RED.httpNode._router.stack).each(function (route, i, routes) {
-        //     if (route != null && route.route != null) {
-        //       if (_.contains(endpoints, route.route.path)) {
-        //           console.log(`Xanxus:`);
-        //         // routes.splice(i, 1);
-        //       }
-        //     }
-        //   });
-
         this.handleMessage = function (botMsg) {
 
             /*
@@ -145,16 +136,11 @@ module.exports = function (RED) {
                     });
 
                     let uiPort = RED.settings.get("uiPort");
-                    // eslint-disable-next-line no-console
                     console.log("");
-                    // eslint-disable-next-line no-console
                     console.log(grey("------ Facebook Webhook ----------------"));
-                    // eslint-disable-next-line no-console
                     console.log(green("Webhook URL: ") + white("http://localhost" + (uiPort != "80" ? ":" + uiPort : "")
                         + "/nicp/facebook"));
-                    // eslint-disable-next-line no-console
                     console.log(green("Verify token is: ") + white(this.verify_token));
-                    // eslint-disable-next-line no-console
                     console.log("");
                     // mount endpoints on local express
                     this.bot.expressMiddleware(RED.httpNode);
@@ -169,10 +155,6 @@ module.exports = function (RED) {
             if (route != null && route.route != null) {
                 console.log(`route.route.path:`);
                 console.log(route.route.path);
-                //   if (_.contains(endpoints, route.route.path)) {
-                //       console.log(`Xanxus:`);
-                //     routes.splice(i, 1);
-                //   }
             }
         });
         this.on("close", function (done) {
@@ -187,7 +169,6 @@ module.exports = function (RED) {
                 }
             });
             if (RED.httpNode._router.stack.length >= routesCount) {
-                // eslint-disable-next-line no-console
                 console.log("ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs");
             }
             this.bot = null;
@@ -725,14 +706,10 @@ module.exports = function (RED) {
                     } // end no error
                 }); // end then
         });
-
         // cleanup on close
         this.on("close", function () {
             RED.events.removeListener("node:" + config.id, handler);
         });
     }
-
-
     RED.nodes.registerType("NICP-facebook-send", FacebookOutNode);
-
 };
