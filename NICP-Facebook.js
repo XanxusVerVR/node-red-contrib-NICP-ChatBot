@@ -1,5 +1,6 @@
 const _ = require("underscore");
 const moment = require("moment");
+const q = require("./lib/xanxus-queue");
 const ChatLog = require("./lib/chat-log");
 const ChatContextStore = require("./lib/chat-context-store");
 const helpers = require("./lib/facebook/facebook");
@@ -25,7 +26,7 @@ module.exports = function (RED) {
         this.usernames = [];
         this.serverLocation = config.serverLocation;
         this.isHttps = config.isHttps;
-        
+
         if (config.usernames) {
 
             this.usernames = _(config.usernames.split(",")).chain()
@@ -469,6 +470,9 @@ module.exports = function (RED) {
                             if (!_.isEmpty(item.imageUrl)) {
                                 element.image_url = item.imageUrl;
                             }
+                            if (_.isEmpty(element.buttons)) {// 當沒有button屬性時要把他移除，不然傳到Messenger會錯
+                                delete element.buttons;
+                            }
                             return element;
                         });
                         // sends
@@ -502,6 +506,9 @@ module.exports = function (RED) {
                             if (!_.isEmpty(item.imageUrl)) {
                                 element.image_url = item.imageUrl;
                             }
+                            if (_.isEmpty(element.buttons)) {// 當沒有button屬性時要把他移除，不然傳到Messenger會錯
+                                delete element.buttons;
+                            }
                             return element;
                         });
                         // sends
@@ -521,7 +528,50 @@ module.exports = function (RED) {
                             reportError
                         );
                         break;
-
+                    case "receipt-template":
+                        // translate elements into facebook format
+                        elements = msg.payload.elements.map(function (item) {
+                            let element = {
+                                title: item.title,
+                                price: item.price
+                            };
+                            if (!_.isEmpty(item.subtitle)) {
+                                element.subtitle = item.subtitle;
+                            }
+                            if (!_.isEmpty(item.imageUrl)) {
+                                element.image_url = item.imageUrl;
+                            }
+                            if (!_.isEmpty(item.quantity)) {
+                                element.quantity = item.quantity;
+                            }
+                            if (!_.isEmpty(item.currency)) {
+                                element.currency = item.currency;
+                            }
+                            return element;
+                        });
+                        // sends
+                        bot.sendMessage(
+                            msg.payload.chatId,
+                            {
+                                attachment: {
+                                    type: "template",
+                                    payload: {
+                                        template_type: "receipt",
+                                        recipient_name: msg.payload.recipientName,
+                                        order_number: msg.payload.orderNumber,
+                                        currency: msg.payload.currency,
+                                        payment_method: msg.payload.paymentMethod,
+                                        timestamp: msg.payload.timestamp,
+                                        summary: {
+                                            total_cost: msg.payload.summary.totalCost
+                                        },
+                                        elements: elements
+                                    }
+                                }
+                            },
+                            reportError
+                        );
+                        break;
                     case "quick-replies":
                         // send
                         bot.sendMessage(
