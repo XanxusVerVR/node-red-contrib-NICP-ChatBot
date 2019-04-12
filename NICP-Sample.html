@@ -85,6 +85,11 @@
             // for (let i = 0; i < node.greetings.length; i++) {
             //     $("#node-input-rule-container").editableList("addItem", node.greetings[i]);
             // }
+            $.getJSON("Sample", function (data) {
+                console.log(`這是RED.httpAdmin....`);
+                console.log(data);
+                //... does stuff with data
+            });
         },
         oneditsave: function () {
             // let node = this;

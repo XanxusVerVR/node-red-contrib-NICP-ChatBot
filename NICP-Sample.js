@@ -47,4 +47,8 @@ module.exports = function (RED) {
 
     }
     RED.nodes.registerType("FCF-Sample", Sample);
+    RED.httpAdmin.get("/Sample", RED.auth.needsPermission("FCF-Sample.read"), function (req, res) {
+        //參考 https://github.com/node-red/cookbook.nodered.org/wiki/Create-an-admin-configuration-API-endpoint
+        res.json({ a: 123 });
+    });
 };
