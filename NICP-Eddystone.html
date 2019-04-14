@@ -1,0 +1,63 @@
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-Eddystone", {
+        category: "NICP",
+        color: "#87CEFA",
+        defaults: {
+            name: {
+                value: ""
+            },
+            broadcastingMode: {// EddyStone廣播的三種形式 1為UID 2為URL 3為TLM
+                value: "url"
+            },
+            deviceName: {//set device name when advertising (Linux only)
+                value: "My Beacon"
+            },
+            broadcastingUrl: {
+                value: ""
+            }
+        },
+        inputs: 1,
+        outputs: 0,
+        paletteLabel: "Eddystone",
+        icon: "arrow-in.png",
+        label: function () {
+            let labelName = "Eddystone";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="NICP-Eddystone">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <!-- 選擇要廣播的形式 -->
+        <label for="node-input-broadcastingMode"><i class="fa fa-empire"></i>Broadcasting Mode</label>
+        <select id="node-input-broadcastingMode" style="width:125px !important">
+            <option value="url" selected="selected">URL</option>
+            <option value="uid">UID</option>
+            <option value="tlm">TLM</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <!-- 選項填寫Name -->
+        <label for="node-input-deviceName"><i class="icon-tag"></i> Device Name</label>
+        <input type="text" id="node-input-deviceName" placeholder="Device Name">
+    </div>
+    <div class="form-row">
+        <!-- 要廣播的URL -->
+        <label for="node-input-broadcastingUrl"><i class="icon-tag"></i> Broadcasting Url</label>
+        <input type="text" id="node-input-broadcastingUrl" placeholder="Broadcasting Url">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="NICP-Eddystone">
+</script>
