@@ -18,7 +18,7 @@ module.exports = function (RED) {
 
         if (!_.isEmpty(node.broadcastingUrl)) {
             console.log(`開始廣播`);
-            eddystoneBeacon.advertiseUrl(node.broadcastingUrl, node.option);
+            eddystoneBeacon.advertiseUrl(`https://www.google.com.tw/`, { name: "Xanxus Beacon" });
         }
         node.on("input", function (msg) {
             if (msg.payload == "stop") {
