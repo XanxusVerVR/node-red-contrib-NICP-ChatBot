@@ -263,15 +263,10 @@ module.exports = function (RED) {
         node.on("input", function (msg) {
             for (let i = 0; i < msg.payload.userID.length; i++) {
                 msg.payload.result.payload.chatId = msg.payload.userID[i];
-                let send = function _send(msg) {
-                    sendMessage(msg.payload.result, node.credentials.pageAccessToken).then(function () {
-                    }, function (err) {
-                        node.error(err);
-                    });
-                };
-                (function (msg) {
-                    setTimeout(send, 300, msg);
-                })(msg);
+                sendMessage(msg.payload.result, node.credentials.pageAccessToken).then(function () {
+                }, function (err) {
+                    node.error(err);
+                });
             }
         });
     }

@@ -721,7 +721,13 @@ module.exports = function (RED) {
 
                             // payload is valid, go on
                             let track = node.track;
-                            let chatContext = msg.chat();
+                            let chatContext;
+                            try {
+                                chatContext = msg.chat();
+                            } catch (error) {
+                                console.log("msg.chat()不存在，有可能是直接從外部傳的");
+                            }
+
                             // check if this node has some wirings in the follow up pin, in that case
                             // the next message should be redirected here
                             if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
