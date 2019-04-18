@@ -3,6 +3,7 @@ const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
 const cors = require("cors");
+const moment = require("moment");
 module.exports = function (RED) {
     function PushService(config) {
 
@@ -62,7 +63,10 @@ module.exports = function (RED) {
                 }
             };
             node.send(msg);
-            res.status(200).send("POST request is success!");
+            res.status(200).send({
+                statusCode: 200,
+                date: moment().format("YYYY-MM-DD HH:mm:ss")
+            });
         };
 
         RED.httpNode.post(config.url, corsHandler, postCallback);
