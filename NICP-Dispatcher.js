@@ -56,7 +56,13 @@ module.exports = function (RED) {
 
                 request(options, function (error, response, body) {
                     body = JSON.parse(body);
-                    let action = body.queryResult.action;
+                    let action;
+                    try {
+                        action = body.queryResult.action;
+                    } catch (error) {
+                        console.log("可能傳送非文字訊息...請檢查一下：");
+                        console.log(error);
+                    }
                     rules.forEach(function (rule) {
                         if (action == (rule.topic).toString()) {
                             if (action == "input.unknown") {
@@ -75,7 +81,12 @@ module.exports = function (RED) {
                 try {
                     gtoken.getToken()
                         .then(function (token) {
-                            return sendRequest(token);
+                            if (msg.payload.type === "photo") {
+                                console.log("您可能傳送貼圖");
+                            }
+                            else {
+                                return sendRequest(token);
+                            }
                         })
                         .catch(function (error) {
                             console.log(error);
