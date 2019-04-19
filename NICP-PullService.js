@@ -24,7 +24,12 @@ module.exports = function (RED) {
             };
 
             request(options, function (error, response, body) {
-                body = JSON.parse(body);
+                try {
+                    body = JSON.parse(body);
+                } catch (error) {
+                    console.log("可能出現格式錯誤!");
+                    console.log(error);
+                }
                 msg.result = body.result;
                 msg.payload = body.message;
                 node.send(msg);
