@@ -72,13 +72,18 @@ module.exports = function (RED) {
             };
 
             (() => {
-                gtoken.getToken()
-                    .then(function (token) {
-                        return sendRequest(token);
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
+                try {
+                    gtoken.getToken()
+                        .then(function (token) {
+                            return sendRequest(token);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                } catch (error) {
+                    console.log("有可能你的私鑰是錯的或是其他驗證資料，請檢查一下，下面是錯誤訊息");
+                    console.log(error);
+                }
             })();
         });
     }
