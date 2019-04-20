@@ -54,9 +54,6 @@ module.exports = function (RED) {
             botMsg = _.extend({}, botMsg, { transport: "facebook" });
 
             let userId = botMsg.sender.id;
-            console.log("De這個Bug:[error] [NICP-facebook-receive:4d78ab4b.f96274] TypeError: Cannot read property 'getProfile' of null");
-            console.log(`印出userId:`);
-            console.log(userId);
             let chatId = botMsg.sender.id;
             let messageId = botMsg.message != null ? botMsg.message.mid : null;
             // todo fix this
