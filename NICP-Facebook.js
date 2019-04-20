@@ -166,7 +166,7 @@ module.exports = function (RED) {
             if (RED.httpNode._router.stack.length >= routesCount) {
                 console.log("ERROR: improperly removed Facebook messenger routes, this will cause unexpected results and tricky bugs");
             }
-            this.bot = null;
+            // this.bot = null;//當流程修改重新部署，會把bot物件清空，這樣bot的getProfile方法就沒了，故機器人可能就不會回話。且會出現這個錯誤"TypeError: Cannot read property 'getProfile' of null"
             done();
         });
 
