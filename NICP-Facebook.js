@@ -150,8 +150,8 @@ module.exports = function (RED) {
             }
         }
         this.on("close", function (done) {
-            let endpoints = ["/nicp/facebook" + node.credentials.webhookURL];
-            // remove middleware for facebook callback
+            let endpoints = ["/nicp/facebook" + node.credentials.webhookURL, '/nicp/facebook/_status' + node.credentials.webhookURL];
+            // remove middlewarFe for facebook callback
             let routesCount = RED.httpNode._router.stack.length;
             _(RED.httpNode._router.stack).each(function (route, i, routes) {
                 if (route != null && route.route != null) {
