@@ -216,6 +216,10 @@ module.exports = function (RED) {
                                         msg = value;
                                     }
                                     else {
+                                        // 要把原本的payload刪除，不然payload不能設置物件和屬性
+                                        if (property.indexOf("payload") === 0) {//當property這字串中有包含payload，會回傳0，不然就回傳-1，如payoad.ddddd就回傳-1
+                                            delete msg.payload;
+                                        }
                                         RED.util.setMessageProperty(msg, property, value);
                                     }
                                 } else if (rule.t === "change") {
