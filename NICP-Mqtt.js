@@ -166,6 +166,15 @@ module.exports = function (RED) {
                         }
                         if (msg.hasOwnProperty("payload")) {
                             if (msg.hasOwnProperty("topic") && (typeof msg.topic === "string") && (msg.topic !== "")) { // topic must exist
+
+                                msg.payload = {
+                                    topic: msg.topic,
+                                    data: msg.payload,
+                                    protocolType: "MQTT",
+                                    dataId: RED.util.generateId()
+                                };
+                                console.log(`msg:`);
+                                console.log(msg);
                                 this.brokerConn.publish(msg);  // send the message
                             }
                             else { node.warn(RED._("mqtt.errors.invalid-topic")); }
