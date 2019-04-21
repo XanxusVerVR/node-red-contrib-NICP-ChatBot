@@ -23,6 +23,18 @@
             },
             instanceId: {
                 value: ""
+            },
+            uuid: {
+                value: ""
+            },
+            major: {
+                value: ""
+            },
+            minor: {
+                value: ""
+            },
+            measuredPower: {
+                value: ""
             }
         },
         inputs: 1,
@@ -45,13 +57,18 @@
                 let value = $(this).val();
                 if (value == "url") {
                     $(".cBroadcastingUrl").show();
-                    $(".cNamespaceId").hide();
-                    $(".cInstanceId").hide();
+                    $(".cUid").hide();
+                    $(".ciBeacon").hide();
                 }
-                else {// 切到uid
+                else if (value == "uid") {// 切到uid
                     $(".cBroadcastingUrl").hide();
-                    $(".cNamespaceId").show();
-                    $(".cInstanceId").show();
+                    $(".cUid").show();
+                    $(".ciBeacon").hide();
+                }
+                else {
+                    $(".cBroadcastingUrl").hide();
+                    $(".cUid").hide();
+                    $(".ciBeacon").show();
                 }
             });
             $("#node-input-broadcastingMode").change();
@@ -71,6 +88,7 @@
         <select id="node-input-broadcastingMode" style="width:125px !important">
             <option value="url" selected="selected">URL</option>
             <option value="uid">UID</option>
+            <option value="iBeacon">iBeacon</option>
         </select>
     </div>
     <div class="form-row">
@@ -88,15 +106,35 @@
         <label for="node-input-broadcastingUrl"><i class="icon-tag"></i> Broadcasting Url</label>
         <input type="text" id="node-input-broadcastingUrl" placeholder="Broadcasting Url">
     </div>
-    <div class="form-row cNamespaceId">
+    <div class="form-row cUid">
         <!-- 要廣播的UID的namespaceId -->
         <label for="node-input-namespaceId"><i class="icon-tag"></i> Namespace Id</label>
         <input type="text" id="node-input-namespaceId" placeholder="Namespace Id">
     </div>
-    <div class="form-row cInstanceId">
+    <div class="form-row cUid">
         <!-- 要廣播的UID的instanceId -->
         <label for="node-input-instanceId"><i class="icon-tag"></i> Instance Id</label>
         <input type="text" id="node-input-instanceId" placeholder="Instance Id">
+    </div>
+    <div class="form-row ciBeacon">
+        <!-- 要廣播的iBeacon UUID -->
+        <label for="node-input-uuid"><i class="icon-tag"></i> UUID</label>
+        <input type="text" id="node-input-uuid" placeholder="UUID">
+    </div>
+    <div class="form-row ciBeacon">
+        <!-- 要廣播的iBeacon major -->
+        <label for="node-input-major"><i class="icon-tag"></i> Major</label>
+        <input type="text" id="node-input-major" placeholder="Major">
+    </div>
+    <div class="form-row ciBeacon">
+        <!-- 要廣播的iBeacon minor -->
+        <label for="node-input-minor"><i class="icon-tag"></i> Minor</label>
+        <input type="text" id="node-input-minor" placeholder="Minor">
+    </div>
+    <div class="form-row ciBeacon">
+        <!-- 要廣播的iBeacon Measured Power -->
+        <label for="node-input-measuredPower"><i class="icon-tag"></i> Measured Power</label>
+        <input type="text" id="node-input-measuredPower" placeholder="Measured Power">
     </div>
 </script>
 

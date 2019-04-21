@@ -10,10 +10,14 @@ module.exports = function (RED) {
         this.name = config.name || "My Eddystone Beacon Node";
         this.broadcastingMode = config.broadcastingMode;
         this.deviceName = config.deviceName;
-        this.broadcastingUrl = config.broadcastingUrl;
+        this.broadcastingUrl = config.broadcastingUrl;//Google URL
         this.txPowerLevel = config.txPowerLevel;
-        this.namespaceId = config.namespaceId;
+        this.namespaceId = config.namespaceId;//Google UID
         this.instanceId = config.instanceId;
+        this.uuid = config.uuid;//Apple iBeacon
+        this.major = config.major;
+        this.minor = config.minor;
+        this.measuredPower = -config.measuredPower;
         this.option = {
             name: this.deviceName,
             txPowerLevel: -this.txPowerLevel
@@ -30,7 +34,7 @@ module.exports = function (RED) {
                 eddystoneBeacon.stop();
             }
         }
-        else {//如廣播模式是要廣播UID
+        else if (node.broadcastingMode == "uid") {//如廣播模式是要廣播UID
             if (!_.isEmpty(node.namespaceId) && !_.isEmpty(node.instanceId)) {
                 console.log(`廣播UID`);
                 eddystoneBeacon.advertiseUid(node.namespaceId, node.instanceId, node.option);
@@ -39,38 +43,41 @@ module.exports = function (RED) {
                 eddystoneBeacon.stop();
             }
         }
-        const uuid = "e2c56db5dffb48d2b060d0f5a71096e0";
-        const major = 444; // 0x0000 - 0xffff
-        const minor = 555; // 0x0000 - 0xffff
-        const measuredPower = -59; // -128 - 127
-        // bleno.on("stateChange", function (state) {
-        //     console.log("on -> stateChange: " + state);
-        //     if (state === "poweredOn") {
-        //         console.log("開始廣播iBeacon");
-        //         bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
-        //     } else {
-        //         console.log("停止廣播iBeacon");
-        //         bleno.stopAdvertising();
-        //     }
-        // });
-        bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
-        node.on("input", function (msg) {
-            if (msg.payload === "stop") {
-                console.log(`停止廣播`);
-                eddystoneBeacon.stop();
+        else {
+            if (!_.isEmpty(node.uuid) && !_.isEmpty(node.major) && !_.isEmpty(node.minor) && !_.isEmpty(node.measuredPower)) {
+                console.log(`廣播iBeacon`);
+                bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
             }
-
-
-
-        });
-        node.on("close", function (removed, done) {
-            if (removed) {//當節點從面板上移除會做的事
-                eddystoneBeacon.stop();
-                console.log(`停止廣播`);
-                bleno.stopAdvertising();
-            } else {//當重新部署時，要做的事
+            else {
                 console.log("停止廣播iBeacon");
                 bleno.stopAdvertising();
+            }
+        }
+
+        node.on("input", function (msg) {
+            if (msg.payload === "stop") {
+                if (node.broadcastingMode == "url" || node.broadcastingMode == "uid") {
+                    console.log(`停止廣播Google Eddystone`);
+                    eddystoneBeacon.stop();
+                }
+                else {
+                    console.log("停止廣播iBeacon");
+                    bleno.stopAdvertising();
+                }
+            }
+        });
+
+        node.on("close", function (removed, done) {
+            if (removed) {//當節點從面板上移除會做的事
+                if (node.broadcastingMode == "url" || node.broadcastingMode == "uid") {
+                    console.log(`停止廣播Google Eddystone`);
+                    eddystoneBeacon.stop();
+                }
+                else {
+                    console.log("停止廣播iBeacon");
+                    bleno.stopAdvertising();
+                }
+            } else {//當重新部署時，要做的事
             }
             done();
         });
