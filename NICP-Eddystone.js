@@ -43,16 +43,17 @@ module.exports = function (RED) {
         const major = 444; // 0x0000 - 0xffff
         const minor = 555; // 0x0000 - 0xffff
         const measuredPower = -59; // -128 - 127
-        bleno.on("stateChange", function (state) {
-            console.log("on -> stateChange: " + state);
-            if (state === "poweredOn") {
-                console.log("開始廣播iBeacon");
-                bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
-            } else {
-                console.log("停止廣播iBeacon");
-                bleno.stopAdvertising();
-            }
-        });
+        // bleno.on("stateChange", function (state) {
+        //     console.log("on -> stateChange: " + state);
+        //     if (state === "poweredOn") {
+        //         console.log("開始廣播iBeacon");
+        //         bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
+        //     } else {
+        //         console.log("停止廣播iBeacon");
+        //         bleno.stopAdvertising();
+        //     }
+        // });
+        bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
         node.on("input", function (msg) {
             if (msg.payload === "stop") {
                 console.log(`停止廣播`);
@@ -68,6 +69,8 @@ module.exports = function (RED) {
                 console.log(`停止廣播`);
                 bleno.stopAdvertising();
             } else {//當重新部署時，要做的事
+                console.log("停止廣播iBeacon");
+                bleno.stopAdvertising();
             }
             done();
         });
