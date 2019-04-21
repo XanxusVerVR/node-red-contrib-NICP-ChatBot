@@ -45,13 +45,16 @@ module.exports = function (RED) {
         }
         else {
             console.log(`這在iBeacon的if:`);
-            console.log(node);
+            console.log(node.uuid);
+            console.log(node.major);
+            console.log(node.minor);
+            console.log(node.measuredPower);
             if (!_.isEmpty(node.uuid) && !_.isEmpty(node.major) && !_.isEmpty(node.minor) && !_.isEmpty(node.measuredPower)) {
                 console.log(`廣播iBeacon`);
                 bleno.startAdvertisingIBeacon(node.uuid, node.major, node.minor, node.measuredPower);
             }
             else {
-                console.log("停止廣播iBeacon");
+                console.log("停止廣播iBeacon else");
                 bleno.stopAdvertising();
             }
         }
@@ -76,7 +79,7 @@ module.exports = function (RED) {
                     eddystoneBeacon.stop();
                 }
                 else {
-                    console.log("停止廣播iBeacon");
+                    console.log("停止廣播iBeacon close");
                     bleno.stopAdvertising();
                 }
             } else {//當重新部署時，要做的事
