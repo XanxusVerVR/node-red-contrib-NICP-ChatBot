@@ -1,4 +1,5 @@
 const eddystoneBeacon = require("eddystone-beacon");
+const bleno = require("bleno");
 const _ = require("underscore");
 module.exports = function (RED) {
 
@@ -43,15 +44,28 @@ module.exports = function (RED) {
                 console.log(`停止廣播`);
                 eddystoneBeacon.stop();
             }
+            const uuid = "e2c56db5dffb48d2b060d0f5a71096e0";
+            const major = 444; // 0x0000 - 0xffff
+            const minor = 555; // 0x0000 - 0xffff
+            const measuredPower = -59; // -128 - 127
+
+            bleno.on("stateChange", function (state) {
+                console.log("on -> stateChange: " + state);
+                if (state === "poweredOn") {
+                    console.log("開始廣播iBeacon");
+                    bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
+                } else {
+                    console.log("停止廣播iBeacon");
+                    bleno.stopAdvertising();
+                }
+            });
         });
         node.on("close", function (removed, done) {
-            if (removed) {
+            if (removed) {//當節點從面板上移除會做的事
                 eddystoneBeacon.stop();
-                console.log(`This node has been deleted`);
-                // This node has been deleted
-            } else {
-                console.log(`This node is being restarted`);
-                // This node is being restarted
+                console.log(`停止廣播`);
+                bleno.stopAdvertising();
+            } else {//當重新部署時，要做的事
             }
             done();
         });
