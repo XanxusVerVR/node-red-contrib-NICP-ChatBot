@@ -44,9 +44,11 @@ module.exports = function (RED) {
             }
         }
         else {
+            console.log(`這在iBeacon的if:`);
+            console.log(node);
             if (!_.isEmpty(node.uuid) && !_.isEmpty(node.major) && !_.isEmpty(node.minor) && !_.isEmpty(node.measuredPower)) {
                 console.log(`廣播iBeacon`);
-                bleno.startAdvertisingIBeacon(uuid, major, minor, measuredPower);
+                bleno.startAdvertisingIBeacon(node.uuid, node.major, node.minor, node.measuredPower);
             }
             else {
                 console.log("停止廣播iBeacon");
