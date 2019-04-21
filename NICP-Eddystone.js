@@ -49,6 +49,9 @@ module.exports = function (RED) {
             console.log(node.major);
             console.log(node.minor);
             console.log(node.measuredPower);
+            let boo = !_.isEmpty(node.uuid) && !_.isEmpty(node.major) && !_.isEmpty(node.minor) && !_.isEmpty(node.measuredPower);
+            console.log(`下面應該要是true:`);
+            console.log(boo);
             if (!_.isEmpty(node.uuid) && !_.isEmpty(node.major) && !_.isEmpty(node.minor) && !_.isEmpty(node.measuredPower)) {
                 console.log(`廣播iBeacon`);
                 bleno.startAdvertisingIBeacon(node.uuid, node.major, node.minor, node.measuredPower);
