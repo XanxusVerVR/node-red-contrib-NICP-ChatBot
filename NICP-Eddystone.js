@@ -10,30 +10,39 @@ module.exports = function (RED) {
         this.broadcastingMode = config.broadcastingMode;
         this.deviceName = config.deviceName;
         this.broadcastingUrl = config.broadcastingUrl;
+        this.txPowerLevel = config.txPowerLevel;
+        this.namespaceId = config.namespaceId;
+        this.instanceId = config.instanceId;
         this.option = {
-            name: this.deviceName
+            name: this.deviceName,
+            txPowerLevel: -this.txPowerLevel
         };
 
         const node = this;
 
-        if (!_.isEmpty(node.broadcastingUrl)) {
-            console.log(`開始廣播`);
-            eddystoneBeacon.advertiseUrl(`https://www.google.com.tw/`, { name: "Xanxus Beacon" });
+        if (node.broadcastingMode == "url") { //如廣播模式是要廣播URL
+            if (!_.isEmpty(node.broadcastingUrl)) {//如果URL不是空
+                console.log(`廣播URL`);
+                eddystoneBeacon.advertiseUrl(node.broadcastingUrl, node.option);
+            }
+            else {
+                eddystoneBeacon.stop();
+            }
+        }
+        else {//如廣播模式是要廣播UID
+            if (!_.isEmpty(node.namespaceId) && !_.isEmpty(node.instanceId)) {
+                console.log(`廣播UID`);
+                eddystoneBeacon.advertiseUid(node.namespaceId, node.instanceId, node.option);
+            }
+            else {
+                eddystoneBeacon.stop();
+            }
         }
         node.on("input", function (msg) {
-            if (msg.payload == "stop") {
+            if (msg.payload === "stop") {
                 console.log(`停止廣播`);
                 eddystoneBeacon.stop();
             }
-            // if (node.broadcastingMode == "url") {
-
-            // }
-            // else if (node.broadcastingMode == "uid") {
-
-            // }
-            // else {
-            //     console.log(`TLM模式`);
-            // }
         });
     }
     RED.nodes.registerType("NICP-Eddystone", Eddystone);

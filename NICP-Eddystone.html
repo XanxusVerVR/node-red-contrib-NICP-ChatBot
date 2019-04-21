@@ -6,13 +6,22 @@
             name: {
                 value: ""
             },
-            broadcastingMode: {// EddyStone廣播的三種形式 1為UID 2為URL 3為TLM
+            broadcastingMode: {// EddyStone廣播的三種形式 1為UID 2為URL
                 value: "url"
             },
-            deviceName: {//set device name when advertising (Linux only)
+            deviceName: { //set device name when advertising (Linux only)
                 value: "My Beacon"
             },
+            txPowerLevel: {
+                value: ""
+            },
             broadcastingUrl: {
+                value: ""
+            },
+            namespaceId: {
+                value: ""
+            },
+            instanceId: {
                 value: ""
             }
         },
@@ -28,6 +37,24 @@
             else {
                 return labelName;
             }
+        },
+        oneditprepare: function () {
+            const node = this;
+            //切換模式，根據不同的模式看要顯示什麼表單
+            $("#node-input-broadcastingMode").change(function () {
+                let value = $(this).val();
+                if (value == "url") {
+                    $(".cBroadcastingUrl").show();
+                    $(".cNamespaceId").hide();
+                    $(".cInstanceId").hide();
+                }
+                else {// 切到uid
+                    $(".cBroadcastingUrl").hide();
+                    $(".cNamespaceId").show();
+                    $(".cInstanceId").show();
+                }
+            });
+            $("#node-input-broadcastingMode").change();
         }
     });
 </script>
@@ -44,18 +71,32 @@
         <select id="node-input-broadcastingMode" style="width:125px !important">
             <option value="url" selected="selected">URL</option>
             <option value="uid">UID</option>
-            <option value="tlm">TLM</option>
         </select>
     </div>
     <div class="form-row">
-        <!-- 選項填寫Name -->
+        <!-- 要廣播的設備的名稱 -->
         <label for="node-input-deviceName"><i class="icon-tag"></i> Device Name</label>
         <input type="text" id="node-input-deviceName" placeholder="Device Name">
     </div>
     <div class="form-row">
+        <!-- 要廣播的txPowerLevel值 -->
+        <label for="node-input-txPowerLevel"><i class="icon-tag"></i> Tx Power Level</label>
+        <input type="text" id="node-input-txPowerLevel" placeholder="Tx Power Level">
+    </div>
+    <div class="form-row cBroadcastingUrl">
         <!-- 要廣播的URL -->
         <label for="node-input-broadcastingUrl"><i class="icon-tag"></i> Broadcasting Url</label>
         <input type="text" id="node-input-broadcastingUrl" placeholder="Broadcasting Url">
+    </div>
+    <div class="form-row cNamespaceId">
+        <!-- 要廣播的UID的namespaceId -->
+        <label for="node-input-namespaceId"><i class="icon-tag"></i> Namespace Id</label>
+        <input type="text" id="node-input-namespaceId" placeholder="Namespace Id">
+    </div>
+    <div class="form-row cInstanceId">
+        <!-- 要廣播的UID的instanceId -->
+        <label for="node-input-instanceId"><i class="icon-tag"></i> Instance Id</label>
+        <input type="text" id="node-input-instanceId" placeholder="Instance Id">
     </div>
 </script>
 
