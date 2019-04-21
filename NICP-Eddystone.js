@@ -44,6 +44,17 @@ module.exports = function (RED) {
                 eddystoneBeacon.stop();
             }
         });
+        node.on("close", function (removed, done) {
+            if (removed) {
+                eddystoneBeacon.stop();
+                console.log(`This node has been deleted`);
+                // This node has been deleted
+            } else {
+                console.log(`This node is being restarted`);
+                // This node is being restarted
+            }
+            done();
+        });
     }
     RED.nodes.registerType("NICP-Eddystone", Eddystone);
 };

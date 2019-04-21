@@ -14,11 +14,6 @@
                 required: true,
                 validate: RED.validators.typedInput("propertyType")
             },
-            bot: {
-                value: "",
-                type: "FCF-facebook-node",
-                required: true
-            },
             startedButtonPostbackPayload: {
                 value: "",
             },
@@ -42,67 +37,25 @@
                 return labelName;
             }
         },
-        oneditprepare: function () {
-            let node = this;
-
-            //取得config節點的方法
-            //參考資料 https://reurl.cc/WNKQx
-            //取得在編輯視窗被選中的那個config節點的ID
-            let configNodeID = $("#node-input-bot").val();
-            //藉由那個config節點的id來取得它的內容
-            let configNode = RED.nodes.node(configNodeID);
-
-            // $("#node-input-property").typedInput({
-            //     default: this.propertyType || "msg", types: ["msg", "flow", "global", "str", "num", "bool", "json", "bin", "date", "jsonata", "env", "re"]
-            // });
-
-            // $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
-            //     addItem: function (container, i, _greetings) {
-            //         if (!_greetings.hasOwnProperty("locale")) {
-            //             _greetings.locale = "default";
-            //             _greetings.text = "Hello!";
-            //         }
-            //         let localeSelectField = $("<select/>", { class: "node-input-locale", style: "width:110px; margin-right:10px;" }).appendTo(container);
-            //         let selectOptions = [];
-            //         for (let i = 0; i < locale.length; i++) {
-            //             selectOptions.push({
-            //                 value: locale[i],
-            //                 text: locale[i]
-            //             });
-            //         }
-            //         for (let i = 0; i < selectOptions.length; i++) {
-            //             localeSelectField.append($("<option></option>").val(selectOptions[i].value).text(selectOptions[i].text));
-            //         }
-            //         let propertyValue2 = $("<input/>", { class: "node-input-text", type: "text", value: _greetings.text })
-            //             .appendTo(container);
-
-            //         localeSelectField.val(_greetings.locale);
-
-            //     },
-            //     removable: true,
-            //     sortable: true
-            // })
-            // for (let i = 0; i < node.greetings.length; i++) {
-            //     $("#node-input-rule-container").editableList("addItem", node.greetings[i]);
-            // }
-            $.getJSON("Sample", function (data) {
-                console.log(`這是RED.httpAdmin....`);
-                console.log(data);
-                //... does stuff with data
-            });
+        oneditprepare: function () { //當使用者打開此節點的Edit dialog畫面時要做的事
         },
-        oneditsave: function () {
-            // let node = this;
-            // let items = $("#node-input-rule-container").editableList("items");
-            // node.greetings = [];//這你一定要創造一個node.greetings，跟上面定義的屬性名稱要一樣，這樣才存得進去
-            // items.each(function (i) {
-            //     let data = $(this);
-            //     node.greetings.push({
-            //         locale: data.find(".node-input-locale").val(),//這裡的locale和text也是和上面定義的屬性要一樣
-            //         text: data.find(".node-input-text").val()
-            //     });
-            // });
-            // this.propertyType = $("#node-input-property").typedInput("type");
+        oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
+        },
+        oneditcancel: function () {//當使用者在Edit dialog按下Cancel要做的事
+            let o = 0;
+            console.log(`oneditcancel ${o++}`);
+        },
+        oneditdelete: function () {
+            let u = 0;
+            console.log(`oneditdelete ${u++}`);//當使用者把節點從面板中刪除時，要做的事
+        },
+        onpaletteadd: function () {//此節點只要存在於palette(就是左邊直的那排，還沒拉出來)就會做的事，還沒拉出來也會觸發，重新整理也會觸發
+            let i = 0;
+            console.log(`onpaletteadd ${i++}`);
+        },
+        onpaletteremove: function () {// 沒試過，但應該是從palette移除就會觸發
+            let y = 0;
+            console.log(`onpaletteremove ${y++}`);
         }
     });
 
