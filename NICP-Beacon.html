@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Eddystone", {
+    RED.nodes.registerType("NICP-Beacon", {
         category: "NICP",
         color: "#87CEFA",
         defaults: {
@@ -39,10 +39,10 @@
         },
         inputs: 1,
         outputs: 0,
-        paletteLabel: "Eddystone",
+        paletteLabel: "Beacon",
         icon: "arrow-in.png",
         label: function () {
-            let labelName = "Eddystone";
+            let labelName = "Beacon";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -76,7 +76,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="NICP-Eddystone">
+<script type="text/x-red" data-template-name="NICP-Beacon">
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>

@@ -3,11 +3,11 @@ const bleno = require("bleno");
 const _ = require("underscore");
 module.exports = function (RED) {
 
-    function Eddystone(config) {
+    function Beacon(config) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name || "My Eddystone Beacon Node";
+        this.name = config.name || "My Beacon Node";
         this.broadcastingMode = config.broadcastingMode;
         this.deviceName = config.deviceName;
         this.broadcastingUrl = config.broadcastingUrl;//Google URL
@@ -82,5 +82,5 @@ module.exports = function (RED) {
             done();
         });
     }
-    RED.nodes.registerType("NICP-Eddystone", Eddystone);
+    RED.nodes.registerType("NICP-Beacon", Beacon);
 };
