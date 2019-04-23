@@ -57,15 +57,18 @@
                 let value = $(this).val();
                 if (value == "url") {
                     $(".cBroadcastingUrl").show();
+                    $(".cOption").show();
                     $(".cUid").hide();
                     $(".ciBeacon").hide();
                 }
                 else if (value == "uid") {// 切到uid
                     $(".cBroadcastingUrl").hide();
+                    $(".cOption").show();
                     $(".cUid").show();
                     $(".ciBeacon").hide();
                 }
                 else {
+                    $(".cOption").hide();
                     $(".cBroadcastingUrl").hide();
                     $(".cUid").hide();
                     $(".ciBeacon").show();
@@ -91,12 +94,12 @@
             <option value="iBeacon">iBeacon</option>
         </select>
     </div>
-    <div class="form-row">
+    <div class="form-row cOption">
         <!-- 要廣播的設備的名稱 -->
         <label for="node-input-deviceName"><i class="icon-tag"></i> Device Name</label>
         <input type="text" id="node-input-deviceName" placeholder="Device Name">
     </div>
-    <div class="form-row">
+    <div class="form-row cOption">
         <!-- 要廣播的txPowerLevel值 -->
         <label for="node-input-txPowerLevel"><i class="icon-tag"></i> Tx Power Level</label>
         <input type="text" id="node-input-txPowerLevel" placeholder="Tx Power Level">
