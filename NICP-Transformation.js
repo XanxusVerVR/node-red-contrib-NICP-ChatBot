@@ -193,8 +193,6 @@ module.exports = function (RED) {
             });
         }
         function applyRule(msg, rule) {
-            console.log(`msg:`);
-            console.log(msg);
             let property = rule.p;
             let current;
             let fromValue;
@@ -246,6 +244,8 @@ module.exports = function (RED) {
                                     }
                                 }
                             } catch (err) { }
+                            console.log(`return msg:`);
+                            console.log(msg);
                             return msg;
                         } else if (rule.pt === "flow" || rule.pt === "global") {
                             let contextKey = RED.util.parseContextStore(property);
