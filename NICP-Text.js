@@ -232,7 +232,6 @@ module.exports = function (RED) {
 
         //用來給facebook in 連接到 text out，且text out有設定對話追蹤的流程用的Handler
         let facebookHandler = function _facebookHandler(msg) {
-            console.log(`facebookHandler function`);
             let m = originalMessengeUserIdQueue.last();
             msg.payload.chatId = m;//將Track Conversation之後使用者的輸出的UserID設為最一開始Facebook In進來的
             originalMessengeUserIdQueue.remove();

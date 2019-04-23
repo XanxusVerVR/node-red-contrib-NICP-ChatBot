@@ -173,8 +173,6 @@ module.exports = function (RED) {
                                     protocolType: "MQTT",
                                     dataId: RED.util.generateId()
                                 };
-                                console.log(`msg:`);
-                                console.log(msg);
                                 this.brokerConn.publish(msg);  // send the message
                             }
                             else { node.warn(RED._("mqtt.errors.invalid-topic")); }
