@@ -193,6 +193,8 @@ module.exports = function (RED) {
             });
         }
         function applyRule(msg, rule) {
+            console.log(`msg:`);
+            console.log(msg);
             let property = rule.p;
             let current;
             let fromValue;
