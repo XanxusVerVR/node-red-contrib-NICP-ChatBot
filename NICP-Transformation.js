@@ -207,6 +207,7 @@ module.exports = function (RED) {
                         fromValue = fromParts.fromValue;
                         fromType = fromParts.fromType;
                         fromRE = fromParts.fromRE;
+                        const _payload = msg.payload;
                         if (rule.pt === "msg") {
                             try {
                                 if (rule.t === "delete") {
@@ -217,9 +218,9 @@ module.exports = function (RED) {
                                     }
                                     else {
                                         // 要把原本的payload刪除，不然payload不能設置物件和屬性
-                                        if (property.indexOf("payload") === 0) {//當property這字串中有包含payload，會回傳0，不然就回傳-1，如payoad.ddddd就回傳-1
-                                            delete msg.payload;
-                                        }
+                                        // if (property.indexOf("payload") === 0) {//當property這字串中有包含payload，會回傳0，不然就回傳-1，如payoad.ddddd就回傳-1
+                                        //     delete msg.payload;
+                                        // }
                                         RED.util.setMessageProperty(msg, property, value);
                                     }
                                 } else if (rule.t === "change") {
@@ -244,6 +245,10 @@ module.exports = function (RED) {
                                     }
                                 }
                             } catch (err) { }
+                            // Object.keys(_payload).map(function (objectKey, index) {
+                            //     let value = _payload[objectKey];
+                            //     msg.payload[objectKey] = value;
+                            // });
                             return msg;
                         } else if (rule.pt === "flow" || rule.pt === "global") {
                             let contextKey = RED.util.parseContextStore(property);
@@ -337,15 +342,15 @@ module.exports = function (RED) {
             this.on("input", function (msg) {
                 // _payload用來暫存msg用的，因為到時創造msg底下的物件後，payload可能會被刪掉，原本裡面的資訊會不見，所以這裡要先暫存起來，回傳之前再把他們存回去
                 // 至於為何要取payload而不取整個msg，因為不知為何另外定義的_msg的payload也會被刪掉
-                const _payload = msg.payload;
+                // const _payload = msg.payload;
                 applyRules(msg, 0)
                     .then(msg => {
                         if (msg) {
                             // 將原本的payload裡的屬性存回去，主要是為了把chatId傳回來
-                            Object.keys(_payload).map(function (objectKey, index) {
-                                let value = _payload[objectKey];
-                                msg.payload[objectKey] = value;
-                            });
+                            // Object.keys(_payload).map(function (objectKey, index) {
+                            //     let value = _payload[objectKey];
+                            //     msg.payload[objectKey] = value;
+                            // });
                             node.send(msg);
                         }
                     })

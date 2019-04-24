@@ -166,10 +166,11 @@ module.exports = function (RED) {
                         }
                         if (msg.hasOwnProperty("payload")) {
                             if (msg.hasOwnProperty("topic") && (typeof msg.topic === "string") && (msg.topic !== "")) { // topic must exist
-
                                 msg.payload = {
                                     topic: msg.topic,
-                                    data: msg.payload,
+                                    data: {
+                                        command: msg.payload.command
+                                    },
                                     protocolType: "MQTT",
                                     dataId: RED.util.generateId()
                                 };
