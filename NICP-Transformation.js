@@ -244,8 +244,6 @@ module.exports = function (RED) {
                                     }
                                 }
                             } catch (err) { }
-                            console.log(`return msg:`);
-                            console.log(msg);
                             return msg;
                         } else if (rule.pt === "flow" || rule.pt === "global") {
                             let contextKey = RED.util.parseContextStore(property);
@@ -337,9 +335,17 @@ module.exports = function (RED) {
         }
         if (valid) {
             this.on("input", function (msg) {
+                // _payload用來暫存msg用的，因為到時創造msg底下的物件後，payload可能會被刪掉，原本裡面的資訊會不見，所以這裡要先暫存起來，回傳之前再把他們存回去
+                // 至於為何要取payload而不取整個msg，因為不知為何另外定義的_msg的payload也會被刪掉
+                const _payload = msg.payload;
                 applyRules(msg, 0)
                     .then(msg => {
                         if (msg) {
+                            // 將原本的payload裡的屬性存回去，主要是為了把chatId傳回來
+                            Object.keys(_payload).map(function (objectKey, index) {
+                                let value = _payload[objectKey];
+                                msg.payload[objectKey] = value;
+                            });
                             node.send(msg);
                         }
                     })
