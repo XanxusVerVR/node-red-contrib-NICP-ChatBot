@@ -263,14 +263,31 @@ module.exports = function (RED) {
         node.on("input", function (msg) {
             console.log(`msg:`);
             console.log(msg);
-            for (let i = 0; i < msg.payload.userID.length; i++) {
-                console.log(msg.payload.userID[i]);
-                msg.payload.result.payload.chatId = msg.payload.userID[i];
-                sendMessage(msg.payload.result, node.credentials.pageAccessToken).then(function () {
+            // 如果msg.payload.content有東西表示message有東西，就是一般餐點的狀態改變通知
+            if (!_.isEmpty(msg.payload.content)) {
+                let _msg = {
+                    payload: {
+                        type: "message",
+                        chatId: msg.payload.userID[0],// 狀態改變只需要跟某一位顧客說即可
+                        content: msg.payload.content
+                    }
+                };
+                sendMessage(_msg, node.credentials.pageAccessToken).then(function () {
                 }, function (err) {
                     node.error(err);
                 });
             }
+            // 不然的話就是群體推播
+            else {
+                for (let i = 0; i < msg.payload.userID.length; i++) {
+                    msg.payload.result.payload.chatId = msg.payload.userID[i];
+                    sendMessage(msg.payload.result, node.credentials.pageAccessToken).then(function () {
+                    }, function (err) {
+                        node.error(err);
+                    });
+                }
+            }
+
         });
     }
     RED.nodes.registerType("NICP-FacebookNotification", FacebookNotification, {
