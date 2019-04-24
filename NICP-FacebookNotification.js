@@ -263,7 +263,7 @@ module.exports = function (RED) {
         node.on("input", function (msg) {
             console.log(`msg:`);
             console.log(msg);
-            for (let i = 0; i < msg.payload.userID.length; i++) {
+            for (let i = 0; i <= msg.payload.userID.length; i++) {
                 msg.payload.result.payload.chatId = msg.payload.userID[i];
                 sendMessage(msg.payload.result, node.credentials.pageAccessToken).then(function () {
                 }, function (err) {
