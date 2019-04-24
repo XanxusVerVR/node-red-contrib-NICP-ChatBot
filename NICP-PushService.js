@@ -28,10 +28,10 @@ module.exports = function (RED) {
 
         let postCallback = function _postCallback(req, res) {
             console.log(`req.body:`);
-            console.log(prettyjson.render(req.body, {
-                noColor: false
-            }));
-            // console.log(JSON.stringify(req.body));
+            // console.log(prettyjson.render(req.body, {
+            //     noColor: false
+            // }));
+            console.log(JSON.stringify(req.body));
             //當config屬性存在，表示有資料需要設定並儲存
             if (!_.isEmpty(req.body.config)) {// 當_.isEmpty()參數中的物件是  未定義 null "" {}  等等這四個情況時，就會是true
                 let contextFileSystemNodeTypeKey = flowContext.get(req.body.config.type, "xanxusContext");
