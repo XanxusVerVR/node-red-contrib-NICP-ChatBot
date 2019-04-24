@@ -100,9 +100,11 @@ module.exports = function (RED) {
                     if (currentConversationNode != null) {
                         // void the current conversation
                         chatContext.set("currentConversationNode", null);
+                        console.log(`currentConversationNode 1`);
                         // emit message directly the node where the conversation stopped
                         RED.events.emit("node:" + currentConversationNode, msg);
                     } else {
+                        console.log(`relay 2`);
                         facebookBot.emit("relay", msg);
                     }
                 })
