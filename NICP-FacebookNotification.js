@@ -261,8 +261,6 @@ module.exports = function (RED) {
         const node = this;
 
         node.on("input", function (msg) {
-            console.log(`msg:`);
-            console.log(msg);
             // 如果msg.payload.content有東西表示message有東西，就是一般餐點的狀態改變通知
             if (!_.isEmpty(msg.payload.content)) {
                 let _msg = {
