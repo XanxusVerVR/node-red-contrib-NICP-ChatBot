@@ -266,7 +266,7 @@ module.exports = function (RED) {
                 let _msg = {
                     payload: {
                         type: "message",
-                        chatId: msg.payload.userID[0],// 狀態改變只需要跟某一位顧客說即可
+                        chatId: msg.payload.userID[0] || msg.payload.userID,// 狀態改變只需要跟某一位顧客說即可
                         content: msg.payload.content
                     }
                 };
