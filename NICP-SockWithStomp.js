@@ -32,11 +32,7 @@ module.exports = function (RED) {
             sock.onclose = function () {
                 console.log("close");
             };
-            let i = 0;
             const subscribeCallback = function (message) {
-                console.log("received message: " + message);
-                i++;
-                console.log(`印出i:${i}`);
                 const msg = {};
                 msg.payload = JSON.parse(message.body);
                 node.send(msg);
