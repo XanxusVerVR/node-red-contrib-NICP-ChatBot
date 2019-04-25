@@ -62,6 +62,13 @@ module.exports = function (RED) {
             };
             stompClient.connect({}, connectCallback, errorCallback);
         }
+        else {
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: "disconnect"
+            });
+        }
 
         node.on("close", function (removed, done) {
             stompClient.disconnect(function () {
