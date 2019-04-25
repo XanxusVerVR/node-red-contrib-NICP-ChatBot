@@ -266,7 +266,7 @@ module.exports = function (RED) {
                 let _msg = {
                     payload: {
                         type: "message",
-                        chatId: _.isArray(msg.payload.userID) ? msg.payload.userID[0] : msg.payload.userID,// 狀態改變只需要跟某一位顧客說即可。是陣列的話就拿msg.payload.userID[0]，不是的話就拿msg.payload.userID
+                        chatId: _.isArray(msg.payload.userID) ? msg.payload.userID[0] : msg.payload.chatId,// 狀態改變只需要跟某一位顧客說即可。是陣列的話就拿msg.payload.userID[0]，不是的話就拿msg.payload.userID
                         content: msg.payload.content
                     }
                 };
