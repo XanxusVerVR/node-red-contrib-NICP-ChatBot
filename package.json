@@ -94,7 +94,9 @@
         "rivescript": "1.17.1",
         "sanitize-filename": "^1.6.0",
         "smooch-core": "^2.0.0",
+        "sockjs-client": "^1.3.0",
         "speakeasy-nlp": "^0.2.2",
+        "stompjs": "^2.3.3",
         "underscore": "^1.9.1",
         "underscore.string": "^3.3.4"
     },

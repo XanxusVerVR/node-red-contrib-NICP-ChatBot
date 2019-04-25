@@ -1,0 +1,64 @@
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-SockWithStomp", {
+        category: "NICP",
+        color: "#ebd6d6",
+        defaults: {
+            name: {
+                value: "",
+            },
+            sockjsUrl: {
+                value: "",
+            },
+            stompPath: {
+                value: "",
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "debug.png",
+        paletteLabel: "SockWithStomp",
+        label: function () {
+            let labelName = "SockWithStomp";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
+        },
+        oneditprepare: function () { //當使用者打開此節點的Edit dialog畫面時要做的事
+        },
+        oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
+        },
+        oneditcancel: function () {//當使用者在Edit dialog按下Cancel要做的事
+        },
+        oneditdelete: function () {
+        },
+        onpaletteadd: function () {//此節點只要存在於palette(就是左邊直的那排，還沒拉出來)就會做的事，還沒拉出來也會觸發，重新整理也會觸發
+        },
+        onpaletteremove: function () {// 沒試過，但應該是從palette移除就會觸發
+        }
+    });
+
+</script>
+
+<script type="text/x-red" data-template-name="NICP-SockWithStomp">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <!-- 要連線的SockJS Server的URL -->
+        <label for="node-input-sockjsUrl"><i class="icon-tag"></i> SockJS Url</label>
+        <input type="text" id="node-input-sockjsUrl" placeholder="SockJS Url">
+    </div>
+    <div class="form-row">
+        <!-- 要連線的Stomp Server的路徑 -->
+        <label for="node-input-stompPath"><i class="icon-tag"></i> Stomp Path</label>
+        <input type="text" id="node-input-stompPath" placeholder="Stomp Path">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="NICP-SockWithStomp">
+</script>
