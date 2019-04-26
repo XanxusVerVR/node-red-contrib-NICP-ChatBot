@@ -11,11 +11,11 @@ module.exports = function (RED) {
 
         this.name = config.name || "My SockWithStomp Node";
         this.sockjsUrl = config.sockjsUrl;
-        this.stompPath = config.stompPath;
+        this.destination = config.destination;
 
         const node = this;
 
-        if (!_.isEmpty(node.sockjsUrl) && !_.isEmpty(node.stompPath)) {
+        if (!_.isEmpty(node.sockjsUrl) && !_.isEmpty(node.destination)) {
 
             sock = new SockJS(node.sockjsUrl);
             stompClient = Stomp.over(sock);
@@ -45,7 +45,7 @@ module.exports = function (RED) {
                     shape: "dot",
                     text: "connected"
                 });
-                stompClient.subscribe("/topic/notification/SCS-A", subscribeCallback);
+                stompClient.subscribe(node.destination, subscribeCallback);
             };
             const errorCallback = function (error) {
                 console.log("connect error:");
