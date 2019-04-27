@@ -2,6 +2,9 @@
 const _ = require("underscore");
 const Stomp = require("stompjs");
 const SockJS = require("sockjs-client");
+const clc = require("cli-color");
+const green = clc.greenBright;
+const white = clc.white;
 let sock;
 let stompClient;
 module.exports = function (RED) {
@@ -47,12 +50,12 @@ module.exports = function (RED) {
             };
 
             const connectCallback = function (frame) {
-                console.log("connect");
+                console.log(green("SockWithStomp節點的ID: ") + white(node.id) + green("Stomp已連線！"));
                 stompClient.subscribe(node.destination, subscribeCallback);
                 setStatus("green", "dot", "connected");
             };
             const errorCallback = function (error) {
-                console.log("connect error:");
+                console.log(red("SockWithStomp節點的ID: ") + white(node.id) + red("Stomp連線錯誤！"));
                 console.log(error);
                 setStatus("red", "dot", "disconnect");
             };
@@ -64,7 +67,7 @@ module.exports = function (RED) {
 
         node.on("close", function (removed, done) {
             stompClient.disconnect(function () {
-                console.log("disconnect !");
+                console.log(yellow("SockWithStomp節點的ID: ") + white(node.id) + yellow("Stomp連線關閉！"));
             });
             done();
         });
