@@ -7,6 +7,14 @@ let stompClient;
 module.exports = function (RED) {
     function SockWithStomp(config) {
 
+        const setStatus = function _setStatus(fill, shape, text) {
+            node.status({
+                fill: fill,
+                shape: shape,
+                text: text
+            });
+        };
+
         RED.nodes.createNode(this, config);
 
         this.name = config.name || "My SockWithStomp Node";
@@ -40,30 +48,18 @@ module.exports = function (RED) {
 
             const connectCallback = function (frame) {
                 console.log("connect");
-                node.status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "connected"
-                });
                 stompClient.subscribe(node.destination, subscribeCallback);
+                setStatus("green", "dot", "connected");
             };
             const errorCallback = function (error) {
                 console.log("connect error:");
                 console.log(error);
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: "disconnect"
-                });
+                setStatus("red", "dot", "disconnect");
             };
             stompClient.connect({}, connectCallback, errorCallback);
         }
         else {
-            node.status({
-                fill: "red",
-                shape: "dot",
-                text: "disconnect"
-            });
+            setStatus("red", "dot", "disconnect");
         }
 
         node.on("close", function (removed, done) {

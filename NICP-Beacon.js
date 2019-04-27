@@ -5,6 +5,14 @@ module.exports = function (RED) {
 
     function Beacon(config) {
 
+        const setStatus = function _setStatus(fill, shape, text) {
+            node.status({
+                fill: fill,
+                shape: shape,
+                text: text
+            });
+        };
+
         RED.nodes.createNode(this, config);
 
         this.name = config.name || "My Beacon Node";
@@ -29,28 +37,34 @@ module.exports = function (RED) {
             if (!_.isEmpty(node.broadcastingUrl)) {//如果URL不是空
                 console.log(`廣播URL`);
                 eddystoneBeacon.advertiseUrl(node.broadcastingUrl, node.option);
+                setStatus("blue", "dot", "broadcasting");
             }
             else {
                 eddystoneBeacon.stop();
+                setStatus("red", "dot", "not broadcasting");
             }
         }
         else if (node.broadcastingMode == "uid") {//如廣播模式是要廣播UID
             if (!_.isEmpty(node.namespaceId) && !_.isEmpty(node.instanceId)) {
                 console.log(`廣播UID`);
                 eddystoneBeacon.advertiseUid(node.namespaceId, node.instanceId, node.option);
+                setStatus("blue", "dot", "broadcasting");
             }
             else {
                 eddystoneBeacon.stop();
+                setStatus("red", "dot", "not broadcasting");
             }
         }
         else {
             if (!_.isEmpty(node.uuid) && !_.isEmpty(node.major) && !_.isEmpty(node.minor) && !_.isNull(node.measuredPower)) {
                 console.log(`廣播iBeacon`);
                 bleno.startAdvertisingIBeacon(node.uuid, node.major, node.minor, node.measuredPower);
+                setStatus("blue", "dot", "broadcasting");
             }
             else {
                 console.log("停止廣播iBeacon else");
                 bleno.stopAdvertising();
+                setStatus("red", "dot", "not broadcasting");
             }
         }
 
@@ -59,10 +73,12 @@ module.exports = function (RED) {
                 if (node.broadcastingMode == "url" || node.broadcastingMode == "uid") {
                     console.log(`停止廣播Google Eddystone`);
                     eddystoneBeacon.stop();
+                    setStatus("red", "dot", "not broadcasting");
                 }
                 else {
                     console.log("停止廣播iBeacon");
                     bleno.stopAdvertising();
+                    setStatus("red", "dot", "not broadcasting");
                 }
             }
         });

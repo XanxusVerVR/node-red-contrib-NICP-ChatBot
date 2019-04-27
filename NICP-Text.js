@@ -2,6 +2,7 @@ const q = require("./lib/xanxus-queue");
 const textConversationContext = require("./lib/TextConversationContext");
 const TextConversationContext = textConversationContext.TextConversationContext;
 const _ = require("underscore");
+const prettyjson = require('prettyjson');
 const rp = require("request-promise");
 const moment = require("moment");
 const crypto = require("crypto"); //引用可以產生亂數字串的模組
@@ -65,20 +66,22 @@ module.exports = function (RED) {
                 }
             };
             msg.context = context;
+            let _textOutNodeId = facebookWithTextContext.textOutNodeId;
+            console.log(`這次的Text In msg是：`);
+            console.log(prettyjson.render(msg, { noColor: false }));
             if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了。這是要給Text節點自己的Track Conversation用的
-                console.log(1);
+                console.log(`-----------------分枝1 Text節點自己的Track Conversation-----------------`);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
                 msg.context.textOutNodeId = "";
             }
-            else if ((count != 0 || !_.isEmpty(facebookWithTextContext.textOutNodeId)) && msg.originalMessage.transport == "facebook") {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
-                console.log(`msg:`);
-                console.log(msg);
-                console.log(2);
-                RED.events.emit("facebookWithText:" + facebookWithTextContext.textOutNodeId, msg);
-                // facebookWithTextContext.clear();
+            else if ((count != 0 || !_.isEmpty(_textOutNodeId)) && msg.originalMessage.transport == "facebook") {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
+                facebookWithTextContext.textOutNodeId = "";
+                console.log(`-----------------分枝2 Facebook In後面接Text Out的Track Conversation，這時count是: ${count}-----------------`);
+                RED.events.emit("facebookWithText:" + _textOutNodeId, msg);
+                facebookWithTextContext.clear();
             }
             else {// 將訊息傳給 Text In
-                console.log(3);
+                console.log(`-----------------分枝3-----------------`);
                 node.emit("relay", msg);
             }
             res.status(response.statusCode).send(response);
@@ -254,6 +257,8 @@ module.exports = function (RED) {
         RED.events.on("node:" + node.id, textHandler);
 
         let inputCallback = function _inputCallback(msg) {
+            console.log(`Text Out InputCallback !`);
+            console.log(prettyjson.render(msg, { noColor: false }));
             originalMessengeUserIdQueue.add(msg.payload.chatId);
             if (node.track && !_.isEmpty(node.wires[0])) {
                 if (msg.originalMessage.transport == "facebook") {
