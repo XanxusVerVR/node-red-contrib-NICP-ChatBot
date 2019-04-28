@@ -5,6 +5,7 @@ const SockJS = require("sockjs-client");
 const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
+const red = clc.red;
 let sock;
 let stompClient;
 module.exports = function (RED) {
