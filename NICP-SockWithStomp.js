@@ -51,14 +51,23 @@ module.exports = function (RED) {
             };
 
             const connectCallback = function (frame) {
-                console.log(green("SockWithStomp節點的ID: ") + white(node.id) + green(" Stomp已連線！"));
-                stompClient.subscribe(node.destination, subscribeCallback);
-                setStatus("green", "dot", "connected");
+                setTimeout(function () {
+                    console.log(green("SockWithStomp節點的ID: ") + white(node.id) + green(" Stomp已連線！"));
+                    try {
+                        stompClient.subscribe(node.destination, subscribeCallback);
+                    } catch (error) {
+                        console.log("連線發生錯誤or來不及建立");
+                        console.log(error);
+                    }
+                    setStatus("green", "dot", "connected");
+                }, 1000);
             };
             const errorCallback = function (error) {
-                console.log(red("SockWithStomp節點的ID: ") + white(node.id) + red(" Stomp連線錯誤！"));
-                console.log(error);
-                setStatus("red", "dot", "disconnect");
+                setTimeout(function () {
+                    console.log(red("SockWithStomp節點的ID: ") + white(node.id) + red(" Stomp連線錯誤！"));
+                    console.log(error);
+                    setStatus("red", "dot", "disconnect");
+                }, 1000);
             };
             stompClient.connect({}, connectCallback, errorCallback);
         }
