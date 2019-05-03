@@ -1,4 +1,5 @@
 // 程式碼參考這篇  https://bit.ly/2ZuQtou
+// API使用參考 https://bit.ly/2BIXo5D
 const _ = require("underscore");
 const Stomp = require("stompjs");
 const _SockJS = require("sockjs-client");
@@ -6,8 +7,6 @@ const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
 const red = clc.red;
-
-let stompClient;
 module.exports = function (RED) {
 
     // SockJS Configuration Credential節點
@@ -31,10 +30,6 @@ module.exports = function (RED) {
         this.getSockJSInstance = function _getSockJSInstance() {
             return sock;
         };
-        this.addition = function _addition(a, b) {
-            return a + b;
-        };
-        // console.log(`印出SockJS Configuration Credential節點的sockjsUrl：${this.sockjsUrl}`);
     }
     RED.nodes.registerType("NICP-SockJS Node", SockJSNode, {
         credentials: {
@@ -43,6 +38,7 @@ module.exports = function (RED) {
             }
         }
     });
+
 
     // SockJS In節點
     function SockJSIn(config) {
@@ -62,12 +58,10 @@ module.exports = function (RED) {
         this.sockJSConfigNode = RED.nodes.getNode(config.sockJSConfigNode);//取得credentials物件
 
         const node = this;
-        // console.log(`1+1是：${node.sockJSConfigNode.addition(1, 1)}`);
 
         if (!_.isEmpty(node.sockJSConfigNode.credentials.sockjsUrl) && !_.isEmpty(node.destination)) {
 
-            // sock = new _SockJS(node.sockJSConfigNode.credentials.sockjsUrl);
-            stompClient = Stomp.over(node.sockJSConfigNode.getSockJSInstance());
+            const stompClient = Stomp.over(node.sockJSConfigNode.getSockJSInstance());
 
             const subscribeCallback = function (message) {
                 const msg = {};
@@ -109,6 +103,7 @@ module.exports = function (RED) {
     }
     RED.nodes.registerType("NICP-SockJS In", SockJSIn);
 
+
     // SockJS Out節點
     function SockJSOut(config) {
 
@@ -128,12 +123,37 @@ module.exports = function (RED) {
 
         const node = this;
 
-        // node.on("close", function (removed, done) {
-        //     stompClient.disconnect(function () {
-        //         console.log(yellow("SockWithStomp節點的ID: ") + white(node.id) + yellow(" Stomp連線關閉！"));
-        //     });
-        //     done();
-        // });
+        let stompClient;
+
+        if (!_.isEmpty(node.sockJSConfigNode.credentials.sockjsUrl) && !_.isEmpty(node.destination)) {
+
+            stompClient = Stomp.over(node.sockJSConfigNode.getSockJSInstance());
+
+            const connectCallback = function (frame) {
+                console.log(green("SockWithStomp節點的ID: ") + white(node.id) + green(" Stomp已連線！"));
+                setStatus("green", "dot", "connected");
+            };
+            const errorCallback = function (error) {
+                console.log(red("SockWithStomp節點的ID: ") + white(node.id) + red(" Stomp連線錯誤！"));
+                console.log(error);
+                setStatus("red", "dot", "disconnect");
+            };
+            stompClient.connect({}, connectCallback, errorCallback);
+        }
+        else {
+            setStatus("red", "dot", "disconnect");
+        }
+
+        node.on("input", function (msg) {
+            stompClient.send(node.destination, {}, JSON.stringify(msg.payload));
+        });
+
+        node.on("close", function (removed, done) {
+            stompClient.disconnect(function () {
+                console.log(yellow("SockWithStomp節點的ID: ") + white(node.id) + yellow(" Stomp連線關閉！"));
+            });
+            done();
+        });
     }
     RED.nodes.registerType("NICP-SockJS Out", SockJSOut);
 };
