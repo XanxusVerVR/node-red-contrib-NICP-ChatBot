@@ -1,7 +1,7 @@
 // 程式碼參考這篇  https://bit.ly/2ZuQtou
 const _ = require("underscore");
 const Stomp = require("stompjs");
-const SockJS = require("sockjs-client");
+const _SockJS = require("sockjs-client");
 const clc = require("cli-color");
 const green = clc.greenBright;
 const white = clc.white;
@@ -9,7 +9,7 @@ const red = clc.red;
 let sock;
 let stompClient;
 module.exports = function (RED) {
-    function SockWithStomp(config) {
+    function SockJS(config) {
 
         const setStatus = function _setStatus(fill, shape, text) {
             node.status({
@@ -21,7 +21,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name || "My SockWithStomp Node";
+        this.name = config.name || "My SockJS Node";
         this.sockjsUrl = config.sockjsUrl;
         this.destination = config.destination;
 
@@ -29,7 +29,7 @@ module.exports = function (RED) {
 
         if (!_.isEmpty(node.sockjsUrl) && !_.isEmpty(node.destination)) {
 
-            sock = new SockJS(node.sockjsUrl);
+            sock = new _SockJS(node.sockjsUrl);
             stompClient = Stomp.over(sock);
 
             sock.onopen = function () {
@@ -82,5 +82,5 @@ module.exports = function (RED) {
             done();
         });
     }
-    RED.nodes.registerType("NICP-SockWithStomp", SockWithStomp);
+    RED.nodes.registerType("NICP-SockJS", SockJS);
 };

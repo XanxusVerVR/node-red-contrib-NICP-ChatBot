@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-SockWithStomp", {
+    RED.nodes.registerType("NICP-SockJS", {
         category: "NICP",
         color: "#ebd6d6",
         defaults: {
@@ -16,9 +16,9 @@
         inputs: 0,
         outputs: 1,
         icon: "debug.png",
-        paletteLabel: "SockWithStomp",
+        paletteLabel: "SockJS",
         label: function () {
-            let labelName = "SockWithStomp";
+            let labelName = "SockJS";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -42,7 +42,7 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="NICP-SockWithStomp">
+<script type="text/x-red" data-template-name="NICP-SockJS">
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -60,5 +60,5 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="NICP-SockWithStomp">
+<script type="text/x-red" data-help-name="NICP-SockJS">
 </script>
