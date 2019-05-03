@@ -1,13 +1,53 @@
+<!-- SockJS Configuration Credential節點-->
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-SockJS", {
+    RED.nodes.registerType("NICP-SockJS Node", {
+        category: "config",
+        defaults: {
+            name: {
+                value: "",
+                required: true
+            }
+        },
+        credentials: {
+            sockjsUrl: {
+                type: "text"
+            }
+        },
+        //定義這個config形式的節點在別的節點的dialog所呈現的字串，和在右邊的config sidebar所呈現的字串
+        label: function () {
+            return this.name || "NICP-SockJS Node";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="NICP-SockJS Node">
+    <!-- 節點的名稱 -->
+    <div class="form-row">
+        <label for="node-config-input-name" style="width:100%;"><i class="icon-bookmark"></i> Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-sockjsUrl"><i class="icon-bookmark"></i>SockJS URL</label>
+        <input type="text" id="node-config-input-sockjsUrl">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="NICP-SockJS In">
+</script>
+
+<!-- SockJS In節點-->
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-SockJS In", {
         category: "NICP",
         color: "#ebd6d6",
         defaults: {
             name: {
                 value: "",
             },
-            sockjsUrl: {
+            sockJSConfigNode: {
                 value: "",
+                type: "NICP-SockJS Node",
+                required: true
             },
             destination: {
                 value: "",
@@ -16,9 +56,9 @@
         inputs: 0,
         outputs: 1,
         icon: "debug.png",
-        paletteLabel: "SockJS",
+        paletteLabel: "SockJS In",
         label: function () {
-            let labelName = "SockJS";
+            let labelName = "SockJS In";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -42,16 +82,16 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="NICP-SockJS">
+<script type="text/x-red" data-template-name="NICP-SockJS In">
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <div class="form-row">
-        <!-- 要連線的SockJS Server的URL -->
-        <label for="node-input-sockjsUrl"><i class="icon-tag"></i> SockJS Url</label>
-        <input type="text" id="node-input-sockjsUrl" placeholder="SockJS Url">
+    <!-- Credentials設置表單，要填寫SockJS的URL -->
+	<div class="form-row">
+        <label for="node-input-sockJSConfigNode"><i class="icon-bookmark"></i>SockJS URL</label>
+        <input type="text" id="node-input-sockJSConfigNode">
     </div>
     <div class="form-row">
         <!-- 要連線的Stomp Server的路徑 -->
@@ -60,5 +100,73 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="NICP-SockJS">
+<script type="text/x-red" data-help-name="NICP-SockJS In">
+</script>
+
+<!-- SockJS Out節點-->
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-SockJS Out", {
+        category: "NICP",
+        color: "#ebd6d6",
+        defaults: {
+            name: {
+                value: "",
+            },
+            sockJSConfigNode: {
+                value: "",
+                type: "NICP-SockJS Node",
+                required: true
+            },
+            destination: {
+                value: "",
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "debug.png",
+        paletteLabel: "SockJS Out",
+        label: function () {
+            let labelName = "SockJS Out";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
+        },
+        oneditprepare: function () { //當使用者打開此節點的Edit dialog畫面時要做的事
+        },
+        oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
+        },
+        oneditcancel: function () {//當使用者在Edit dialog按下Cancel要做的事
+        },
+        oneditdelete: function () {
+        },
+        onpaletteadd: function () {//此節點只要存在於palette(就是左邊直的那排，還沒拉出來)就會做的事，還沒拉出來也會觸發，重新整理也會觸發
+        },
+        onpaletteremove: function () {// 沒試過，但應該是從palette移除就會觸發
+        }
+    });
+
+</script>
+
+<script type="text/x-red" data-template-name="NICP-SockJS Out">
+    <!-- 節點名稱 -->
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <!-- Credentials設置表單，要填寫SockJS的URL -->
+	<div class="form-row">
+        <label for="node-input-sockJSConfigNode"><i class="icon-bookmark"></i>SockJS URL</label>
+        <input type="text" id="node-input-sockJSConfigNode">
+    </div>
+    <div class="form-row">
+        <!-- 要連線的Stomp Server的路徑 -->
+        <label for="node-input-destination"><i class="icon-tag"></i> Destination</label>
+        <input type="text" id="node-input-destination" placeholder="Destination">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="NICP-SockJS Out">
 </script>
