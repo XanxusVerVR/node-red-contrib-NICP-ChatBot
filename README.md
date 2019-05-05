@@ -20,3 +20,12 @@
     and the repository exists.
 ###### 可能因.ssh權限太開放，將他的權限降低：
     sudo chmod -R 700 .ssh
+# 執行容器
+    docker run -d -p 1880:1880 --name nicp-node-red1 nicp-node-red:v1
+# 停止容器
+	docker stop nicp-node-red1
+# 刪除容器
+	docekr rm nicp-node-red1
+# 用certbot取得憑證
+	sudo certbot --nginx certonly
+###### 注：可以只選xanxus-node-red.cf這個(前面沒有www的)
