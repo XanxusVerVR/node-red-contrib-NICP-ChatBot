@@ -1,16 +1,17 @@
 ARG NODE_VERSION=8.16.0-stretch
 FROM node:${NODE_VERSION}
 
-# 安裝ssh和git
-RUN apt-get -y update && apt-get upgrade -y && apt-get -y install --no-install-recommends build-essential git ssh vim
-RUN mkdir -p /root/.ssh
+# 安裝git和創造.ssh資料夾路徑
+RUN apt-get update -y \
+    && apt-get install --no-install-recommends build-essential git -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /root/.ssh
 COPY ./.ssh /root/.ssh
 
 # Home directory for Node-RED application source code.
-RUN mkdir -p /usr/src/node-red
-
+RUN mkdir -p /usr/src/node-red \
 # User data directory (就是.node-red), contains flows, config and nodes.
-RUN mkdir -p /data/nodes
+    && mkdir -p /data/nodes
 
 # 建置NICP專案
 COPY ./NICP/ /data/nodes/node-red-contrib-FCF-ChatBot
@@ -35,8 +36,7 @@ USER node-red
 # package.json contains Node-RED NPM module and node dependencies
 COPY package.json /usr/src/node-red/
 RUN npm install
-COPY settings.js /data
-COPY .config.json /data
+COPY settings.js .config.json /data/
 
 # User configuration directory volume
 EXPOSE 1880
