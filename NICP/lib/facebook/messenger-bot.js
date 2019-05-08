@@ -117,8 +117,10 @@ _.extend(Bot.prototype, {
             }
         }, function (err, res, body) {
             if (err) {
+                console.log(`7`);
                 return cb(err);
             } else if ((body != null) && (_.isString(body))) {
+                console.log(`6`);
                 // body in string in case of error
                 let errorJSON = null;
                 try {

@@ -347,12 +347,18 @@ module.exports = function (RED) {
 
 
     function FacebookOutNode(config) {
+
         RED.nodes.createNode(this, config);
+
         const node = this;
+
         this.bot = config.bot;
         this.track = config.track;
-
         this.config = RED.nodes.getNode(this.bot);
+        this.mode = config.mode;
+        this.startedButtonPostbackPayload = config.startedButtonPostbackPayload;
+        this.greetings = config.greetings;
+
         if (this.config) {
             this.status({ fill: "red", shape: "ring", text: "disconnected" });
 
@@ -696,59 +702,124 @@ module.exports = function (RED) {
             node.send(msg);
         };
         RED.events.on("node:" + config.id, handler);
-
+        // console.log(`印出node.mode:${node.mode}`);
+        // console.log(`印出node.startedButtonPostbackPayload:${node.startedButtonPostbackPayload}`);
+        // console.log(node.greetings);
         this.on("input", function (msg) {
-            // check if the message is from facebook
-            if (msg.originalMessage != null && msg.originalMessage.transport !== "facebook") {
-                // exit, it"s not from facebook
-                return;
-            }
-            // try to send the meta first (those messages that doesn"t require a valid payload)
-            sendMeta(msg)
-                .then(function () {
-                    // ok, meta sent, stop here
-                }, function (error) {
-                    // if here, either there was an error or no met message was sent
-                    if (error != null) {
-                        node.error(error);
-                    } else {
-                        // check payload
-                        let payloadError = utils.hasValidPayload(msg);
-                        if (payloadError != null) {
-                            // invalid payload
-                            node.error(payloadError);
+            if (node.mode === "message") {
+                console.log(`message`);
+                // check if the message is from facebook
+                if (msg.originalMessage != null && msg.originalMessage.transport !== "facebook" || _.isEmpty(msg.originalMessage)) {
+                    // exit, it"s not from facebook
+                    console.log(`Message it"s not from facebook`);
+                    return;
+                }
+                // try to send the meta first (those messages that doesn"t require a valid payload)
+                sendMeta(msg)
+                    .then(function () {
+                        // ok, meta sent, stop here
+                    }, function (error) {
+                        // if here, either there was an error or no met message was sent
+                        if (error != null) {
+                            node.error(error);
                         } else {
+                            // check payload
+                            let payloadError = utils.hasValidPayload(msg);
+                            if (payloadError != null) {
+                                // invalid payload
+                                node.error(payloadError);
+                            } else {
 
-                            // payload is valid, go on
-                            let track = node.track;
-                            let chatContext;
-                            try {
-                                chatContext = msg.chat();
-                            } catch (error) {
-                                console.log("msg.chat()不存在，有可能是直接從外部傳的");
-                            }
+                                // payload is valid, go on
+                                let track = node.track;
+                                let chatContext;
+                                try {
+                                    chatContext = msg.chat();
+                                } catch (error) {
+                                    console.log("msg.chat()不存在，有可能是直接從外部傳的");
+                                }
 
-                            // check if this node has some wirings in the follow up pin, in that case
-                            // the next message should be redirected here
-                            if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
-                                chatContext.set("currentConversationNode", node.id);
-                                chatContext.set("currentConversationNode_at", moment());
-                            }
+                                // check if this node has some wirings in the follow up pin, in that case
+                                // the next message should be redirected here
+                                if (chatContext != null && track && !_.isEmpty(node.wires[0])) {
+                                    chatContext.set("currentConversationNode", node.id);
+                                    chatContext.set("currentConversationNode_at", moment());
+                                }
 
-                            let chatLog = new ChatLog(chatContext);
+                                let chatLog = new ChatLog(chatContext);
 
-                            chatLog.log(msg, node.config.log)
-                                .then(function () {
-                                    return sendMessage(msg);
-                                })
-                                .then(function () {
-                                    // we"re done
-                                }, function (err) {
-                                    node.error(err);
-                                });
-                        } // end valid payload
-                    } // end no error
-                }); // end then
+                                chatLog.log(msg, node.config.log)
+                                    .then(function () {
+                                        return sendMessage(msg);
+                                    })
+                                    .then(function () {
+                                        // we"re done
+                                    }, function (err) {
+                                        node.error(err);
+                                    });
+                            } // end valid payload
+                        } // end no error
+                    }); // end then
+            }
+            else {
+                console.log(`welcomeScreen`);
+                let headers = {
+                    "Content-Type": "application/json;charset=utf-8",
+                };
+
+                let messengerProfileAPIUrl = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${node.config.credentials.token}`;
+
+                let optionsGetStarted = {
+                    url: messengerProfileAPIUrl,
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify({
+                        get_started: {
+                            payload: node.startedButtonPostbackPayload
+                        }
+                    })
+                };
+
+                let optionsGreeting = {
+                    url: messengerProfileAPIUrl,
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify({
+                        greeting: node.greetings
+                    })
+                };
+                if (node.startedButtonPostbackPayload) {
+                    request(optionsGetStarted, function (error, response, body) {
+                        if (error) {
+                            console.log(white("發生error!!!，訊息如下："));
+                            console.log(redBright(error));
+                        }
+                        console.log("觸發設置開始使用字串!");
+                        console.log(white("回應狀態碼為: ") + green(response.statusCode));
+                        console.log(white("回應的Body: ") + green(body));
+                    });
+                }
+                let isEveryExist = true;
+                for (let i = 0; i < node.greetings.length; i++) {
+                    if (!node.greetings[i].locale || !node.greetings[i].text) {
+                        isEveryExist = false;
+                        break;
+                    }
+                }
+                if (isEveryExist && !_.isEmpty(node.greetings)) {
+                    request(optionsGreeting, function (error, response, body) {
+                        if (error) {
+                            console.log(white("發生error!!!，訊息如下："));
+                            console.log(redBright(error));
+                        }
+                        console.log("觸發問候語設置!");
+                        console.log(white("回應狀態碼為: ") + green(response.statusCode));
+                        console.log(white("回應的Body: ") + green(body));
+                    });
+                }
+            }
+
+
         });
         // cleanup on close
         this.on("close", function () {

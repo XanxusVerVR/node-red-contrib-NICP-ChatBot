@@ -186,6 +186,112 @@
 <!-- Facebook In結束 -->
 
 <script type="text/javascript">//Facebook Out開始
+    let locale = [
+        "default",
+        "en_US",
+        "ca_ES",
+        "cs_CZ",
+        "cx_PH",
+        "cy_GB",
+        "da_DK",
+        "de_DE",
+        "eu_ES",
+        "en_UD",
+        "es_LA",
+        "es_ES",
+        "gn_PY",
+        "fi_FI",
+        "fr_FR",
+        "gl_ES",
+        "hu_HU",
+        "it_IT",
+        "ja_JP",
+        "ko_KR",
+        "nb_NO",
+        "nn_NO",
+        "nl_NL",
+        "fy_NL",
+        "pl_PL",
+        "pt_BR",
+        "pt_PT",
+        "ro_RO",
+        "ru_RU",
+        "sk_SK",
+        "sl_SI",
+        "sv_SE",
+        "th_TH",
+        "tr_TR",
+        "ku_TR",
+        "zh_CN",
+        "zh_HK",
+        "zh_TW",
+        "af_ZA",
+        "sq_AL",
+        "hy_AM",
+        "az_AZ",
+        "be_BY",
+        "bn_IN",
+        "bs_BA",
+        "bg_BG",
+        "hr_HR",
+        "nl_BE",
+        "en_GB",
+        "et_EE",
+        "fo_FO",
+        "fr_CA",
+        "ka_GE",
+        "el_GR",
+        "gu_IN",
+        "hi_IN",
+        "is_IS",
+        "id_ID",
+        "ga_IE",
+        "jv_ID",
+        "kn_IN",
+        "kk_KZ",
+        "lv_LV",
+        "lt_LT",
+        "mk_MK",
+        "mg_MG",
+        "ms_MY",
+        "mt_MT",
+        "mr_IN",
+        "mn_MN",
+        "ne_NP",
+        "pa_IN",
+        "sr_RS",
+        "so_SO",
+        "sw_KE",
+        "tl_PH",
+        "ta_IN",
+        "te_IN",
+        "ml_IN",
+        "uk_UA",
+        "uz_UZ",
+        "vi_VN",
+        "km_KH",
+        "tg_TJ",
+        "ar_AR",
+        "he_IL",
+        "ur_PK",
+        "fa_IR",
+        "ps_AF",
+        "my_MM",
+        "qz_MM",
+        "or_IN",
+        "si_LK",
+        "rw_RW",
+        "cb_IQ",
+        "ha_NG",
+        "ja_KS",
+        "br_FR",
+        "tz_MA",
+        "co_FR",
+        "as_IN",
+        "ff_NG",
+        "sc_IT",
+        "sz_PL"
+    ];
     RED.nodes.registerType("NICP-facebook-send", {
         category: "NICP",
         color: "#FFCC66",
@@ -208,6 +314,18 @@
                 value: "",
                 type: "NICP-facebook-config-role",
                 required: false
+            },
+            mode: {
+                value: "message"
+            },
+            startedButtonPostbackPayload: {
+                value: "",
+            },
+            greetings: {
+                value: [{
+                    locale: "default",
+                    text: "Hi,Xanxus"
+                }]
             }
         },
         inputs: 1,
@@ -223,9 +341,68 @@
                 return labelName;
             }
         },
+        oneditprepare: function () { //當使用者打開此節點的Edit dialog畫面時要做的事
+            let node = this;
+            $("#node-input-rule-container").css("min-height", "300px").css("min-width", "450px").editableList({
+                addItem: function (container, i, _greetings) {
+                    if (!_greetings.hasOwnProperty("locale")) {
+                        _greetings.locale = "default";
+                        _greetings.text = "Hello!";
+                    }
+                    let localeSelectField = $("<select/>", { class: "node-input-locale", style: "width:110px; margin-right:10px;" }).appendTo(container);
+                    let selectOptions = [];
+                    for (let i = 0; i < locale.length; i++) {
+                        selectOptions.push({
+                            value: locale[i],
+                            text: locale[i]
+                        });
+                    }
+                    for (let i = 0; i < selectOptions.length; i++) {
+                        localeSelectField.append($("<option></option>").val(selectOptions[i].value).text(selectOptions[i].text));
+                    }
+                    let propertyValue2 = $("<input/>", { class: "node-input-text", type: "text", value: _greetings.text })
+                        .appendTo(container);
+
+                    localeSelectField.val(_greetings.locale);
+
+                },
+                removable: true,
+                sortable: true
+            })
+            for (let i = 0; i < node.greetings.length; i++) {
+                $("#node-input-rule-container").editableList("addItem", node.greetings[i]);
+            }
+
+            //切換模式，看是要輸出訊息還是設置開始使用
+            $("#node-input-mode").change(function () {
+                const value = $(this).val();
+                if (value === "message") {
+                    $(".cMessage").show();
+                    $(".cWelcomeScreen").hide();
+                    $(".node-input-rule-container-row").hide();
+                }
+                else {
+                    $(".cMessage").hide();
+                    $(".cWelcomeScreen").show();
+                    $(".node-input-rule-container-row").show();
+                }
+            });
+            $("#node-input-mode").change();// 先呼叫一次，這樣第一次打開才會有效果，不然還要手動再選一次才有效果
+        },
         oneditsave: function () {
             let track = $("#node-input-track").is(":checked");
             this.outputs = track ? 1 : 0;
+
+            let node = this;
+            let items = $("#node-input-rule-container").editableList("items");
+            node.greetings = [];//這你一定要創造一個node.greetings，跟上面定義的屬性名稱要一樣，這樣才存得進去
+            items.each(function (i) {
+                let data = $(this);
+                node.greetings.push({
+                    locale: data.find(".node-input-locale").val(),//這裡的locale和text也是和上面定義的屬性要一樣
+                    text: data.find(".node-input-text").val()
+                });
+            });
         }
     });
 
@@ -241,15 +418,34 @@
         <label for="node-input-bot"><i class="icon-bookmark"></i> Bot</label>
         <input type="text" id="node-input-bot" placeholder="Bot">
     </div>
+    <!-- 設置模式表單，看是要當作一般Facebook Out輸出訊息，還是要設置開始使用-->
     <div class="form-row">
+        <label for="node-input-mode"><i class="icon-bookmark"></i> Mode</label>
+        <select id="node-input-mode">
+            <!-- 一般Facebook Out輸出訊息 -->
+            <option value="message">Message</option>
+            <!-- 設置開始使用 -->
+            <option value="welcomeScreen">Welcome Screen</option>
+        </select>
+    </div>
+    <div class="form-row cMessage">
         <label for="node-input-fcfFacebookRoleNode"><i class="icon-bookmark"></i> Role</label>
         <input type="text" id="node-input-fcfFacebookRoleNode">
     </div>
-    <div class="form-row">
+    <div class="form-row cMessage">
         <label for="node-input-track"><i class="icon-envelope"></i> Track Conversation</label>
         <input type="checkbox" value="true" id="node-input-track">
         <div style="max-width: 460px;font-size: 12px;color: #999999;line-height: 14px;margin-top:5px;">
         </div>
+    </div>
+    <!-- 開始使用按鈕的字串 -->
+    <div class="form-row cWelcomeScreen">
+        <label for="node-input-startedButtonPostbackPayload"><i class="icon-tag"></i> Postback Payload</label>
+        <input type="text" id="node-input-startedButtonPostbackPayload" placeholder="e.g. welcome">
+    </div>
+    <!-- 定義裝表單項目的容器 -->
+    <div class="form-row node-input-rule-container-row">
+        <ol id="node-input-rule-container"></ol>
     </div>
 </script>
 
