@@ -15,7 +15,7 @@ module.exports = function (RED) {
     // 此區塊的程式，只有在Node-RED一啟動的時候，才會執行一次
     const facebookWithTextContext = new TextConversationContext();
     let count = 1;
-    function TextConfig(config) {
+    function ChatConfig(config) {
         // 每次Node-RED啟動時、重新部署時 會執行一次
 
         RED.nodes.createNode(this, config);
@@ -67,20 +67,20 @@ module.exports = function (RED) {
             };
             msg.context = context;
             let _textOutNodeId = facebookWithTextContext.textOutNodeId;
-            console.log(`這次的Text In msg是：`);
+            console.log(`這次的Chat In msg是：`);
             console.log(prettyjson.render(msg, { noColor: false }));
-            if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了。這是要給Text節點自己的Track Conversation用的
-                console.log(`-----------------分枝1 Text節點自己的Track Conversation-----------------`);
+            if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了。這是要給Chat節點自己的Track Conversation用的
+                console.log(`-----------------分枝1 Chat節點自己的Track Conversation-----------------`);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
                 msg.context.textOutNodeId = "";
             }
-            else if ((count != 0 || !_.isEmpty(_textOutNodeId)) && msg.originalMessage.transport == "facebook") {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Text節點
+            else if ((count != 0 || !_.isEmpty(_textOutNodeId)) && msg.originalMessage.transport == "facebook") {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Chat節點
                 facebookWithTextContext.textOutNodeId = "";
-                console.log(`-----------------分枝2 Facebook In後面接Text Out的Track Conversation，這時count是: ${count}-----------------`);
+                console.log(`-----------------分枝2 Facebook In後面接Chat Out的Track Conversation，這時count是: ${count}-----------------`);
                 RED.events.emit("facebookWithText:" + _textOutNodeId, msg);
                 facebookWithTextContext.clear();
             }
-            else {// 將訊息傳給 Text In
+            else {// 將訊息傳給 Chat In
                 console.log(`-----------------分枝3-----------------`);
                 node.emit("relay", msg);
             }
@@ -90,7 +90,7 @@ module.exports = function (RED) {
         RED.httpNode.post(node.webhookPath, corsHandler, postCallback);
 
         if (!_.isEmpty(node.webhookPath) && !_.isEmpty(node.serverLocation)) {
-            console.log(grey("--------------- Text Webhook Start ----------------"));
+            console.log(grey("--------------- Chat Webhook Start ----------------"));
             let port;
             let uiPort = RED.settings.get("uiPort");
             if (node.isHttps) {
@@ -100,7 +100,7 @@ module.exports = function (RED) {
                 port = ":" + uiPort;
             }
             console.log(green("Webhook URL: ") + white("" + (node.isHttps ? "https" : "http") + "://" + (node.serverLocation ? node.serverLocation : "localhost") + port + node.webhookPath));
-            console.log(grey("--------------- Text Webhook End ----------------"));
+            console.log(grey("--------------- Chat Webhook End ----------------"));
         }
 
         node.on("close", function () {
@@ -113,7 +113,7 @@ module.exports = function (RED) {
             });
         });
     }
-    RED.nodes.registerType("NICP-Text Config", TextConfig);
+    RED.nodes.registerType("NICP-Chat Config", ChatConfig);
 
 
 
@@ -129,7 +129,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         this.botConfigData = RED.nodes.getNode(config.botConfigData);
-        this.name = config.name || "My Text In Node";
+        this.name = config.name || "My Chat In Node";
 
         const node = this;
 
@@ -156,7 +156,7 @@ module.exports = function (RED) {
             }
         });
     }
-    RED.nodes.registerType("NICP-Text In", TextIn);
+    RED.nodes.registerType("NICP-Chat In", TextIn);
 
 
 
@@ -168,7 +168,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name || "My Text Out Node";
+        this.name = config.name || "My Chat Out Node";
         this.botConfigData = RED.nodes.getNode(config.botConfigData);
         this.textConfigRoleNode = RED.nodes.getNode(config.textConfigRoleNode);
         this.track = config.track;
@@ -194,7 +194,7 @@ module.exports = function (RED) {
             });
         }
 
-        //當Text Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
+        //當Chat Out沒有選擇或設置某個角色時，credentials會null，所以這裡一定要做一個判斷
         let outputRoleUserID;
         if (node.textConfigRoleNode) {
             outputRoleUserID = node.textConfigRoleNode.credentials.targetUserID;
@@ -257,7 +257,7 @@ module.exports = function (RED) {
         RED.events.on("node:" + node.id, textHandler);
 
         let inputCallback = function _inputCallback(msg) {
-            console.log(`Text Out InputCallback !`);
+            console.log(`Chat Out InputCallback !`);
             console.log(prettyjson.render(msg, { noColor: false }));
             originalMessengeUserIdQueue.add(msg.payload.chatId);
             if (node.track && !_.isEmpty(node.wires[0])) {
@@ -266,13 +266,13 @@ module.exports = function (RED) {
                     facebookWithTextContext.transport = msg.originalMessage.transport;
                     facebookWithTextContext.chatId = msg.payload.chatId;
                 }
-                // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Text In進來，這裡的動作才要做。
+                // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Chat In進來，這裡的動作才要做。
                 if (!_.isEmpty(msg.context)) {
                     msg.context.textOutNodeId = node.id;
                 }
             }
             // 當第一次訊息已經送出，就不要寄出第二次之後的訊息，先把它存到Queue裡
-            // 當這個Text Out後面沒有接節點了，表示流程要結束。所以如果後面有接節點，表示流程還沒結束，這時就要把訊息存到Queue中
+            // 當這個Chat Out後面沒有接節點了，表示流程要結束。所以如果後面有接節點，表示流程還沒結束，這時就要把訊息存到Queue中
             if (isFirst && !_.isEmpty(node.wires[0])) {
                 msgQueue.add({
                     waiteThisFacebookOutNodeMsg: msg,
@@ -295,7 +295,7 @@ module.exports = function (RED) {
             // RED.events.removeAllListeners(); //這行很像會影響到Facebook的Webhook端點，就是重新部署後，明明有接收到Messenger傳來的訊息，但流程中訊息卻沒輸出、出現。
         });
     }
-    RED.nodes.registerType("NICP-Text Out", TextOut);
+    RED.nodes.registerType("NICP-Chat Out", TextOut);
 
 
 
@@ -310,7 +310,7 @@ module.exports = function (RED) {
     function TextRole(config) {
         RED.nodes.createNode(this, config);
     }
-    RED.nodes.registerType("NICP-Text Config Role", TextRole, {
+    RED.nodes.registerType("NICP-Chat Config Role", TextRole, {
         credentials: {
             targetUserID: {
                 type: "text"
