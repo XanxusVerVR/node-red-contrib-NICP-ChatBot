@@ -68,12 +68,12 @@ module.exports = function(RED) {
     RED.nodes.registerType("lirc-controller", LIRCControllerNode);
 
     /**
-     * ====== Lirc-out =======================
+     * ====== NICP-Infrared Out(Lirc-out) =======================
      * Sends outgoing Global Cache device from
      * messages received via node-red flows
      * =======================================
      */
-    function LIRCOut(config) {
+    function InfraredOut(config) {
         var node = this;
         RED.nodes.createNode(this, config);
         node.name = config.name;
@@ -122,5 +122,5 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("lirc-out", LIRCOut);
+    RED.nodes.registerType("NICP-Infrared Out", InfraredOut);
 };
