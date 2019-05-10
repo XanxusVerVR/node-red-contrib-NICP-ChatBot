@@ -1,3 +1,6 @@
+<head>
+    <script type="text/javascript" src="static/js/underscore-min.js"></script>
+</head>
 <script type="text/x-red" data-template-name="lirc-controller">
     <div class="form-row">
         <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
@@ -14,9 +17,17 @@
         <label for="node-input-controller"><i class="icon-bookmark"></i> Controller</label>
         <input type="text" id="node-input-controller">
     </div>
+    <!-- 可用的裝置檔下拉選單 -->
     <div class="form-row">
-        <label for="node-input-device"><i class="icon-bookmark"></i> Device name</label>
-        <input type="text" id="node-input-device" placeholder="philips">
+        <label for="node-input-device"><i class="icon-bookmark"></i> Available Device List </label>
+        <select id="node-input-device">
+        </select>
+    </div>
+    <!-- Command List清單 -->
+    <div class="form-row">
+        <label for="commandList"><i class="fa fa-list-ol"></i> <span>Command List</span></label>
+        <ol id="commandList">
+        </ol>
     </div>
     <div class="form-row">
         <label for="node-input-output"><i class="icon-bookmark"></i> Output</label>
@@ -51,23 +62,35 @@
     RED.nodes.registerType('lirc-controller', {
         category: 'config',
         defaults: {
-            name: {value: ""}
+            name: { value: "" }
         },
         label: function () {
-            return (this.name || 'lirc-controller' );
+            return (this.name || 'lirc-controller');
         }
     });
 </script>
 
 <script type="text/javascript">
+    const filterArray = function _filterArray(array) {
+        // 把陣列中空值""把他去掉
+        // 因從irsend list "" "" 這個指令輸出的可用裝置列表會有空白
+        // 參考 https://bit.ly/2rpMQm8 在UPDATE - just another fast, cool way (using ES6):這個部分
+        let temp = [];
+        for (let i of array) {
+            i && temp.push(i); // copy each non-empty value to the 'temp' array
+        }
+        array = temp;
+        delete temp; // discard the variable
+        return array;
+    };
     RED.nodes.registerType('NICP-Infrared Out', {
         category: 'NICP',
         color: '#26b050',
         defaults: {
-            name: {value: ""},
-            controller: {value: "", type: "lirc-controller"},
-            device: {value: "", required: true},
-            output: {value: "", required: true, validate: RED.validators.number()}
+            name: { value: "" },
+            controller: { value: "", type: "lirc-controller" },
+            device: { value: "", required: true },
+            output: { value: "", required: true, validate: RED.validators.number() }
         },
         inputs: 1,
         outputs: 0,
@@ -82,6 +105,53 @@
             else {
                 return labelName;
             }
+        },
+        oneditprepare: function () {
+            const node = this;
+
+            $.getJSON("available-device-list", function (data) {
+
+                let availableDeviceList = filterArray(data.split("\n"));
+
+                //定義已存在的可用裝置的下拉選單
+                for (let i = 0; i < availableDeviceList.length; i++) {
+                    $("#node-input-device").append($("<option></option>").val(availableDeviceList[i]).text(availableDeviceList[i]));
+                }
+
+                // 當這下拉選單更換時觸發
+                $("#node-input-device").change(function () {
+                    const deviceName = $(this).val();
+                    $("#commandList li").remove();
+                    $.getJSON(`device/command/${deviceName}`, function (commandList) {
+                        let newCommandList = filterArray(commandList.split("\n"));
+                        for (let i = 0; i < newCommandList.length; i++) {
+                            let blankIndex = newCommandList[i].indexOf(" ");
+                            let command = newCommandList[i].substring(blankIndex + 1);
+                            let liTag = $("<li/>", {
+                                "text": command
+                            });
+                            $(liTag).appendTo("#commandList");
+                        }
+                    })
+                });
+
+                // 如果上次有設置了某節點資料，則找到他，並把option設為上次選中的那筆資料
+                if (node.device) {
+                    $("#node-input-device option").each(function () {
+                        if ($(this).val() == node.device) {
+                            $(this).prop("selected", true);
+                        }
+                    });
+                }
+
+                // 因一開始資料還沒回來，所以這時呼叫會沒東西，故先拿掉
+                $("#node-input-device").change();// 先呼叫一次，這樣第一次打開才會有效果，不然還要手動再選一次才有效果
+            });
+        },
+        oneditsave: function () {
+            const node = this;
+            const selectedVal = $("#node-input-device").children("option:selected").val();
+            node.device = selectedVal;
         }
     });
 </script>

@@ -2,10 +2,11 @@
  * Created by aborovsky on 27.08.2015.
  */
 
-var util = require('util');
-var lircManager = require('./lib/lircmanager').LircManager;
+const util = require('util');
+const lircManager = require('./lib/lircmanager').LircManager;
+const exec = require("child_process").exec;
 
-module.exports = function(RED) {
+module.exports = function (RED) {
 
     /**
      * ====== Lirc-controller ================
@@ -14,16 +15,16 @@ module.exports = function(RED) {
      * =======================================
      */
     function LIRCControllerNode(config) {
-        var node = this;
+        const node = this;
         RED.nodes.createNode(this, config);
         node.name = config.name;
         node.devices = [];
         node.lirc = new lircManager();
 
-        this._updateStatusDevices = function(){
-            for (var key in node.devices){
-                var dev = node.devices[key];
-                if (dev.output == node.lirc.activeOutput && node.lirc.isReady){
+        this._updateStatusDevices = function () {
+            for (let key in node.devices) {
+                let dev = node.devices[key];
+                if (dev.output == node.lirc.activeOutput && node.lirc.isReady) {
                     dev.status({
                         fill: "green",
                         shape: "dot",
@@ -49,17 +50,17 @@ module.exports = function(RED) {
         node.lirc.on('ready', node._updateStatusDevices);
         node.lirc.on('notReady', node._updateStatusDevices);
 
-        this.registerDevice = function(deviceNode){
+        this.registerDevice = function (deviceNode) {
             node.devices.push(deviceNode);
         };
 
-        this.send = function(device, cmd, output, cb){
-            RED.comms.publish("debug", {name: node.name, msg: 'sending to lirc: irsend SEND_ONCE ' + device + ' ' + cmd});
+        this.send = function (device, cmd, output, cb) {
+            RED.comms.publish("debug", { name: node.name, msg: 'sending to lirc: irsend SEND_ONCE ' + device + ' ' + cmd });
             //node.log('sending to lirc: ' + device + '/' + cmd);
             node.lirc.send(device, cmd, output, cb);
         };
 
-        this.on("close", function() {
+        this.on("close", function () {
             node.log('disconnecting from lirc');
             node.lirc.end && node.lirc.end();
         });
@@ -74,7 +75,7 @@ module.exports = function(RED) {
      * =======================================
      */
     function InfraredOut(config) {
-        var node = this;
+        const node = this;
         RED.nodes.createNode(this, config);
         node.name = config.name;
         node.ctrl = RED.nodes.getNode(config.controller);
@@ -83,14 +84,16 @@ module.exports = function(RED) {
 
         node.ctrl && node.ctrl.registerDevice(node);
 
-        this.on("input", function(msg) {
-            RED.comms.publish("debug", {name: node.name, msg: 'lircout.onInput msg[' + util.inspect(msg) + ']'});
+
+
+        this.on("input", function (msg) {
+            RED.comms.publish("debug", { name: node.name, msg: 'lircout.onInput msg[' + util.inspect(msg) + ']' });
             //node.log('lircout.onInput msg[' + util.inspect(msg) + ']');
             if (!(msg && msg.hasOwnProperty('payload'))) return;
-            var payload = msg.payload;
-            if (typeof(msg.payload) === "object") {
+            let payload = msg.payload;
+            if (typeof (msg.payload) === "object") {
                 payload = msg.payload;
-            } else if (typeof(msg.payload) === "string") {
+            } else if (typeof (msg.payload) === "string") {
                 try {
                     payload = JSON.parse(msg.payload);
                 } catch (e) {
@@ -102,17 +105,17 @@ module.exports = function(RED) {
                 return;
             }
 
-            node.ctrl.send(node.device, payload, node.output, function(err) {
+            node.ctrl.send(node.device, payload, node.output, function (err) {
                 if (err) {
                     node.error(node.name + ': send error: ' + err);
                 }
-                if (typeof(msg.cb) === 'function')
+                if (typeof (msg.cb) === 'function')
                     msg.cb(err);
             });
 
         });
-        this.on("close", function() {
-            node.log('lircOut [' + node.name +'] close');
+        this.on("close", function () {
+            node.log('lircOut [' + node.name + '] close');
         });
 
         node.status({
@@ -123,4 +126,33 @@ module.exports = function(RED) {
     }
 
     RED.nodes.registerType("NICP-Infrared Out", InfraredOut);
+    
+    RED.httpAdmin.get("/available-device-list", RED.auth.needsPermission("NICP-Infrared Out.read"), function (req, res) {
+        // 印出目前有哪些裝置的訊號檔
+        const child = exec("irsend list \"\" \"\"", function (error, stdout, stderr) {
+            res.json(stdout);
+        });
+    });
+
+    RED.httpAdmin.get("/device/command/:name", RED.auth.needsPermission("NICP-Infrared Out.read"), function (req, res) {
+        const child = exec(`irsend list ${req.params.name} \"\"`, function (error, stdout, stderr) {
+            res.json(stdout);
+        });
+    });
+
+    RED.httpAdmin.get("/static/js/*", function (req, res) {
+        // 在mac上跑會印出：/Users/xanxus/.node-red/nodes/node-red-contrib-FCF-ChatBot/NICP/lib/
+        var options = {
+            root: __dirname + "/lib/",
+            dotfiles: "deny"
+        };
+        /* 當html那裡像下面這樣寫
+        <script type="text/javascript" src="geofence/js/underscore-min.js"></script>
+        src="geofence/js/underscore-min.js" 就是在請求這個服務，而這個服務的端點長這樣"/geofence/js/*"，underscore-min.js被當作端點的變數傳進來
+        故req.params[0]會印出：underscore-min.js
+        這樣的做法是參考：https://bit.ly/2PWoedZ
+        */
+        res.sendFile(req.params[0], options);
+    });
+
 };

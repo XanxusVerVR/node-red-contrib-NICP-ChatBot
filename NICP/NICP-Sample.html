@@ -42,20 +42,12 @@
         oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
         },
         oneditcancel: function () {//當使用者在Edit dialog按下Cancel要做的事
-            let o = 0;
-            console.log(`oneditcancel ${o++}`);
         },
         oneditdelete: function () {
-            let u = 0;
-            console.log(`oneditdelete ${u++}`);//當使用者把節點從面板中刪除時，要做的事
         },
         onpaletteadd: function () {//此節點只要存在於palette(就是左邊直的那排，還沒拉出來)就會做的事，還沒拉出來也會觸發，重新整理也會觸發
-            let i = 0;
-            console.log(`onpaletteadd ${i++}`);
         },
         onpaletteremove: function () {// 沒試過，但應該是從palette移除就會觸發
-            let y = 0;
-            console.log(`onpaletteremove ${y++}`);
         }
     });
 
