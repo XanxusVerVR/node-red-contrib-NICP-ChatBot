@@ -1,0 +1,80 @@
+<script type="text/x-red" data-template-name="lirc-controller">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-template-name="lirc-out">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-controller"><i class="icon-bookmark"></i> Controller</label>
+        <input type="text" id="node-input-controller">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="icon-bookmark"></i> Device name</label>
+        <input type="text" id="node-input-device" placeholder="philips">
+    </div>
+    <div class="form-row">
+        <label for="node-input-output"><i class="icon-bookmark"></i> Output</label>
+        <input type="text" id="node-input-output" placeholder="1">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="lirc-out">
+    <p>
+        Use this to <b>send</b> commands via an lirc daemon connected to a Lirc device.<br/>
+    	<b>msg.payload</b> must be contain the name of the command
+    </p>
+    <p>
+        For example: <code>KEY_POWER</code>
+    </p>
+    <br/>
+    <p>
+        For example, let configs be:
+        <ul>
+        	<li><code>Name</code> is <code>TV</code> - the name of the node</li>
+        	<li><code>Device name</code> is <code>philips</code> - the device name in the file lircd.conf</li>
+        	<li><code>Output</code> is <code>1</code> - the number of the transmitter for lirc - may be not supported</li>
+        </ul>
+    </p>
+</script>
+
+<script type="text/x-red" data-help-name="lirc-in">
+    <p>Use this to <b>inject</b> flows from Lirc device<br/>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('lirc-controller', {
+        category: 'config',
+        defaults: {
+            name: {value: ""}
+        },
+        label: function () {
+            return (this.name || 'lirc-controller' );
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('lirc-out', {
+        category: 'output',
+        color: '#26b050',
+        defaults: {
+            name: {value: ""},
+            controller: {value: "", type: "lirc-controller"},
+            device: {value: "", required: true},
+            output: {value: "", required: true, validate: RED.validators.number()}
+        },
+        inputs: 1,
+        outputs: 0,
+        align: 'right',
+        icon: "bridge-dash.png",
+        label: function () {
+            return (this.name || this.device || "lirc");
+        }
+    });
+</script>

@@ -16,8 +16,8 @@ RUN mkdir -p /usr/src/node-red \
 # 建置NICP專案
 COPY ./NICP/ /data/nodes/node-red-contrib-FCF-ChatBot
 RUN cd /data/nodes/node-red-contrib-FCF-ChatBot \
-    && npm uninstall eddystone-beacon \
-    && rm -rf NICP-Beacon.html NICP-Beacon.js \
+    && npm uninstall eddystone-beacon lirc_node \
+    && rm -rf NICP-Beacon.html NICP-Beacon.js lirc.html lirc.js \
     && npm install \
     && mkdir -p /data/projects \
     && cd /data/projects \

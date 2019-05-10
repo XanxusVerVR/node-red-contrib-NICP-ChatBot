@@ -29,8 +29,7 @@
         "node-red-node-base64": "*",
         "node-red-node-suncalc": "*",
         "node-red-node-random": "*",
-        "node-red-contrib-bool-gate": "^1.0.2",
-        "node-red-contrib-lirc": "^0.4.1"
+        "node-red-contrib-bool-gate": "^1.0.2"
     },
     "engines": {
         "node": "8.*.*"

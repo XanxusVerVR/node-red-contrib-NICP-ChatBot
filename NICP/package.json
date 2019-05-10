@@ -98,7 +98,8 @@
         "speakeasy-nlp": "^0.2.2",
         "stompjs": "^2.3.3",
         "underscore": "^1.9.1",
-        "underscore.string": "^3.3.4"
+        "underscore.string": "^3.3.4",
+        "lirc_node": "0.0.1"
     },
     "devDependencies": {
         "chai": "^3.5.0",
