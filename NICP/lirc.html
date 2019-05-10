@@ -71,10 +71,17 @@
         },
         inputs: 1,
         outputs: 0,
+        paletteLabel: "Infrared Out",
         align: 'right',
         icon: "bridge-dash.png",
         label: function () {
-            return (this.name || this.device || "lirc");
+            let labelName = "Infrared Out";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         }
     });
 </script>
