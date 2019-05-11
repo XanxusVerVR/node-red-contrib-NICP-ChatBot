@@ -126,7 +126,7 @@ module.exports = function (RED) {
     }
 
     RED.nodes.registerType("NICP-Infrared Out", InfraredOut);
-    
+
     RED.httpAdmin.get("/available-device-list", RED.auth.needsPermission("NICP-Infrared Out.read"), function (req, res) {
         // 印出目前有哪些裝置的訊號檔
         const child = exec("irsend list \"\" \"\"", function (error, stdout, stderr) {
@@ -139,20 +139,4 @@ module.exports = function (RED) {
             res.json(stdout);
         });
     });
-
-    RED.httpAdmin.get("/static/js/*", function (req, res) {
-        // 在mac上跑會印出：/Users/xanxus/.node-red/nodes/node-red-contrib-FCF-ChatBot/NICP/lib/
-        var options = {
-            root: __dirname + "/lib/",
-            dotfiles: "deny"
-        };
-        /* 當html那裡像下面這樣寫
-        <script type="text/javascript" src="geofence/js/underscore-min.js"></script>
-        src="geofence/js/underscore-min.js" 就是在請求這個服務，而這個服務的端點長這樣"/geofence/js/*"，underscore-min.js被當作端點的變數傳進來
-        故req.params[0]會印出：underscore-min.js
-        這樣的做法是參考：https://bit.ly/2PWoedZ
-        */
-        res.sendFile(req.params[0], options);
-    });
-
 };
