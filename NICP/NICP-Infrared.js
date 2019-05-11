@@ -151,10 +151,21 @@ module.exports = function (RED) {
         });
     });
 
+
     // 提供此裝置的訊號檔有哪些訊號
     RED.httpAdmin.get("/device/command/:name", RED.auth.needsPermission("NICP-Infrared Out.read"), function (req, res) {
         const child = exec(`irsend list ${req.params.name} \"\"`, function (error, stdout, stderr) {
             res.json(stdout);
         });
     });
+
+    // 提供外部函式庫
+    RED.httpAdmin.get("/static/js/*", function (req, res) {
+        var options = {
+            root: __dirname + "/lib/",
+            dotfiles: "deny"
+        };
+        res.sendFile(req.params[0], options);
+    });
+
 };
