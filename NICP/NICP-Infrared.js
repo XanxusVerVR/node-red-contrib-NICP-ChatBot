@@ -68,6 +68,23 @@ module.exports = function (RED) {
 
     RED.nodes.registerType("lirc-controller", LIRCControllerNode);
 
+    // ======================= NICP-Infrared In Node by Xanxus =======================
+    // ======================= NICP-Infrared In Node by Xanxus =======================
+    // ======================= NICP-Infrared In Node by Xanxus =======================
+    // ======================= NICP-Infrared In Node by Xanxus =======================
+    function InfraredIn(config) {
+
+        RED.nodes.createNode(this, config);
+
+        const node = this;
+
+        const inputCallback = function (msg) {
+        };
+        node.on("input", inputCallback);
+
+    }
+    RED.nodes.registerType("NICP-Infrared In", InfraredIn);
+
     /**
      * ====== NICP-Infrared Out(Lirc-out) =======================
      * Sends outgoing Global Cache device from
@@ -129,7 +146,6 @@ module.exports = function (RED) {
 
     //  提供目前有哪些裝置的訊號檔
     RED.httpAdmin.get("/available-device-list", RED.auth.needsPermission("NICP-Infrared Out.read"), function (req, res) {
-
         const child = exec("irsend list \"\" \"\"", function (error, stdout, stderr) {
             res.json(stdout);
         });

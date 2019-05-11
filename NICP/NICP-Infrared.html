@@ -1,3 +1,16 @@
+<!-- Infrared Config Node -->
+<script type="text/javascript">
+    RED.nodes.registerType('lirc-controller', {
+        category: 'config',
+        defaults: {
+            name: { value: "" }
+        },
+        label: function () {
+            return (this.name || 'lirc-controller');
+        }
+    });
+</script>
+
 <script type="text/x-red" data-template-name="lirc-controller">
     <div class="form-row">
         <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
@@ -5,6 +18,60 @@
     </div>
 </script>
 
+<script type="text/x-red" data-help-name="lirc-controller">
+</script>
+
+<!-- Infrared In Node -->
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-Infrared In", {
+        category: "NICP",
+        color: "#DC143C",
+        defaults: {
+            name: {
+                value: "",
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "debug.png",
+        paletteLabel: "Infrared In",
+        label: function () {
+            let labelName = "Infrared In";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
+        },
+        oneditprepare: function () { //當使用者打開此節點的Edit dialog畫面時要做的事
+        },
+        oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
+        },
+        oneditcancel: function () {//當使用者在Edit dialog按下Cancel要做的事
+        },
+        oneditdelete: function () {
+        },
+        onpaletteadd: function () {//此節點只要存在於palette(就是左邊直的那排，還沒拉出來)就會做的事，還沒拉出來也會觸發，重新整理也會觸發
+        },
+        onpaletteremove: function () {// 沒試過，但應該是從palette移除就會觸發
+        }
+    });
+
+</script>
+
+<script type="text/x-red" data-template-name="NICP-Infrared In">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="NICP-Infrared In">
+</script>
+
+<!-- Infrared Out Node -->
 <script type="text/x-red" data-template-name="NICP-Infrared Out">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -50,22 +117,6 @@
         	<li><code>Output</code> is <code>1</code> - the number of the transmitter for lirc - may be not supported</li>
         </ul>
     </p>
-</script>
-
-<script type="text/x-red" data-help-name="lirc-in">
-    <p>Use this to <b>inject</b> flows from Lirc device<br/>
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('lirc-controller', {
-        category: 'config',
-        defaults: {
-            name: { value: "" }
-        },
-        label: function () {
-            return (this.name || 'lirc-controller');
-        }
-    });
 </script>
 
 <script type="text/javascript">
