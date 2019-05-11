@@ -5,6 +5,8 @@
 const util = require('util');
 const lircManager = require('./lib/lircmanager').LircManager;
 const exec = require("child_process").exec;
+const lirc_node = require("lircv0.9.4_node");
+lirc_node.init();
 
 module.exports = function (RED) {
 
@@ -68,10 +70,13 @@ module.exports = function (RED) {
 
     RED.nodes.registerType("lirc-controller", LIRCControllerNode);
 
-    // ======================= NICP-Infrared In Node by Xanxus =======================
-    // ======================= NICP-Infrared In Node by Xanxus =======================
-    // ======================= NICP-Infrared In Node by Xanxus =======================
-    // ======================= NICP-Infrared In Node by Xanxus =======================
+
+    /*
+    =============== NICP-Infrared In Node by Xanxus ===============
+    =============== NICP-Infrared In Node by Xanxus ===============
+    =============== NICP-Infrared In Node by Xanxus ===============
+    =============== NICP-Infrared In Node by Xanxus ===============
+    */
     function InfraredIn(config) {
 
         RED.nodes.createNode(this, config);
