@@ -1,6 +1,3 @@
-<head>
-    <script type="text/javascript" src="static/js/underscore-min.js"></script>
-</head>
 <script type="text/x-red" data-template-name="lirc-controller">
     <div class="form-row">
         <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
@@ -19,13 +16,14 @@
     </div>
     <!-- 可用的裝置檔下拉選單 -->
     <div class="form-row">
-        <label for="node-input-device"><i class="icon-bookmark"></i> Available Device List </label>
+        <label for="node-input-device" style="width:100%;"><i class="icon-bookmark"></i> Available Device List </label>
         <select id="node-input-device">
         </select>
     </div>
     <!-- Command List清單 -->
     <div class="form-row">
-        <label for="commandList"><i class="fa fa-list-ol"></i> <span>Command List</span></label>
+        <!-- border-bottom:1px solid #eee; 會在這元素底下設置一個分隔線。solid是實線、寬度1px、#eee是偏灰色的 -->
+        <label for="commandList" style="width:100%; border-bottom:1px solid #eee;"><i class="fa fa-list-ol"></i> <span>Command List</span></label>
         <ol id="commandList">
         </ol>
     </div>

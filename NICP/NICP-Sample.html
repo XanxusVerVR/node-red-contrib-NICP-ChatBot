@@ -1,6 +1,3 @@
-<head>
-    <script type="text/javascript" src="static/js/underscore-min.js"></script>
-</head>
 <script type="text/javascript">
     RED.nodes.registerType("FCF-Sample", {
         category: "input",
@@ -41,7 +38,6 @@
             }
         },
         oneditprepare: function () { //當使用者打開此節點的Edit dialog畫面時要做的事
-            console.log(!_.isEmpty("123"));
         },
         oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
         },

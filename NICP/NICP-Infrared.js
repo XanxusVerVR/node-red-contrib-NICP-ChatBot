@@ -127,13 +127,15 @@ module.exports = function (RED) {
 
     RED.nodes.registerType("NICP-Infrared Out", InfraredOut);
 
+    //  提供目前有哪些裝置的訊號檔
     RED.httpAdmin.get("/available-device-list", RED.auth.needsPermission("NICP-Infrared Out.read"), function (req, res) {
-        // 印出目前有哪些裝置的訊號檔
+
         const child = exec("irsend list \"\" \"\"", function (error, stdout, stderr) {
             res.json(stdout);
         });
     });
 
+    // 提供此裝置的訊號檔有哪些訊號
     RED.httpAdmin.get("/device/command/:name", RED.auth.needsPermission("NICP-Infrared Out.read"), function (req, res) {
         const child = exec(`irsend list ${req.params.name} \"\"`, function (error, stdout, stderr) {
             res.json(stdout);
