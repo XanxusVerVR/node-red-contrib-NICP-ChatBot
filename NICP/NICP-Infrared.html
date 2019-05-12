@@ -32,6 +32,12 @@
         defaults: {
             name: {
                 value: "",
+            },
+            listenDevice: {
+                value: "",
+            },
+            listenCommand: {
+                value: "",
             }
         },
         inputs: 0,
@@ -49,37 +55,66 @@
         },
         oneditprepare: function () { //當使用者打開此節點的Edit dialog畫面時要做的事
             const node = this;
-
             $.getJSON("available-device-list", function (data) {
 
+                // 過濾裝置資料，如要去除空白的
                 let availableDeviceList = filterArray(data.split("\n"));
 
                 //定義已存在的可用裝置的下拉選單
                 for (let i = 0; i < availableDeviceList.length; i++) {
-                    $("#node-input-device").append($("<option></option>").val(availableDeviceList[i]).text(availableDeviceList[i]));
+                    $("#node-input-listenDevice").append($("<option></option>").val(availableDeviceList[i]).text(availableDeviceList[i]));
                 }
 
                 // 當這下拉選單更換時觸發
-                $("#node-input-device").change(function () {
+                $("#node-input-listenDevice").change(function () {
                     const deviceName = $(this).val();
-                    $("#commandList li").remove();
+                    // 當每次一更換裝置，就要把上次的清空，不然會一直累積
+                    $("#node-input-listenCommand option").remove();
+                    // 取得這個裝置底下有的指令
                     $.getJSON(`device/command/${deviceName}`, function (commandList) {
+                        // 過濾指令資料，如要去除空白的
                         let newCommandList = filterArray(commandList.split("\n"));
+                        // 將每個指令取出來，並放到指令的select option裡面
                         for (let i = 0; i < newCommandList.length; i++) {
                             let blankIndex = newCommandList[i].indexOf(" ");
                             let command = newCommandList[i].substring(blankIndex + 1);
-                            let liTag = $("<li/>", {
+                            // 製作option
+                            let selectCommandOption = $("<option/>", {
+                                "val": command,
                                 "text": command
                             });
-                            $(liTag).appendTo("#commandList");
+                            // 將做好的option加到#node-input-listenCommand這個select底下
+                            $(selectCommandOption).appendTo("#node-input-listenCommand");
+                        }
+                        // 如果上次有設置了某節點資料，則找到他，並把option設為上次選中的那筆資料
+                        if (node.listenCommand) {
+                            $("#node-input-listenCommand option").each(function () {
+                                if ($(this).val() == node.listenCommand) {
+                                    $(this).prop("selected", true);
+                                }
+                            });
                         }
                     })
                 });
-                // 因一開始資料還沒回來，所以這時呼叫會沒東西，故先拿掉
-                $("#node-input-device").change();// 先呼叫一次，這樣第一次打開才會有效果，不然還要手動再選一次才有效果
+                // 如果上次有設置了某節點資料，則找到他，並把option設為上次選中的那筆資料
+                if (node.listenDevice) {
+                    $("#node-input-listenDevice option").each(function () {
+                        if ($(this).val() == node.listenDevice) {
+                            $(this).prop("selected", true);
+                        }
+                    });
+                }
+                // 先呼叫一次，這樣第一次打開才會有效果，不然還要手動再選一次才有效果
+                $("#node-input-listenDevice").change();
             });
         },
         oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
+            const node = this;
+            const selectedDeviceVal = $("#node-input-listenDevice").children("option:selected").val();
+            node.listenDevice = selectedDeviceVal;
+
+            const selectedCommandVal = $("#node-input-listenCommand").children("option:selected").val();
+            node.listenCommand = selectedCommandVal;
         },
         oneditcancel: function () {//當使用者在Edit dialog按下Cancel要做的事
         },
@@ -101,16 +136,15 @@
     </div>
     <!-- 可用的裝置檔下拉選單 -->
     <div class="form-row">
-        <label for="node-input-device" style="width:100%;"><i class="icon-bookmark"></i> Available Device List </label>
-        <select id="node-input-device">
+        <label for="node-input-listenDevice" style="width:100%;"><i class="icon-bookmark"></i> Set Listen Device </label>
+        <select id="node-input-listenDevice">
         </select>
     </div>
-    <!-- Command List清單 -->
+    <!-- 設置要監聽的訊號指令 -->
     <div class="form-row">
-        <!-- border-bottom:1px solid #eee; 會在這元素底下設置一個分隔線。solid是實線、寬度1px、#eee是偏灰色的 -->
-        <label for="commandList" style="width:100%; border-bottom:1px solid #eee;"><i class="fa fa-list-ol"></i> <span>Command List</span></label>
-        <ol id="commandList">
-        </ol>
+        <label for="node-input-listenCommand" style="width:100%;"><i class="icon-bookmark"></i> Set Listen Command </label>
+        <select id="node-input-listenCommand">
+        </select>
     </div>
 </script>
 

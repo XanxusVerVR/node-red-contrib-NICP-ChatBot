@@ -2,10 +2,11 @@
  * Created by aborovsky on 27.08.2015.
  */
 
+const _ = require("underscore");
 const util = require('util');
 const lircManager = require('./lib/lircmanager').LircManager;
 const exec = require("child_process").exec;
-const lirc_node = require("lircv0.9.4_node");
+const lirc_node = require("./lib/lircv0.9.4_node/lirc_node");
 lirc_node.init();
 
 module.exports = function (RED) {
@@ -81,12 +82,38 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
+        this.listenDevice = config.listenDevice;
+        this.listenCommand = config.listenCommand;
+
         const node = this;
 
-        const inputCallback = function (msg) {
-        };
-        node.on("input", inputCallback);
+        let listenerId;
+        if (!_.isEmpty(node.listenCommand) && !_.isEmpty(node.listenDevice)) {//如果不是空，就監聽
+            console.log(`監聽的裝置是：${node.listenDevice}，監聽的指令是：${node.listenCommand}`);
+            listenerId = lirc_node.addListener(node.listenCommand, node.listenDevice, function (data) {
+                console.log(`Received IR keypress ${data.key} from remote ${data.remote}`);
+                const msg = {
+                    payload: {
+                        irDevice: data.remote,
+                        irCommand: data.key
+                    }
+                };
+                node.send(msg);
+            }, 0);
+        }
+        else {
+            console.log("監聽的裝置與指令不存在！");
+        }
 
+        node.on("close", function (removed, done) {
+            try {
+                lirc_node.removeListener(listenerId);
+                console.log("移除KEY_POWER這個監聽器了");
+            } catch (error) {
+                console.log("發生錯誤node.on close");
+            }
+            done();
+        });
     }
     RED.nodes.registerType("NICP-Infrared In", InfraredIn);
 
