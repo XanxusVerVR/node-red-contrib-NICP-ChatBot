@@ -53,5 +53,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType("NICP-BooleanGate", andGateNode);
+    RED.nodes.registerType("NICP-ConditionalTrigger", andGateNode);
 }

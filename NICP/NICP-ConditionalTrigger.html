@@ -1,4 +1,4 @@
-<script type="text/x-red" data-template-name="NICP-BooleanGate">
+<script type="text/x-red" data-template-name="NICP-ConditionalTrigger">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
@@ -36,7 +36,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="NICP-BooleanGate">
+<script type="text/x-red" data-help-name="NICP-ConditionalTrigger">
     <p>A node to perform AND and NAND gate, according to predefined rules.</p>
 
     <h3>Inputs</h3>
@@ -100,7 +100,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-BooleanGate", {
+    RED.nodes.registerType("NICP-ConditionalTrigger", {
         color: "#be77ff",
         category: "NICP",
         defaults: {
@@ -130,14 +130,21 @@
                 value: false
             },
         },
-        paletteLabel: "Boolean Gate",
+        paletteLabel: "Conditional Trigger",
         inputs: 1,
         inputLabels: "Msg to evaluate / trigger",
         outputs: 1,
         outputLabels: "Result of the AND condition",
         icon: "switch.png",
         label: function () {
-            return this.name || this.gateType + " gate";
+            // return this.name || this.gateType + " gate";
+            let labelName = "Conditional Trigger";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
         },
         oneditprepare: function () {
             // this.type是這個節點的類型，如：lower-case。為字串
