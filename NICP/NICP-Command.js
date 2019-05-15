@@ -89,7 +89,7 @@ module.exports = function (RED) {
         //此函式會隨機抓一個訊息回傳
         this.pickOne = function (messages) {
             let luck = Math.floor(Math.random() * messages.length);
-            return _.isString(messages[luck].template) ? messages[luck].template : messages[luck].message;//這裡很像定會是true
+            return _.isString(messages[luck].template) ? messages[luck].template : messages[luck].message;//這裡很像一定會是true
         };
 
         this.emptyMessages = function (messages) {
