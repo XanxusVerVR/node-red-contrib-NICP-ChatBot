@@ -190,32 +190,32 @@
                         });
                     }
                     let updateData = function _updateData(id) {
-                        if (!id) {
-                            id = $("#node-input-nodeContextConfigDats").children("option:selected").val();
-                        }
-                        $("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
-                        //找出被選中的資料，並取出來然後跟著跟新到畫面上
-                        for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
-                            // 如果找到了id 一樣 就做更新
-                            if (theNodeConfigDatasArray[i].id == id) {
-                                // 開始更新啦
-                                $("#node-input-name").val(theNodeConfigDatasArray[i].name);
-                                $("#node-input-outputTopic").val(theNodeConfigDatasArray[i].outputTopic);
-                                $("#node-input-gateType option").each(function () {
-                                    if ($(this).val() == theNodeConfigDatasArray[i].gateType) {
-                                        $(this).prop("selected", true);
+                        // 如果id存在，表示使用者現在是有選擇某個Context File的Node設定資料，那就要做更新的動作
+                        if (id) {
+                            $("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
+                            //找出被選中的資料，並取出來然後跟著跟新到畫面上
+                            for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
+                                // 如果找到了id 一樣 就做更新
+                                if (theNodeConfigDatasArray[i].id == id) {
+                                    // 開始更新啦
+                                    $("#node-input-name").val(theNodeConfigDatasArray[i].name);
+                                    $("#node-input-outputTopic").val(theNodeConfigDatasArray[i].outputTopic);
+                                    $("#node-input-gateType option").each(function () {
+                                        if ($(this).val() == theNodeConfigDatasArray[i].gateType) {
+                                            $(this).prop("selected", true);
+                                        }
+                                    });
+                                    $("#node-input-emitOnlyIfTrue").prop("checked", theNodeConfigDatasArray[i].emitOnlyIfTrue);
+                                    for (let j = 0; j < theNodeConfigDatasArray[i].rules.length; j++) {
+                                        let _data = theNodeConfigDatasArray[i].rules[j];
+                                        $("#node-input-rule-container").editableList("addItem", _data);
                                     }
-                                });
-                                $("#node-input-emitOnlyIfTrue").prop("checked", theNodeConfigDatasArray[i].emitOnlyIfTrue);
-                                for (let j = 0; j < theNodeConfigDatasArray[i].rules.length; j++) {
-                                    let _data = theNodeConfigDatasArray[i].rules[j];
-                                    $("#node-input-rule-container").editableList("addItem", _data);
+                                    // 將元素停用，不要讓使用者輸入，因為他選擇了要用Context的，就不該讓他再改Context節點的資料了
+                                    $("#node-input-name").prop("disabled", true);
+                                    $("#node-input-outputTopic").prop("disabled", true);
+                                    $("#node-input-gateType").prop("disabled", true);
+                                    $("#node-input-emitOnlyIfTrue").prop("disabled", true);
                                 }
-                                // 將元素停用，不要讓使用者輸入，因為他選擇了要用Context的，就不該讓他再改Context節點的資料了
-                                $("#node-input-name").prop("disabled", true);
-                                $("#node-input-outputTopic").prop("disabled", true);
-                                $("#node-input-gateType").prop("disabled", true);
-                                $("#node-input-emitOnlyIfTrue").prop("disabled", true);
                             }
                         }
                     }
@@ -229,7 +229,9 @@
                             $("#node-input-gateType").prop("disabled", false);
                             $("#node-input-emitOnlyIfTrue").prop("disabled", false);
                         }
-                        updateData(id);
+                        else {
+                            updateData(id);
+                        }
                     });
                     updateData();
                 }).fail(function (problem) {
@@ -324,19 +326,12 @@
                     let caseSensitive = $("<input/>", { class: "node-input-rule-case", type: "checkbox", style: "margin-left:5px;width:auto;" }).appendTo(valueRow);
                     let formCaseLabel = $("<label/>", { class: "node-input-rule-case-label", for: "node-input-rule-case", style: "margin-left: 3px;" }).text(caseLabel).appendTo(valueRow);
 
-                    // 本來是要做當有選到Context File的節點資料，那item裡的表單也要禁用，但貌似
-                    $("#node-input-nodeContextConfigDats option").each(function () {
-                        if ($(this).val() != "--") {
-                            // 要這樣寫才有作用，取得那個item的container的class元素，然後再把他底下的所有input都禁用，就有效果了！原本是各別設定沒作用
-                            $(".node-input-rule-container-row input").prop("disabled", false);
-                            selectField.prop("disabled", false);
-                        }
-                        // 當使用者沒有選到某個Context File中的節點的時候，就要把那些input表單啟用，回到原本的模式
-                        else {
-                            $(".node-input-rule-container-row input").prop("disabled", false);
-                            selectField.prop("disabled", false);
-                        }
-                    });
+                    // 如果是選到--，表示使用者要自己定義，那元素就要打開，不要禁用，故disabled屬性要設false來給他禁用
+                    if ($("#node-input-nodeContextConfigDats").children("option:selected").val() === "--") {
+                        $(".node-input-rule-container-row input").prop("disabled", false);
+                        selectField.prop("disabled", false);
+                    }
+
                     selectField.change(function () {
                         resizeRule(container);
                         let selected = selectField.val() || "eq";
