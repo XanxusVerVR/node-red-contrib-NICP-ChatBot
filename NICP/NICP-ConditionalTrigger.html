@@ -1,9 +1,11 @@
 <script type="text/x-red" data-template-name="NICP-ConditionalTrigger">
     <div class="form-row">
+        <!-- 給輸入此節點的識別名稱 -->
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
     <div class="form-row">
+        <!-- 給輸入此節點輸出的主題 -->
         <label for="node-input-outputTopic"><i class="fa fa-tasks"></i> Topic</label>
         <input type="text" id="node-input-outputTopic" placeholder="Topic" />
     </div>
@@ -15,6 +17,7 @@
         </select>
     </div>
     <div class="form-row">
+        <!-- 提供選擇這節點是要and還or -->
         <label for="node-input-gateType"><i class="fa fa-cog"></i> Type</label>
         <select id="node-input-gateType" name="node-input-gateType">
             <option value="and">AND</option>
@@ -26,10 +29,11 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-emitOnlyIfTrue"><i class="fa fa-times"></i> True restriction</label>
-        <input type="checkbox" id="node-input-emitOnlyIfTrue" />
+        <!-- 那個True restriction勾選單 -->
+        <label for="node-input-emitOnlyIfTrue" style="width:25%;"><i class="fa fa-times"></i> True restriction</label>
+        <input type="checkbox" id="node-input-emitOnlyIfTrue" style="width:15%;"/>
     </div>
-
+        <!-- item表單 -->
     <label for="node-input-rule-container"><i class="fa fa-cogs"></i> Rules</label>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
@@ -112,8 +116,8 @@
                     topic: "",
                     property: "payload",
                     propertyType: "msg",
-                    t: "eq",
-                    v: ""
+                    t: "eq", // 運算子
+                    v: "" // 值
                 }]
             },
             configDataId: {
@@ -137,7 +141,6 @@
         outputLabels: "Result of the AND condition",
         icon: "switch.png",
         label: function () {
-            // return this.name || this.gateType + " gate";
             let labelName = "Conditional Trigger";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
@@ -150,9 +153,19 @@
             // this.type是這個節點的類型，如：lower-case。為字串
             let showContextList = function () {
                 $.when(
+                    // 取得這個類型的節點，此節點是NICP-ConditionalTrigger，那他就只會從Context File拿NICP-ConditionalTrigger類型的節點
                     $.getJSON(`context/flow/${this.z}`)
                 ).then((data1) => {
-                    let theNodeConfigDatasArray = JSON.parse(data1.xanxusContext[this.type].msg);
+                    let theNodeConfigDatasArray;
+                    // 檢查Context檔案系統中是否儲存這個類型的節點
+                    try {
+                        theNodeConfigDatasArray = JSON.parse(data1.xanxusContext[this.type].msg);
+                    } catch (TypeError) {
+                        console.log("抱歉，目前ContextFile中還沒有這個節點的資料唷！");
+                        console.log(TypeError);
+                        return;
+                    }
+
                     let node = this;
                     // 動態生成option
                     let nodeContextConfigDatsOption = [];
@@ -163,7 +176,8 @@
                         }
                         nodeContextConfigDatsOption.push(optionObject);
                     }
-                    $("#node-input-nodeContextConfigDats").append($("<option/>", { selected: true, disabled: "disabled", text: "--" }));
+
+                    $("#node-input-nodeContextConfigDats").append($("<option/>", { selected: true, text: "--", value: "--" }));
                     for (let i = 0; i < nodeContextConfigDatsOption.length; i++) {
                         $("#node-input-nodeContextConfigDats").append($("<option></option>").val(nodeContextConfigDatsOption[i].v).text(nodeContextConfigDatsOption[i].l));
                     }
@@ -175,30 +189,49 @@
                             }
                         });
                     }
-                    // let updateData = function _updateData(id) {
-                    //     if (!id) {
-                    //         id = $("#node-input-nodeContextConfigDats").children("option:selected").val();
-                    //     }
-                    //     $("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
-                    //     //找出被選中的資料
-                    //     for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
-                    //         if (theNodeConfigDatasArray[i].id == id) {
-                    //             node.name2 = theNodeConfigDatasArray[i].name2;
-                    //             node.datas = theNodeConfigDatasArray[i].datas;
-                    //         }
-                    //     }
-                    //     // 把context的值存進addItem DOM物件中
-                    //     $("#node-input-name2").val(node.name2);
-                    //     for (let i = 0; i < node.datas.length; i++) {
-                    //         let data = node.datas[i];
-                    //         $("#node-input-rule-container").editableList("addItem", data);
-                    //     }
-                    // }
-                    // $("#node-input-nodeContextConfigDats").change(function () {
-                    //     let id = $(this).val();
-                    //     updateData(id);
-                    // });
-                    // updateData();
+                    let updateData = function _updateData(id) {
+                        if (!id) {
+                            id = $("#node-input-nodeContextConfigDats").children("option:selected").val();
+                        }
+                        $("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
+                        //找出被選中的資料，並取出來然後跟著跟新到畫面上
+                        for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
+                            // 如果找到了id 一樣 就做更新
+                            if (theNodeConfigDatasArray[i].id == id) {
+                                // 開始更新啦
+                                $("#node-input-name").val(theNodeConfigDatasArray[i].name);
+                                $("#node-input-outputTopic").val(theNodeConfigDatasArray[i].outputTopic);
+                                $("#node-input-gateType option").each(function () {
+                                    if ($(this).val() == theNodeConfigDatasArray[i].gateType) {
+                                        $(this).prop("selected", true);
+                                    }
+                                });
+                                $("#node-input-emitOnlyIfTrue").prop("checked", theNodeConfigDatasArray[i].emitOnlyIfTrue);
+                                for (let j = 0; j < theNodeConfigDatasArray[i].rules.length; j++) {
+                                    let _data = theNodeConfigDatasArray[i].rules[j];
+                                    $("#node-input-rule-container").editableList("addItem", _data);
+                                }
+                                // 將元素停用，不要讓使用者輸入，因為他選擇了要用Context的，就不該讓他再改Context節點的資料了
+                                $("#node-input-name").prop("disabled", true);
+                                $("#node-input-outputTopic").prop("disabled", true);
+                                $("#node-input-gateType").prop("disabled", true);
+                                $("#node-input-emitOnlyIfTrue").prop("disabled", true);
+                            }
+                        }
+                    }
+                    // 當使用者一更換其他Context節點，就要找到使用者選的這個Context節點的id，為了之後找到這個id底下的節點的資料，以便做更新成Context節點的資料
+                    $("#node-input-nodeContextConfigDats").change(function () {
+                        const id = $(this).val();
+                        // 當他換回-- 那其他的要把它打開，開回來
+                        if (id == "--") {
+                            $("#node-input-name").prop("disabled", false);
+                            $("#node-input-outputTopic").prop("disabled", false);
+                            $("#node-input-gateType").prop("disabled", false);
+                            $("#node-input-emitOnlyIfTrue").prop("disabled", false);
+                        }
+                        updateData(id);
+                    });
+                    updateData();
                 }).fail(function (problem) {
                     console.log(problem);
                 });
@@ -291,6 +324,19 @@
                     let caseSensitive = $("<input/>", { class: "node-input-rule-case", type: "checkbox", style: "margin-left:5px;width:auto;" }).appendTo(valueRow);
                     let formCaseLabel = $("<label/>", { class: "node-input-rule-case-label", for: "node-input-rule-case", style: "margin-left: 3px;" }).text(caseLabel).appendTo(valueRow);
 
+                    // 本來是要做當有選到Context File的節點資料，那item裡的表單也要禁用，但貌似
+                    $("#node-input-nodeContextConfigDats option").each(function () {
+                        if ($(this).val() != "--") {
+                            // 要這樣寫才有作用，取得那個item的container的class元素，然後再把他底下的所有input都禁用，就有效果了！原本是各別設定沒作用
+                            $(".node-input-rule-container-row input").prop("disabled", false);
+                            selectField.prop("disabled", false);
+                        }
+                        // 當使用者沒有選到某個Context File中的節點的時候，就要把那些input表單啟用，回到原本的模式
+                        else {
+                            $(".node-input-rule-container-row input").prop("disabled", false);
+                            selectField.prop("disabled", false);
+                        }
+                    });
                     selectField.change(function () {
                         resizeRule(container);
                         let selected = selectField.val() || "eq";
@@ -359,7 +405,7 @@
                     topicField.typedInput("value", rule.topic);
                     if (rule.t == "btwn") {
                         btwnValueField.typedInput("value", rule.v);
-                        btwnValueField.typedInput("type", rule.vt || "num");
+                        btwnValueField.typedInput("type", rule.vt || "num");// 這的rule.vt的vt沒有在一開始的defaults那裡定義，但這裡還是會有作用，也會存到.js檔那裡
                         btwnValue2Field.typedInput("value", rule.v2);
                         btwnValue2Field.typedInput("type", rule.v2t || "num");
                     } else if (typeof rule.v != "undefined") {
@@ -419,6 +465,7 @@
                 }
                 node.rules.push(r);
             });
+            // 把現在選到的id存起來
             node.configDataId = $("#node-input-nodeContextConfigDats").children("option:selected").val();
         },
         oneditresize: function (size) {
