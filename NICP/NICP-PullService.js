@@ -6,22 +6,28 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         this.name = config.name || "My Pull Service Node";
-        this.URL = config.URL;
 
-        let node = this;
+        this.URL = config.URL;
+        this.method = config.method;
+
+        const node = this;
 
         this.on("input", function (msg) {
-            let headers = {
+            const headers = {
                 "Content-Type": "application/json;charset=utf-8"
             };
 
-            let options = {
+            const options = {
                 url: node.URL,
-                method: "POST",
+                method: node.method,
                 headers: headers,
                 followAllRedirects: true,
                 body: JSON.stringify(msg.frame)
             };
+
+            if (node.method === "get") {
+                delete options.body;
+            }
 
             request(options, function (error, response, body) {
                 try {
@@ -30,8 +36,15 @@ module.exports = function (RED) {
                     console.log("可能出現格式錯誤!");
                     console.log(error);
                 }
-                msg.result = body.result;
-                msg.payload = body.message;
+                // 如果是get，那就直接把整個回應body給payload
+                if (node.method === "get") {
+                    msg.payload = body;
+                }
+                // 如果是post，就用原本的設法
+                else {
+                    msg.result = body.result;
+                    msg.payload = body.message;
+                }
                 node.send(msg);
             });
 

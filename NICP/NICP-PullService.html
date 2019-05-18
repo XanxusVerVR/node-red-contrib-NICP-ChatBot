@@ -6,10 +6,8 @@
             name: {
                 value: ""
             },
-            rules: {
-                value: [{
-                    topic: ""
-                }]
+            method: {
+                value: "post"
             },
             URL: {
                 value: ""
@@ -39,6 +37,13 @@
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for=""><i class="icon-tag"></i> Method </label>
+        <select id="node-input-method">
+            <option value="post">POST</option>
+            <option value="get">GET</option>
+        </select>
     </div>
     <div class="form-row">
         <label for="node-input-URL"><i class="icon-tag"></i>Service URL</label>
