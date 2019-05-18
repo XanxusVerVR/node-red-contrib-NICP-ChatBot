@@ -191,7 +191,7 @@
                     }
                     let updateData = function _updateData(id) {
                         // 如果id存在，表示使用者現在是有選擇某個Context File的Node設定資料，那就要做更新的動作
-                        if (id) {
+                        if (id && id != "--") {
                             $("#node-input-rule-container").editableList("empty");//當使用者更換別的節點設置資料時，舊的要清空，不然item會一直累加
                             //找出被選中的資料，並取出來然後跟著跟新到畫面上
                             for (let i = 0; i < theNodeConfigDatasArray.length; i++) {
@@ -218,6 +218,10 @@
                                 }
                             }
                         }
+                        else{
+                            $(".node-input-rule-container-row input").prop("disabled", false);
+                            $(".node-input-rule-select").prop("disabled", false);
+                        }
                     }
                     // 當使用者一更換其他Context節點，就要找到使用者選的這個Context節點的id，為了之後找到這個id底下的節點的資料，以便做更新成Context節點的資料
                     $("#node-input-nodeContextConfigDats").change(function () {
@@ -228,6 +232,8 @@
                             $("#node-input-outputTopic").prop("disabled", false);
                             $("#node-input-gateType").prop("disabled", false);
                             $("#node-input-emitOnlyIfTrue").prop("disabled", false);
+                            $(".node-input-rule-container-row input").prop("disabled", false);
+                            $(".node-input-rule-select").prop("disabled", false);
                         }
                         else {
                             updateData(id);
@@ -313,7 +319,7 @@
 
                     let topicField = $("<input/>", { class: "node-input-rule-input-topic", type: "text", style: "margin-left: 5px;", placeholder: "input message topic" }).appendTo(topicRow).typedInput({ default: "str", types: ["str"] });
                     let propertyField = $("<input/>", { class: "node-input-rule-property", type: "text", style: "margin-left: 5px;" }).appendTo(propertyRow).typedInput({ default: rule.propertyType || "msg", types: ["msg", "flow", "global"] });
-                    let selectField = $("<select/>", { style: "width:120px; margin-left: 5px; text-align: center;" }).appendTo(propertyRow);
+                    let selectField = $("<select/>", { class:"node-input-rule-select", style: "width:120px; margin-left: 5px; text-align: center;" }).appendTo(propertyRow);
                     for (let d in operators) {
                         selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
                     }
@@ -330,6 +336,10 @@
                     if ($("#node-input-nodeContextConfigDats").children("option:selected").val() === "--") {
                         $(".node-input-rule-container-row input").prop("disabled", false);
                         selectField.prop("disabled", false);
+                    }
+                    else {
+                        $(".node-input-rule-container-row input").prop("disabled", true);
+                        selectField.prop("disabled", true);
                     }
 
                     selectField.change(function () {
