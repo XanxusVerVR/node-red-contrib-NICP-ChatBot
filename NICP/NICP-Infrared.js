@@ -144,9 +144,11 @@ module.exports = function (RED) {
             //node.log('lircout.onInput msg[' + util.inspect(msg) + ']');
             if (!(msg && msg.hasOwnProperty('payload'))) return;
             let payload = msg.payload;
+            // 當訊號是用Command節點設置輸出時，payload是物件，它底下會有個content，訊號會放在content，所以要拿content的字串
             if (typeof (msg.payload) === "object") {
-                payload = msg.payload;
+                payload = msg.payload.content;
             } else if (typeof (msg.payload) === "string") {
+                console.log(`是字串！！`);
                 try {
                     payload = JSON.parse(msg.payload);
                 } catch (e) {
