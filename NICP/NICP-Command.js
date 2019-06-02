@@ -109,9 +109,10 @@ module.exports = function (RED) {
             let botName = msg.payload.botName || "Default Bot Name";
 
             // check transport compatibility
-            if (!utils.matchTransport(node, msg)) {
-                return;
-            }
+            // 拿掉這個他就不會檢查前面是由哪個平台傳來的，這樣才可以即使不接平台也可以輸出訊息
+            // if (!utils.matchTransport(node, msg)) {
+            //     return;
+            // }
 
             if (_.isString(node.message) && !_.isEmpty(node.message)) {
                 message = node.message;
