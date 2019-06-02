@@ -82,6 +82,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
+        this.name = config.name || "Listen Infrared";
         this.listenDevice = config.listenDevice;
         this.listenCommand = config.listenCommand;
 
@@ -129,7 +130,7 @@ module.exports = function (RED) {
     function InfraredOut(config) {
         const node = this;
         RED.nodes.createNode(this, config);
-        node.name = config.name;
+        node.name = config.name || "Send Infrared";
         node.ctrl = RED.nodes.getNode(config.controller);
         node.device = config.device;
         node.output = config.output;
