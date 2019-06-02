@@ -148,7 +148,6 @@ module.exports = function (RED) {
             if (typeof (msg.payload) === "object") {
                 payload = msg.payload.content;
             } else if (typeof (msg.payload) === "string") {
-                console.log(`是字串！！`);
                 try {
                     payload = JSON.parse(msg.payload);
                 } catch (e) {

@@ -1,6 +1,6 @@
-<!-- Stomp Configuration Credential節點-->
+<!-- SockJS Configuration Credential節點-->
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Stomp Node", {
+    RED.nodes.registerType("NICP-SockJS Node", {
         category: "config",
         defaults: {
             name: {
@@ -15,12 +15,12 @@
         },
         //定義這個config形式的節點在別的節點的dialog所呈現的字串，和在右邊的config sidebar所呈現的字串
         label: function () {
-            return this.name || "NICP-Stomp Node";
+            return this.name || "NICP-SockJS Node";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="NICP-Stomp Node">
+<script type="text/x-red" data-template-name="NICP-SockJS Node">
     <!-- 節點的名稱 -->
     <div class="form-row">
         <label for="node-config-input-name" style="width:100%;"><i class="icon-bookmark"></i> Name</label>
@@ -32,12 +32,12 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="NICP-Stomp In">
+<script type="text/x-red" data-help-name="NICP-SockJS In">
 </script>
 
-<!-- Stomp In節點-->
+<!-- SockJS In節點-->
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Stomp In", {
+    RED.nodes.registerType("NICP-SockJS In", {
         category: "NICP",
         color: "#ebd6d6",
         defaults: {
@@ -46,7 +46,7 @@
             },
             sockJSConfigNode: {
                 value: "",
-                type: "NICP-Stomp Node",
+                type: "NICP-SockJS Node",
                 required: true
             },
             destination: {
@@ -56,9 +56,9 @@
         inputs: 0,
         outputs: 1,
         icon: "debug.png",
-        paletteLabel: "Stomp In",
+        paletteLabel: "SockJS In",
         label: function () {
-            let labelName = "Stomp In";
+            let labelName = "SockJS In";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -82,13 +82,13 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="NICP-Stomp In">
+<script type="text/x-red" data-template-name="NICP-SockJS In">
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <!-- Config節點的input，提供使用者看他要選哪個Config。-->
+    <!-- Credentials設置表單，要填寫SockJS的URL -->
 	<div class="form-row">
         <label for="node-input-sockJSConfigNode"><i class="icon-bookmark"></i>SockJS URL</label>
         <input type="text" id="node-input-sockJSConfigNode">
@@ -100,12 +100,12 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="NICP-Stomp In">
+<script type="text/x-red" data-help-name="NICP-SockJS In">
 </script>
 
-<!-- Stomp Out節點-->
+<!-- SockJS Out節點-->
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Stomp Out", {
+    RED.nodes.registerType("NICP-SockJS Out", {
         category: "NICP",
         color: "#ebd6d6",
         defaults: {
@@ -114,7 +114,7 @@
             },
             sockJSConfigNode: {
                 value: "",
-                type: "NICP-Stomp Node",
+                type: "NICP-SockJS Node",
                 required: true
             },
             destination: {
@@ -124,9 +124,9 @@
         inputs: 1,
         outputs: 0,
         icon: "debug.png",
-        paletteLabel: "Stomp Out",
+        paletteLabel: "SockJS Out",
         label: function () {
-            let labelName = "Stomp Out";
+            let labelName = "SockJS Out";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -150,13 +150,13 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="NICP-Stomp Out">
+<script type="text/x-red" data-template-name="NICP-SockJS Out">
     <!-- 節點名稱 -->
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <!-- Config節點的input，提供使用者看他要選哪個Config。-->
+    <!-- Credentials設置表單，要填寫SockJS的URL -->
 	<div class="form-row">
         <label for="node-input-sockJSConfigNode"><i class="icon-bookmark"></i>SockJS URL</label>
         <input type="text" id="node-input-sockJSConfigNode">
@@ -168,5 +168,5 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="NICP-Stomp Out">
+<script type="text/x-red" data-help-name="NICP-SockJS Out">
 </script>

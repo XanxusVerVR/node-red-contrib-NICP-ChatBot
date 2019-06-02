@@ -154,6 +154,8 @@
         並可設定訊息模板，假設input是msg物件，而msg物件有payload屬性，值為"Peter"
         則可以於訊息內容欄位這樣定義：<pre>您好{{payload}}</pre>將會輸出：<pre>您好Peter</pre>
         也可以於訊息中設置Context屬性：<pre>您好{{flow.name}}</pre>Context Global亦同：<pre>您好{{global.name}}</pre>
+        如果想取msg.a.b這個屬性，您不能這樣取：<pre>{{msg.a.b}}</pre>
+        而是該這樣取：<pre>{{a.b}}</pre>因為預設會直接將msg物件抓進來取了
     </p>
     <h3>Input:msg</h3>
     <dl class="message-properties">

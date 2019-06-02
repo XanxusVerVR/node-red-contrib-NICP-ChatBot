@@ -9,8 +9,8 @@ const white = clc.white;
 const red = clc.red;
 module.exports = function (RED) {
 
-    // Config節點
-    function StompNode(config) {
+    // SockJS Configuration Credential節點
+    function SockJSNode(config) {
         RED.nodes.createNode(this, config);
 
         this.sockjsUrl = this.credentials.sockjsUrl;
@@ -31,7 +31,7 @@ module.exports = function (RED) {
             return sock;
         };
     }
-    RED.nodes.registerType("NICP-Stomp Node", StompNode, {
+    RED.nodes.registerType("NICP-SockJS Node", SockJSNode, {
         credentials: {
             sockjsUrl: {
                 type: "text"
@@ -40,8 +40,8 @@ module.exports = function (RED) {
     });
 
 
-    // Stomp In節點
-    function StompIn(config) {
+    // SockJS In節點
+    function SockJSIn(config) {
 
         const setStatus = function _setStatus(fill, shape, text) {
             node.status({
@@ -53,7 +53,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name || "My StompIn Node";
+        this.name = config.name || "My SockJSIn Node";
         this.destination = config.destination;
         this.sockJSConfigNode = RED.nodes.getNode(config.sockJSConfigNode);//取得credentials物件
 
@@ -71,7 +71,7 @@ module.exports = function (RED) {
 
             const connectCallback = function (frame) {
                 setTimeout(function () {
-                    console.log(green("Stomp節點的ID: ") + white(node.id) + green(" Stomp已連線！"));
+                    console.log(green("SockJS節點的ID: ") + white(node.id) + green(" SockJS已連線！"));
                     try {
                         stompClient.subscribe(node.destination, subscribeCallback);
                     } catch (error) {
@@ -83,7 +83,7 @@ module.exports = function (RED) {
             };
             const errorCallback = function (error) {
                 setTimeout(function () {
-                    console.log(red("Stomp節點的ID: ") + white(node.id) + red(" Stomp連線錯誤！"));
+                    console.log(red("SockJS節點的ID: ") + white(node.id) + red(" SockJS連線錯誤！"));
                     console.log(error);
                     setStatus("red", "dot", "disconnect");
                 }, 1000);
@@ -96,16 +96,16 @@ module.exports = function (RED) {
 
         node.on("close", function (removed, done) {
             stompClient.disconnect(function () {
-                console.log(yellow("Stomp節點的ID: ") + white(node.id) + yellow(" Stomp連線關閉！"));
+                console.log(yellow("SockJS節點的ID: ") + white(node.id) + yellow(" SockJS連線關閉！"));
             });
             done();
         });
     }
-    RED.nodes.registerType("NICP-Stomp In", StompIn);
+    RED.nodes.registerType("NICP-SockJS In", SockJSIn);
 
 
-    // Stomp Out節點
-    function StompOut(config) {
+    // SockJS Out節點
+    function SockJSOut(config) {
 
         const setStatus = function _setStatus(fill, shape, text) {
             node.status({
@@ -117,9 +117,9 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name || "My StompOut Node";
+        this.name = config.name || "My SockJSOut Node";
         this.destination = config.destination;
-        this.sockJSConfigNode = RED.nodes.getNode(config.sockJSConfigNode);//取得Stomp Configuration Credential節點的物件
+        this.sockJSConfigNode = RED.nodes.getNode(config.sockJSConfigNode);//取得SockJS Configuration Credential節點的物件
 
         const node = this;
 
@@ -130,11 +130,11 @@ module.exports = function (RED) {
             stompClient = Stomp.over(node.sockJSConfigNode.getSockJSInstance());
 
             const connectCallback = function (frame) {
-                console.log(green("Stomp節點的ID: ") + white(node.id) + green(" Stomp已連線！"));
+                console.log(green("SockJS節點的ID: ") + white(node.id) + green(" SockJS已連線！"));
                 setStatus("green", "dot", "connected");
             };
             const errorCallback = function (error) {
-                console.log(red("Stomp節點的ID: ") + white(node.id) + red(" Stomp連線錯誤！"));
+                console.log(red("SockJS節點的ID: ") + white(node.id) + red(" SockJS連線錯誤！"));
                 console.log(error);
                 setStatus("red", "dot", "disconnect");
             };
@@ -150,10 +150,10 @@ module.exports = function (RED) {
 
         node.on("close", function (removed, done) {
             stompClient.disconnect(function () {
-                console.log(yellow("Stomp節點的ID: ") + white(node.id) + yellow(" Stomp連線關閉！"));
+                console.log(yellow("SockJS節點的ID: ") + white(node.id) + yellow(" SockJS連線關閉！"));
             });
             done();
         });
     }
-    RED.nodes.registerType("NICP-Stomp Out", StompOut);
+    RED.nodes.registerType("NICP-SockJS Out", SockJSOut);
 };

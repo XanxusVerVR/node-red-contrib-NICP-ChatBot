@@ -169,7 +169,8 @@ module.exports = function (RED) {
                                 msg.payload = {
                                     topic: msg.topic,
                                     data: {
-                                        command: msg.payload.command
+                                        // 如果指令是用Command節點設置，那就要拿content
+                                        command: msg.payload.command || msg.payload.content
                                     },
                                     protocolType: "MQTT",
                                     dataId: RED.util.generateId()
