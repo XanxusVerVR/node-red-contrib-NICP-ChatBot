@@ -93,10 +93,13 @@ module.exports = function (RED) {
             listenerId = lirc_node.addListener(node.listenCommand, node.listenDevice, function (data) {
                 console.log(`Received IR keypress ${data.key} from remote ${data.remote}`);
                 const msg = {
-                    payload: {
+                    topic: node.name,
+                    data: {
                         irDevice: data.remote,
                         irCommand: data.key
-                    }
+                    },
+                    protocolType: "Infrared",
+                    dataId: RED.util.generateId()
                 };
                 node.send(msg);
             }, 0);
