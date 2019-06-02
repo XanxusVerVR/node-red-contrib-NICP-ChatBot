@@ -1,3 +1,4 @@
+const request = require("request");
 const _ = require("underscore");
 const clc = require("cli-color");
 const green = clc.greenBright;
@@ -26,25 +27,26 @@ module.exports = function (RED) {
     function Sample(config) {
 
         RED.nodes.createNode(this, config);
-        this.propertyType = config.propertyType;
-        this.property = config.property;
-        let node = this;
 
-        let inputCallback = function (msg) {
-            console.log("msg:");
-            console.log(msg);
-            getProperty(node, msg, (err, property) => {
-                if (err) {
-                    node.warn(err);
-                    done();
-                } else {
-                    // 印出找到的值
-                    console.log(property);
-                }
+        const flowContext = this.context().flow;//建立並取得context物件
+
+        this.propertyType = config.propertyType;
+        
+        const node = this;
+
+        const inputCallback = function (msg) {
+            //  取得名為xanxusContext這個Context檔案系統的檔案，config.type是現在這個節點的類型，所以會取得FCF-Sample這個key
+            // 原始的寫法
+            // const contextFileSystemNodeTypeKey = flowContext.get(config.type, "xanxusContext");
+            // 非同步取值的寫法
+            flowContext.get(config.type, "xanxusContext", function (err, contextFileSystemNodeTypeKey) {
+                // contextFileSystemNodeTypeKey回傳是陣列，因他可能裝了很多某類型的節點，如裝很多FCF-Sample這節點，但每個陣列元素中的資料都不一樣
+                node.property = contextFileSystemNodeTypeKey[1].property || config.property;
+                msg.property = node.property;
+                node.send(msg);
             });
         };
         node.on("input", inputCallback);
-
     }
     RED.nodes.registerType("FCF-Sample", Sample);
 };

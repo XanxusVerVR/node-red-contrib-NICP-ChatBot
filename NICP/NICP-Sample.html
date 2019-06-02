@@ -10,19 +10,9 @@
                 value: ""
             },
             property: {
-                value: "payload",
-                required: true,
-                validate: RED.validators.typedInput("propertyType")
-            },
-            startedButtonPostbackPayload: {
                 value: "",
+                required: true
             },
-            greetings: {
-                value: [{
-                    locale: "",
-                    text: ""
-                }]
-            }
         },
         inputs: 1,
         outputs: 1,
@@ -42,18 +32,32 @@
             // 將普通的input表單設定成Node-RED的typedInput表單，同時也是做初始化的動作
             // default是設定預設值，如果上方defaults也有設定的話，那就會蓋掉這裡的，這裡的就會沒效果
             // 有設定typeField的話，會把這個#node-input-property元素的type值也存到設定的typeField的元素，也就是再存一份到另一個元素啦，但這時typeField這元素的input在畫面上就會不見
-            $("#node-input-property").typedInput({
-                default: "msg",
-                typeField: "#node-input-bot"
+            $.when(
+                // 取得這個類型的節點，此節點是NICP-ConditionalTrigger，那他就只會從Context File拿NICP-ConditionalTrigger類型的節點
+                $.getJSON(`context/flow/${node.z}`)
+            ).then((data1) => {
+                let theNodeConfigDatasArray;
+                // 檢查Context檔案系統中是否儲存這個類型的節點
+                try {
+                    theNodeConfigDatasArray = JSON.parse(data1.xanxusContext[this.type].msg);
+                } catch (TypeError) {
+                    console.log("抱歉，目前ContextFile中還沒有這個節點的資料唷！");
+                    console.log(TypeError);
+                    return;
+                }
+                console.log(`theNodeConfigDatasArray:`);
+                console.log(theNodeConfigDatasArray[1].property);
+                $("#node-input-property").val(theNodeConfigDatasArray[1].property);
+            }).fail(function (problem) {
+                console.log(problem);
             });
-            if (node.propertyType) {
-                $("#node-input-property").typedInput("type", node.propertyType);
-            }
         },
         oneditsave: function () {//當使用者在Edit dialog設置(編輯)完成，按下Done要做的事
             const node = this;
+            node.property = $("#node-input-property").val();
             // 這裡#node-input-bot就回存#node-input-property元素的type值了
-            node.propertyType = $("#node-input-bot").val();
+            // node.propertyType = $("#node-input-bot").val();
+
         },
         oneditcancel: function () {//當使用者在Edit dialog按下Cancel要做的事
         },
@@ -74,13 +78,8 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="switch.label.property"></span></label>
+        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> Property</label>
         <input type="text" id="node-input-property" style="width: 70%"/>
-        <!-- <input type="hidden" id="node-input-outputs"/> -->
-    </div>
-    <div class="form-row">
-        <label for="node-input-bot"><i class="icon-bookmark"></i> Bot</label>
-        <input type="text" id="node-input-bot" placeholder="Bot">
     </div>
     <!-- 定義裝表單項目的容器? -->
 	<div class="form-row node-input-rule-container-row">

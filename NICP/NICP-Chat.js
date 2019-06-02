@@ -241,6 +241,7 @@ module.exports = function (RED) {
             node.send(msg);
             count--;
 
+            // 當訊息的queue裡面有東西，也就是不是0，那就要再把其他使用者的請求訊息送出給老闆
             if (msgQueue.size() != 0) {
                 let msgAndNodeObject = msgQueue.last();
                 setTimeout(function () {
@@ -248,6 +249,7 @@ module.exports = function (RED) {
                 }, 600);
                 msgQueue.remove();
             }
+            // 如果是0，表示訊息queue沒存東西，那就設回false，回到初始狀態，好讓下次新的對話能回到初始狀態，從頭開始
             else {
                 isFirst = false;
             }

@@ -104,7 +104,7 @@ module.exports = function (RED) {
                             } else {
                                 if (isUtf8(payload)) { payload = payload.toString(); }
                             }
-                            let msg = { topic: topic, payload: payload, qos: packet.qos, retain: packet.retain };
+                            let msg = { topic: topic, data: JSON.parse(payload).data, qos: packet.qos, retain: packet.retain, protocolType: "MQTT", dataId: RED.util.generateId() };
                             if ((node.brokerConn.broker === "localhost") || (node.brokerConn.broker === "127.0.0.1")) {
                                 msg._topic = topic;
                             }
