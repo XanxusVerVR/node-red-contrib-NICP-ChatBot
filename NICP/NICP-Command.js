@@ -106,7 +106,13 @@ module.exports = function (RED) {
             let messageId = utils.getMessageId(msg);
             let template = MessageTemplate(msg, node);
             let is_json = false;
-            let botName = msg.payload.botName || "Default Bot Name";
+            try {
+                let botName = msg.payload.botName || "Default Bot Name";
+            } catch (error) {
+                console.log(`botName錯在哪啦`);
+                console.log(error);
+            }
+
 
             // check transport compatibility
             // 拿掉這個他就不會檢查前面是由哪個平台傳來的，這樣才可以即使不接平台也可以輸出訊息
@@ -158,14 +164,20 @@ module.exports = function (RED) {
             Promise.all(promises).then(function () {
                 message = mustache.render(message, new NodeContext(msg, node.context(), null, is_json, resolvedTokens));
                 // 這時候的message是最終轉換好的字串:This is the payload: 321!
-                msg.payload = {
-                    type: "message",
-                    content: emoji.emojify(template(message)),
-                    chatId: chatId,
-                    messageId: messageId,
-                    inbound: false,
-                    roleName: botName
-                };
+                try {
+                    msg.payload = {
+                        type: "message",
+                        content: emoji.emojify(template(message)),
+                        chatId: chatId,
+                        messageId: messageId,
+                        inbound: false,
+                        roleName: botName
+                    };
+                } catch (error) {
+                    console.log(`到底錯在哪!!!2`);
+                    console.log(error);
+                }
+
                 if (msg.whetherToSendLocation) {
                     msg.payload.type = "request";//將type設為request才能在Facebook Out送出詢問位置的請求
                 }
