@@ -64,20 +64,21 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         this.name = config.name || "My Status Node";
-        this.propertyType = config.propertyType;
-        this.property = config.property;
-        this.propertyType2 = config.propertyType2;
-        this.property2 = config.property2;
+        this.propertyType = config.propertyType;// displayStatus
+        this.property = config.property;// displayStatus
+        this.propertyType2 = config.propertyType2;// displayVal
+        this.property2 = config.property2;// displayVal
         this.mode = config.mode;
         this.rules = config.rules;
         this.bigFill = config.bigFill;
         this.bigShape = config.bigShape;
         this.valStatusUnit = config.valStatusUnit.trim();
 
-        let node = this;
+        const node = this;
 
         //定義input事件的Callback Function
         const inputCallback = function (msg) {
+            console.log(`inputCallback`);
             let count = 0;//紀錄條件成立幾次，用來提醒使用者定義的條件可能成立多次
             if (node.mode == "displayStatus") {
                 let property = getProperty(node.propertyType, node.property, msg);
@@ -106,27 +107,95 @@ module.exports = function (RED) {
             }
             node.send(msg);
         };
+        const displayStatusCallback = function _displayStatusCallback() {
+            console.log(`displayStatusCallback`);
+            let count = 0;//紀錄條件成立幾次，用來提醒使用者定義的條件可能成立多次
+            let property = RED.util.evaluateNodeProperty(node.property, node.propertyType, node, {});
+            let rules = node.rules;
+            for (let i = 0; i < rules.length; i++) {
+                let beingComparedPropertyValue = RED.util.evaluateNodeProperty(rules[i].beingComparedProperty, rules[i].beingComparedPropertyType, node, {});
+                if (operators[rules[i].comparisonOperator](property, beingComparedPropertyValue)) {
+                    count++;
+                    setStatus(rules[i].fill, rules[i].shape, rules[i].text);
+                }
+            }
+            if (count >= 2) {
+                node.warn("您有一個以上的條件成立!");
+            }
+        };
+        const displayValCallback = function _displayValCallback() {
+            console.log(`displayValCallback`);
+            let statusText = "";
+            let property = RED.util.evaluateNodeProperty(node.property2, node.propertyType2, node, {});
+            if (!property) {
+                statusText = "數值不存在";
+            }
+            else {
+                statusText = property + node.valStatusUnit;
+            }
+            setStatus(node.bigFill, node.bigShape, statusText);
+        };
+
         //將Callback Function註冊到input事件
         node.on("input", inputCallback);
-        //當displayVal模式時，就持續觸發input事件來更新狀態數值
-        if (node.mode == "displayVal") {
-            setInterval(function () {
-                //觸發input事件
-                node.emit("input", {});
+        RED.events.on("displayStatusCallback", displayStatusCallback);
+        RED.events.on("displayValCallback", displayValCallback);
+
+        let displayValInterval;
+        let displayStatusInterval;
+        // 如果現在是數值模式 || 狀態模式 && 兩邊都msg
+        //     那就都移除
+        // 如果現在是數值模式 && msg flow
+        //     移除狀態那邊的
+        //     自己也要移除 因為自己是msg
+        // 如果現在是狀態模式 && msg flow
+        //     移除數值那邊的
+        //     自己也要移除 因為自己是msg
+        // 如果現在是數值模式 && ((flow && msg) || (flow && flow))
+        //     數值模式監聽器要有
+        //     移除狀態那邊的
+        // 如果現在是狀態模式 && ((flow && msg) || (flow && flow))
+        //     狀態模式監聽器要有
+        //     移除數值那邊的
+        if ((node.mode == "displayVal" || node.mode == "displayStatus") && (node.propertyType == "msg" && node.propertyType2 == "msg")) {
+            RED.events.removeListener("displayStatusCallback", displayStatusCallback);
+            RED.events.removeListener("displayValCallback", displayValCallback);
+        }
+        else if (node.mode == "displayVal" && node.propertyType2 == "msg" && node.propertyType == "flow") {
+            RED.events.removeListener("displayStatusCallback", displayStatusCallback);
+            // 自己也要移除 因為自己是msg
+            RED.events.removeListener("displayValCallback", displayValCallback);
+            displayValInterval = setInterval(function () {
+                RED.events.emit("displayValCallback", displayValCallback);
             }, 2000);
         }
-        else if (node.mode == "displayStatus" && node.propertyType == "flow" || node.propertyType == "global") {
-            setInterval(function () {
-                //觸發input事件
-                node.emit("input", {});
+        else if (node.mode == "displayStatus" && node.propertyType == "msg" && node.propertyType2 == "flow") {
+            // 自己也要移除 因為自己是msg
+            RED.events.removeListener("displayStatusCallback", displayStatusCallback);
+            RED.events.removeListener("displayValCallback", displayValCallback);
+            displayStatusInterval = setInterval(function () {
+                RED.events.emit("displayStatusCallback", displayStatusCallback);
             }, 2000);
         }
-        //當重新部署時，要移除上次的input事件，否則重新部署一次會多觸發一次input事件
-        node.on("close", function () {
-            node.removeListener("input", inputCallback);
-        });
+        else if (node.mode == "displayVal" && ((node.propertyType2 == "flow" && node.propertyType == "msg") || (node.propertyType2 == "flow" && node.propertyType == "flow"))) {
+            RED.events.removeListener("displayStatusCallback", displayStatusCallback);
+            // 數值模式監聽器要有
+            displayValInterval = setInterval(function () {
+                RED.events.emit("displayValCallback", displayValCallback);
+            }, 2000);
+        }
+        else {// 如果現在是( 狀態模式 && ((flow && msg) || (flow && flow)) )
+            console.log(5);
+            //  移除數值那邊的
+            RED.events.removeListener("displayValCallback", displayValCallback);
+            //  狀態模式監聽器要有
+            displayStatusInterval = setInterval(function () {
+                RED.events.emit("displayStatusCallback", displayStatusCallback);
+            }, 2000);
+        }
+
         // 使用Arrow Function來綁定this.status的this
-        let setStatus = (_fill, _shape, _text) => {
+        const setStatus = (_fill, _shape, _text) => {
             this.status({
                 fill: _fill,
                 shape: _shape,
@@ -134,7 +203,7 @@ module.exports = function (RED) {
             });
         };
         // 使用Arrow Function來綁定this.status的this
-        let getProperty = (propertyType, property, msg = null) => {
+        const getProperty = (propertyType, property, msg = null) => {
             let obj = null;
             switch (propertyType) {
                 case "msg":
@@ -157,6 +226,15 @@ module.exports = function (RED) {
             }
             return obj;
         };
+
+        //當重新部署時，要移除上次的input事件，否則重新部署一次會多觸發一次input事件
+        node.on("close", function () {
+            node.removeListener("input", inputCallback);
+            RED.events.removeListener("displayStatusCallback", displayStatusCallback);
+            RED.events.removeListener("displayValCallback", displayValCallback);
+            clearInterval(displayValInterval);
+            clearInterval(displayStatusInterval);
+        });
     }
     RED.nodes.registerType("NICP-Status", Status);
 };
