@@ -27,11 +27,11 @@ module.exports = function (RED) {
     function Sample(config) {
 
         RED.nodes.createNode(this, config);
-
+        console.log(`111`);
         const flowContext = this.context().flow;//建立並取得context物件
 
         this.propertyType = config.propertyType;
-        
+
         const node = this;
 
         const inputCallback = function (msg) {
@@ -47,6 +47,11 @@ module.exports = function (RED) {
             });
         };
         node.on("input", inputCallback);
+
+        node.on("close", function (removed, done) {
+            console.log(`222`);
+            done();
+        });
     }
     RED.nodes.registerType("FCF-Sample", Sample);
 };

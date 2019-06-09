@@ -78,10 +78,9 @@ module.exports = function (RED) {
 
         //定義input事件的Callback Function
         const inputCallback = function (msg) {
-            console.log(`inputCallback`);
             let count = 0;//紀錄條件成立幾次，用來提醒使用者定義的條件可能成立多次
             if (node.mode == "displayStatus") {
-                let property = getProperty(node.propertyType, node.property, msg);
+                let property = RED.util.evaluateNodeProperty(node.property, node.propertyType, node, msg);
                 let rules = node.rules;
                 for (let i = 0; i < rules.length; i++) {
                     let beingComparedPropertyValue = getProperty(rules[i].beingComparedPropertyType, rules[i].beingComparedProperty, msg);
@@ -96,7 +95,7 @@ module.exports = function (RED) {
             }
             else {
                 let statusText = "";
-                let property = getProperty(node.propertyType2, node.property2, msg);
+                let property = RED.util.evaluateNodeProperty(node.property2, node.propertyType2, node, msg);
                 if (!property) {
                     statusText = "數值不存在";
                 }
