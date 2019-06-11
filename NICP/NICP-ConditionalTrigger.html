@@ -151,15 +151,21 @@
         },
         oneditprepare: function () {
             // this.type是這個節點的類型，如：lower-case。為字串
+
             let showContextList = function () {
                 $.when(
                     // 取得這個類型的節點，此節點是NICP-ConditionalTrigger，那他就只會從Context File拿NICP-ConditionalTrigger類型的節點
                     $.getJSON(`context/flow/${this.z}`)
+                    // $.getJSON(`NICP-ConditionalTrigger`)// 為了要做到外部動態設置並馬上生效，所以資料變成從js那邊取
                 ).then((data1) => {
+                    // console.log(data1.xanxusContext[this.type].msg);//原本的資料是這樣，只有一個getJSON的話
                     let theNodeConfigDatasArray;
+                    // let temp = [];
                     // 檢查Context檔案系統中是否儲存這個類型的節點
                     try {
                         theNodeConfigDatasArray = JSON.parse(data1.xanxusContext[this.type].msg);
+                        // temp.push(data2[0]);// 因原本回來是陣列，所以原本的寫法是處理陣列，各這裡是為了要變回陣列
+                        // theNodeConfigDatasArray = temp;// 設回原本的變數，這樣後面整個才可以又回到正常的！只是這樣他只能抓同一個
                     } catch (TypeError) {
                         // 當try抓到錯誤，表示沒有這節點的資料，那就要加一個--進到option裡
                         $("#node-input-nodeContextConfigDats").append($("<option/>", { selected: true, text: "--", value: "--" }));
@@ -215,6 +221,7 @@
                                         let _data = theNodeConfigDatasArray[i].rules[j];
                                         $("#node-input-rule-container").editableList("addItem", _data);
                                     }
+
                                     // 將元素停用，不要讓使用者輸入，因為他選擇了要用Context的，就不該讓他再改Context節點的資料了
                                     $("#node-input-name").prop("disabled", true);
                                     $("#node-input-outputTopic").prop("disabled", true);
@@ -244,13 +251,18 @@
                             updateData(id);
                         }
                     });
+                    $("#node-input-nodeContextConfigDats").change();
                     updateData();
                     return this;
                 }).then((node) => {// 這個node物件和最外面那個node物件是同一個，只是從前一個函式傳到這裡了
-                    // 應該要先拿完context api的資料，才製作item的表單
-                    for (let i = 0; i < node.rules.length; i++) {
-                        let rule = node.rules[i];
-                        $("#node-input-rule-container").editableList("addItem", rule);
+                    const id = $("#node-input-nodeContextConfigDats").children("option:selected").val();
+                    // 如果 現在被選中的下拉選單是 -- 表示使用者是一般模式，那才要加入item，不判斷的話 會一直累積item
+                    if (id === "--") {
+                        // 應該要先拿完context api的資料，才製作item的表單
+                        for (let i = 0; i < node.rules.length; i++) {
+                            let rule = node.rules[i];
+                            $("#node-input-rule-container").editableList("addItem", rule);
+                        }
                     }
                 }).fail(function (problem) {
                     console.log(problem);
