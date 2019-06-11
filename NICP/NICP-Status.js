@@ -107,7 +107,6 @@ module.exports = function (RED) {
             node.send(msg);
         };
         const displayStatusCallback = function _displayStatusCallback() {
-            console.log(`displayStatusCallback`);
             let count = 0;//紀錄條件成立幾次，用來提醒使用者定義的條件可能成立多次
             let property = RED.util.evaluateNodeProperty(node.property, node.propertyType, node, {});
             let rules = node.rules;
@@ -123,7 +122,6 @@ module.exports = function (RED) {
             }
         };
         const displayValCallback = function _displayValCallback() {
-            console.log(`displayValCallback`);
             let statusText = "";
             let property = RED.util.evaluateNodeProperty(node.property2, node.propertyType2, node, {});
             if (!property) {
