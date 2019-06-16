@@ -318,6 +318,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         const node = this;
         this.bot = config.bot;
+        this.name = config.name;
 
         this.config = RED.nodes.getNode(this.bot);
         if (this.config) {
@@ -352,6 +353,7 @@ module.exports = function (RED) {
 
         const node = this;
 
+        this.name = config.name;
         this.bot = config.bot;
         this.track = config.track;
         this.config = RED.nodes.getNode(this.bot);
