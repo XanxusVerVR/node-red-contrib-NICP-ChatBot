@@ -64,6 +64,7 @@ module.exports = function (RED) {
 
     function MQTTInNode(n) {
         RED.nodes.createNode(this, n);
+        this.name = n.name;
         this.topic = n.topic;
         this.propertyType = n.propertyType;
         this.qos = parseInt(n.qos);
@@ -77,6 +78,30 @@ module.exports = function (RED) {
         }
         this.datatype = n.datatype || "utf8";
         let node = this;
+        // 為了做測試才新增這個，測試方法是，跑測試一樣用input事件監聽器來接收資料，並且裡面資料處理的邏輯和subscribe那一樣，這樣就可以達到本地測試的效果，不需仰賴外部才能測試
+        this.on("input", function (msg) {
+            if (node.datatype === "buffer") {
+                // payload = payload;
+            } else if (node.datatype === "base64") {
+                payload = payload.toString("base64");
+            } else if (node.datatype === "utf8") {
+                payload = payload.toString("utf8");
+            } else if (node.datatype === "json") {
+                if (isUtf8(payload)) {
+                    payload = payload.toString();
+                    try { payload = JSON.parse(payload); }
+                    catch (e) { node.error(RED._("mqtt.errors.invalid-json-parse"), { payload: payload, topic: topic, qos: packet.qos, retain: packet.retain }); return; }
+                }
+                else { node.error((RED._("mqtt.errors.invalid-json-string")), { payload: payload, topic: topic, qos: packet.qos, retain: packet.retain }); return; }
+            } else {
+                if (isUtf8(payload)) { payload = payload.toString(); }
+            }
+            let _msg = { topic: topic, data: JSON.parse(payload).data, qos: packet.qos, retain: packet.retain, protocolType: "MQTT", dataId: RED.util.generateId() };
+            if ((node.brokerConn.broker === "localhost") || (node.brokerConn.broker === "127.0.0.1")) {
+                msg._topic = topic;
+            }
+            node.send(_msg);
+        });
         if (this.brokerConn) {
             this.status({ fill: "red", shape: "ring", text: "node-red:common.status.disconnected" });
             //製作假msg物件，為了送去getProperty方法去代換資料出來
@@ -137,6 +162,7 @@ module.exports = function (RED) {
 
     function MQTTOutNode(n) {
         RED.nodes.createNode(this, n);
+        this.name = n.name;
         this.topic = n.topic;
         this.propertyType = n.propertyType;
         this.qos = n.qos || null;

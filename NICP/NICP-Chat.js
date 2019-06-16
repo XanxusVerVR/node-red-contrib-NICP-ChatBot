@@ -67,8 +67,8 @@ module.exports = function (RED) {
             };
             msg.context = context;
             let _textOutNodeId = facebookWithTextContext.textOutNodeId;
-            console.log(`這次的Chat In msg是：`);
-            console.log(prettyjson.render(msg, { noColor: false }));
+            // console.log(`這次的Chat In msg是：`);
+            // console.log(prettyjson.render(msg, { noColor: false }));
             if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了。這是要給Chat節點自己的Track Conversation用的
                 console.log(`-----------------分枝1 Chat節點自己的Track Conversation-----------------`);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);

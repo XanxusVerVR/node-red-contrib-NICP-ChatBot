@@ -4,7 +4,7 @@ const helper = require("node-red-node-test-helper");
 const fcfCommandNode = require("../NICP-Command.js");
 const Context = require("../red/runtime/nodes/context");
 //重設了Jenkins Webhook
-describe("Message節點測試", function () {
+describe("Command節點測試", function () {
 
     beforeEach(function (done) {
         helper.startServer(done);
@@ -130,7 +130,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input Data Collection的資料，output Facebook Out，且Message節點本身沒設置模板訊息(手機選購案例的flow是這樣接的)", function (done) {
+    it("input Data Collection的資料，output Facebook Out，且Command節點本身沒設置模板訊息(手機選購案例的flow是這樣接的)", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "ccd08f56.81777",
@@ -180,7 +180,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input Frame的資料，output資料給Facebook Out，且Message節點本身沒設置模板訊息(手機選購案例的flow是這樣接的)", function (done) {
+    it("input Frame的資料，output資料給Facebook Out，且Command節點本身沒設置模板訊息(手機選購案例的flow是這樣接的)", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "ccd08f56.81777",
@@ -250,7 +250,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input PullService的資料，且Message節點本身沒設置模板訊息(手機選購案例的flow是這樣接的)", function (done) {
+    it("input PullService的資料，且Command節點本身沒設置模板訊息(手機選購案例的flow是這樣接的)", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "ccd08f56.81777",
@@ -316,7 +316,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input Facebook In節點的資料，測試Message節點是某會輸出使用者設置的模板訊息(沒有插入變數)", function (done) {
+    it("input Facebook In節點的資料，測試Command節點是某會輸出使用者設置的模板訊息(沒有插入變數)", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "b2918cce.263e9",
@@ -376,7 +376,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input Facebook In節點的資料，測試Message節點是某會輸出使用者設置的模板訊息(有插入變數)", function (done) {
+    it("input Facebook In節點的資料，測試Command節點是某會輸出使用者設置的模板訊息(有插入變數)", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "6d416c2c.c9c744",
@@ -436,7 +436,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("input Facebook In節點的資料，測試Message節點當沒有設置模板訊息時，是否可以直接拿接收到的msg.payload當要輸出的訊息", function (done) {
+    it("input Facebook In節點的資料，測試Command節點當沒有設置模板訊息時，是否可以直接拿接收到的msg.payload當要輸出的訊息", function (done) {
         let messageNode = JSON.parse(`[
             {
                 "id": "4ba52d54.d48be4",
@@ -544,7 +544,131 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("測試Context flow，在Message節點的模板訊息有穿插flow的屬性，看是否可以成功轉換成實際的值", function (done) {
+    it("input Chat In節點的資料，測試Command節點是否會輸出使用者設置的模板訊息(沒有插入變數)", function (done) {
+        setTimeout(done, 1000);
+        let messageNode = JSON.parse(`[
+            {
+                "id": "3bdb00e1.cf339",
+                "type": "NICP-Command",
+                "z": "a9aa75b.b0d7c88",
+                "name": "",
+                "track": false,
+                "message": [
+                    {
+                        "format": "handlebars",
+                        "template": "我是使用者設置的模板字串01"
+                    }
+                ],
+                "x": 1070,
+                "y": 820,
+                "wires": [
+                    [
+                        "91d2a36c.cd289",
+                        "39f0220c.6f22ce"
+                    ]
+                ]
+            }
+        ]`);
+
+        let helperNode = {
+            id: "n2",
+            type: "helper"
+        };
+
+        messageNode.push(helperNode);
+
+        helper.load(fcfCommandNode, messageNode, function () {
+            let helperNode = helper.getNode("n2");
+            let n1 = helper.getNode(messageNode[0].id);
+            helperNode.on("input", function (msg) {
+                msg.payload.should.have.property("content", "我是使用者設置的模板字串01");//send出去的msg是否有個屬性a，並且值為轉成小寫的uppercase
+                done();
+            });
+            n1.receive({
+                "payload": {
+                    "botName": "Rewabo老闆端",
+                    "chatId": "3858417550861136",
+                    "roleName": "shopKeeper",
+                    "messageId": "741fd6d7d9815933f14fa46b0afd8632dec83d0f5561c0b71907a7fe4f93be2efc1ca6679a113416c89d6f",
+                    "type": "message",
+                    "content": "chat In Test 09",
+                    "date": "2019-06-13 01:49:27"
+                },
+                "originalMessage": {
+                    "transport": "text",
+                    "chat": {
+                        "id": "3858417550861136"
+                    }
+                },
+                "context": {},
+                "_msgid": "48f0ef77.b4996"
+            });//接收前面的節點傳過來的msg物件
+        });
+    });
+
+    it("input Chat In節點的資料，測試Command節點是某會輸出使用者設置的模板訊息(有插入變數)", function (done) {
+        setTimeout(done, 1000);
+        let messageNode = JSON.parse(`[
+            {
+                "id": "3bdb00e1.cf339",
+                "type": "NICP-Command",
+                "z": "a9aa75b.b0d7c88",
+                "name": "",
+                "track": false,
+                "message": [
+                    {
+                        "format": "handlebars",
+                        "template": "Hello: {{payload.content}} !"
+                    }
+                ],
+                "x": 1070,
+                "y": 820,
+                "wires": [
+                    [
+                        "91d2a36c.cd289",
+                        "39f0220c.6f22ce"
+                    ]
+                ]
+            }
+        ]`);
+
+        let helperNode = {
+            id: "n2",
+            type: "helper"
+        };
+
+        messageNode.push(helperNode);
+
+        helper.load(fcfCommandNode, messageNode, function () {
+            let helperNode = helper.getNode("n2");
+            let n1 = helper.getNode(messageNode[0].id);
+            helperNode.on("input", function (msg) {
+                msg.payload.should.have.property("content", "Hello: chat In Test 10 !");//send出去的msg是否有個屬性a，並且值為轉成小寫的uppercase
+                done();
+            });
+            n1.receive({
+                "payload": {
+                    "botName": "Rewabo老闆端",
+                    "chatId": "3858417550861136",
+                    "roleName": "shopKeeper",
+                    "messageId": "cc23e8694ae781274b3dee8fff937eca00f707057b89ff1f23decf6efd66312027ee4170c54a16570856ab",
+                    "type": "message",
+                    "content": "chat In Test 10",
+                    "date": "2019-06-13 01:55:43"
+                },
+                "originalMessage": {
+                    "transport": "text",
+                    "chat": {
+                        "id": "3858417550861136"
+                    }
+                },
+                "context": {},
+                "_msgid": "7c73e9e2.151cc8"
+            });//接收前面的節點傳過來的msg物件
+        });
+    });
+
+    it("測試Context flow，在Command節點的模板訊息有穿插flow的屬性，看是否可以成功轉換成實際的值", function (done) {
         /* 2019-3-20把測試修好後，但所有context的測試變不通過了，出現以下的測試錯誤訊息：
         Error: Timeout of 2000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves.
         將"For async tests and hooks, ensure "done()" is called"丟Google搜尋後，找到這篇 https://github.com/mochajs/mocha/issues/2025#issuecomment-243478128
@@ -614,7 +738,7 @@ describe("Message節點測試", function () {
         });
     });
 
-    it("測試Context global，在Message節點的模板訊息有穿插global的屬性，看是否可以成功轉換成實際的值", function (done) {
+    it("測試Context global，在Command節點的模板訊息有穿插global的屬性，看是否可以成功轉換成實際的值", function (done) {
         setTimeout(done, 1000);
         let messageNode = JSON.parse(`[
             {
