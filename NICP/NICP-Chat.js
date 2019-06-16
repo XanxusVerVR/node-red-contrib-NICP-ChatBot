@@ -148,6 +148,7 @@ module.exports = function (RED) {
             });
         }
 
+        // 這一段竟然會讓測試程式抓不到config的資料
         node.botConfigData.on("relay", function (msg, error) {
             if (error != null) {
                 node.error(error);
