@@ -1,8 +1,9 @@
 const TextConversationContext = class _TextConversationContext {
-    constructor(textOutNodeId, chatId, transport) {
+    constructor(textOutNodeId, chatId, transport, query) {
         this._textOutNodeId = textOutNodeId;
         this._chatId = chatId;
         this._transport = transport;
+        this._query = query;
     }
 
     get textOutNodeId() {
@@ -26,10 +27,18 @@ const TextConversationContext = class _TextConversationContext {
         this._transport = newTransport;
     }
 
+    get query() {
+        return this._query;
+    }
+    set query(newQuery) {
+        this._query = newQuery;
+    }
+
     clear() {
         this._textOutNodeId = "";
         this._chatId = "";
         this._transport = "";
+        this._query = "";
     }
 };
 module.exports = {
