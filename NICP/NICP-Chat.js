@@ -15,6 +15,7 @@ module.exports = function (RED) {
     // 此區塊的程式，只有在Node-RED一啟動的時候，才會執行一次
     const facebookWithTextContext = new TextConversationContext();
     let count = 1;
+    const queryQueue = new q();
     function ChatConfig(config) {
         // 每次Node-RED啟動時、重新部署時 會執行一次
 
@@ -65,14 +66,15 @@ module.exports = function (RED) {
                     }
                 }
             };
-            if (facebookWithTextContext.query) {
-                console.log(facebookWithTextContext.query);
-                msg.query = facebookWithTextContext.query;
+            if (queryQueue.size() != 0) {
+                console.log(queryQueue.size());
+                msg.query = queryQueue.last();
+                queryQueue.remove();
             }
             msg.context = context;
             let _textOutNodeId = facebookWithTextContext.textOutNodeId;
-            console.log(`這次的Chat In msg是：`);
-            console.log(prettyjson.render(msg, { noColor: false }));
+            // console.log(`這次的Chat In msg是：`);
+            // console.log(prettyjson.render(msg, { noColor: false }));
             if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了。這是要給Chat節點自己的Track Conversation用的
                 console.log(`-----------------分枝1 Chat節點自己的Track Conversation-----------------`);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
@@ -182,7 +184,7 @@ module.exports = function (RED) {
         let isFirst = false;//用來表示是不是第一次訊息
         const originalMessengeUserIdQueue = new q();//儲存顧客的使用者ID
         const msgQueue = new q();
-        const nodeContext = this.context();
+
         const node = this;
 
         if (!_.isEmpty(node.botConfigData)) {
@@ -274,7 +276,7 @@ module.exports = function (RED) {
                     facebookWithTextContext.transport = msg.originalMessage.transport;
                     facebookWithTextContext.chatId = msg.payload.chatId;
                     if (msg.query) {
-                        facebookWithTextContext.query = msg.query;
+                        queryQueue.add(msg.query);
                     }
                 }
                 // 如果msg是由Facebook In傳進來，那msg不會有context物件。也就是當msg是由Chat In進來，這裡的動作才要做。
