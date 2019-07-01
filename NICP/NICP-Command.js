@@ -176,7 +176,8 @@ module.exports = function (RED) {
                     chatId: chatId,
                     messageId: messageId,
                     inbound: false,
-                    roleName: botName
+                    roleName: botName,
+                    userName: msg.payload.userName
                 };
 
                 if (msg.whetherToSendLocation) {

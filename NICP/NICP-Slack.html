@@ -1,0 +1,142 @@
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-Slack In", {
+        category: "NICP",
+        color: "#DDA0DD",
+        defaults: {
+            name: {
+                value: ""
+            },
+            url: {
+                value: "",
+                required: true
+            },
+            outputs: {
+                value: 1
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        paletteLabel: "Slack In",
+        icon: "bridge.png",
+        label: function () {
+            let labelName = "Slack In";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
+        },
+        oneditprepare: function () {
+            let node = this;
+            $("#node-input-urlPattern").text(`http://127.0.0.1:1880${node.url}`);//讓一打開下面就會顯示上次設的URL樣式
+            $("#node-input-url").keyup(function (event) {//當使用者在設置URL時，每打一個字會在下面顯示現在設置的URL樣式
+                $("#node-input-urlPattern").text(`http://127.0.0.1:1880${$(this).val()}`);
+            })
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="NICP-Slack In">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <!-- 給使用者設置服務網址路徑 -->
+        <label for="node-input-url"><i class="icon-tag"></i>Service URL</label>
+        <input type="text" id="node-input-url" placeholder="/url">
+    </div>
+    <div class="form-row">
+        <!-- 給使用者看它定義的服務網址樣式-->
+        <label for="node-input-urlPattern" style="width:100%;"><i class="icon-tag"></i>Your URL Pattern Is : </label>
+        <span id="node-input-urlPattern"></span>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="NICP-Slack In">
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+    RED.nodes.registerType("NICP-Slack Out", {
+        category: "NICP",
+        color: "#DDA0DD",
+        defaults: {
+            name: {
+                value: ""
+            },
+            token: {
+                value: ""
+            }
+        },
+        inputs: 1,
+        outputs: 0,
+        paletteLabel: "Slack Out",
+        icon: "bridge-dash.png",
+        label: function () {
+            let labelName = "Slack Out";
+            if (this.name) {
+                return `${labelName} : ${this.name}`;
+            }
+            else {
+                return labelName;
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="NICP-Slack Out">
+    <div class="form-row">
+        <!-- 節點名稱 -->
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+        <!-- api token -->
+    <div class="form-row">
+        <label for="node-input-token"><i class="icon-tag"></i>Token</label>
+        <input type="text" id="node-input-token">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="NICP-Slack Out">
+</script>

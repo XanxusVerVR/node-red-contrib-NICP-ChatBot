@@ -25,7 +25,7 @@ const TextConversationContext = class _TextConversationContext {
     set transport(newTransport) {
         this._transport = newTransport;
     }
-    
+
     clear() {
         this._textOutNodeId = "";
         this._chatId = "";

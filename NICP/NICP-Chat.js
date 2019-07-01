@@ -67,18 +67,18 @@ module.exports = function (RED) {
             };
             msg.context = context;
             let _textOutNodeId = facebookWithTextContext.textOutNodeId;
-            // console.log(`這次的Chat In msg是：`);
-            // console.log(prettyjson.render(msg, { noColor: false }));
+            console.log(`這次的Chat In msg是：`);
+            console.log(prettyjson.render(msg, { noColor: false }));
             if (msg.context.textOutNodeId) {//這裡就等於在呼叫get()了。這是要給Chat節點自己的Track Conversation用的
                 console.log(`-----------------分枝1 Chat節點自己的Track Conversation-----------------`);
                 RED.events.emit("node:" + msg.context.textOutNodeId, msg);
                 msg.context.textOutNodeId = "";
             }
-            else if ((count != 0 || !_.isEmpty(_textOutNodeId)) && msg.originalMessage.transport == "facebook") {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Chat節點
-                facebookWithTextContext.textOutNodeId = "";
+            else if ((count != 0 || !_.isEmpty(_textOutNodeId)) && msg.originalMessage.transport == "facebook" || msg.originalMessage.transport == "slack") {// 如果它存在，表示對話正在進行中，且是由Facebook轉交給Chat節點
+                // facebookWithTextContext.textOutNodeId = "";
                 console.log(`-----------------分枝2 Facebook In後面接Chat Out的Track Conversation，這時count是: ${count}-----------------`);
                 RED.events.emit("facebookWithText:" + _textOutNodeId, msg);
-                facebookWithTextContext.clear();
+                // facebookWithTextContext.clear();
             }
             else {// 將訊息傳給 Chat In
                 console.log(`-----------------分枝3-----------------`);
@@ -264,7 +264,7 @@ module.exports = function (RED) {
             console.log(prettyjson.render(msg, { noColor: false }));
             originalMessengeUserIdQueue.add(msg.payload.chatId);
             if (node.track && !_.isEmpty(node.wires[0])) {
-                if (msg.originalMessage.transport == "facebook") {
+                if (msg.originalMessage.transport == "facebook" || msg.originalMessage.transport == "slack") {
                     facebookWithTextContext.textOutNodeId = node.id;
                     facebookWithTextContext.transport = msg.originalMessage.transport;
                     facebookWithTextContext.chatId = msg.payload.chatId;
