@@ -13,6 +13,7 @@ module.exports = function (RED) {
         this.name = config.name || "My Slack In Node";
         this.url = config.url;
 
+        let responseJson;
         let node = this;
 
         let corsHandler = function (req, res, next) {
@@ -24,43 +25,48 @@ module.exports = function (RED) {
             RED.httpNode.options("*", corsHandler);
         }
         let postCallback = function _postCallback(req, res) {
-            // 當如果是一般使用者傳來的訊息才要接收，並且彙整然後輸出
-            if (!req.body.event.subtype && !req.body.event.bot_id) {
-                // Slack傳來的訊息資料
-                const msg = {
-                    payload: {
-                        // slack靠channel把訊息回覆給使用者
-                        chatId: req.body.event.channel,
-                        // user是Slack這個使用者的名稱而已，但不是靠這個把訊息回覆給使用者
-                        userName: req.body.event.user,
-                        // event_id是只是亂數字串
-                        messageId: req.body.event_id,
-                        type: "message",
-                        content: req.body.event.text,
-                        // event_ts疑似時間，不太確定...
-                        date: req.body.event.event_ts,
-                        inbound: true,
-                    },
-                    originalMessage: {
-                        transport: "slack",
-                        chat: {
-                            id: req.body.event.channel
+            // 用來處理一般訊息
+            if (req.body.event) {
+                if (!req.body.event.subtype && !req.body.event.bot_id) {
+                    // Slack傳來的訊息資料
+                    const msg = {
+                        payload: {
+                            // slack靠channel把訊息回覆給使用者
+                            chatId: req.body.event.channel,
+                            // user是Slack這個使用者的名稱而已，但不是靠這個把訊息回覆給使用者
+                            userName: req.body.event.user,
+                            // event_id是只是亂數字串
+                            messageId: req.body.event_id,
+                            type: "message",
+                            content: req.body.event.text,
+                            // event_ts疑似時間，不太確定...
+                            date: req.body.event.event_ts,
+                            inbound: true,
+                        },
+                        originalMessage: {
+                            transport: "slack",
+                            chat: {
+                                id: req.body.event.channel
+                            }
                         }
-                    }
-                };
-                node.send(msg);
+                    };
+                    res.sendStatus(200);
+                    node.send(msg);
+                }
+                // 當這個訊息是機器人發的
+                else {
+                    res.sendStatus(200);
+                    console.log(`Slack In節點，節點ID為：${node.id}---只是機器人回送的訊息---`);
+                }
             }
-            // 如果是機器人傳來的訊息，則不要處理
+            // 處理驗證
             else {
-                console.log(`Slack In節點，節點ID為：${node.id}---只是機器人回送的訊息---`);
+                responseJson = {
+                    challenge: req.body.challenge
+                };
+                res.json(responseJson).status(200);
+
             }
-
-
-            // 回應的body
-            const responseJson = {
-                challenge: req.body.challenge
-            };
-            res.status(200).send(responseJson);
         };
 
         RED.httpNode.post(config.url, corsHandler, postCallback);
