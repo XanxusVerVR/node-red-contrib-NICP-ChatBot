@@ -98,7 +98,7 @@ describe('Transformation節點測試', function () {
 
     describe('#set', function () {
 
-        it('sets the value of the message property', function (done) {
+        it('sets the value of the message property 是否可以設置屬性的值', function (done) {
             var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "payload", "from": "", "to": "changed", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
@@ -161,7 +161,7 @@ describe('Transformation節點測試', function () {
             });
         });
 
-        it('sets the value and type of the message property', function (done) {
+        it('sets the value and type of the message property 是否可以設置屬性的值和類型', function (done) {
             var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", rules: [{ "t": "set", "p": "payload", "pt": "msg", "to": "12345", "tot": "num" }], "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
@@ -181,7 +181,7 @@ describe('Transformation節點測試', function () {
             });
         });
 
-        it('sets the value of an already set multi-level message property', function (done) {
+        it('sets the value of an already set multi-level message property 是否可將多層屬性設置到另一個屬性', function (done) {
             var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "foo.bar", "from": "", "to": "bar", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {
@@ -217,7 +217,7 @@ describe('Transformation節點測試', function () {
             });
         });
 
-        it('sets the value of a message property to another message property', function (done) {
+        it('sets the value of a message property to another message property 是否可將此屬性轉換成另一個新的屬性', function (done) {
             var flow = [{ "id": "changeNode1", "type": "NICP-Transformation", "action": "replace", "property": "foo", "from": "", "to": "msg.fred", "reg": false, "name": "changeNode", "wires": [["helperNode1"]] },
             { id: "helperNode1", type: "helper", wires: [] }];
             helper.load(changeNode, flow, function () {

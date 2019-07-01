@@ -190,4 +190,61 @@ describe("ConditionalTrigger節點測試", function () {
             });//接收前面的節點傳過來的msg物件
         });
     });
+
+    it("邏輯功能測試：and，當msg.payload等於某個字串時，即觸發輸出", function (done) {
+        setTimeout(done, 300);
+        let conditionalTriggerNodeConfig = JSON.parse(`[
+            {
+                "id": "2a0c63a8.ca7c8c",
+                "type": "NICP-ConditionalTrigger",
+                "z": "e3bfd103.34ca9",
+                "name": "",
+                "rules": [
+                    {
+                        "t": "eq",
+                        "v": "testOne",
+                        "vt": "str",
+                        "propertyType": "msg",
+                        "property": "payload",
+                        "topic": "topicA"
+                    }
+                ],
+                "configDataId": "--",
+                "outputTopic": "",
+                "gateType": "and",
+                "emitOnlyIfTrue": true,
+                "x": 330,
+                "y": 480,
+                "wires": [
+                    [
+                        "9f8a3ddb.a1581"
+                    ]
+                ]
+            }
+        ]`);
+        let helperNode = {
+            id: "n2",
+            type: "helper"
+        };
+
+        conditionalTriggerNodeConfig.push(helperNode);
+
+        helper.load(conditionalTriggerNode, conditionalTriggerNodeConfig, function (err) {
+            let helperNode = helper.getNode("n2");
+            let n1 = helper.getNode(conditionalTriggerNodeConfig[0].id);
+            // 這個測試案例Conditional Trigger的輸出:
+            // {"topic":null,"payload":"testOne","bool":true,"_msgid":"12f05e6b.c33262"}
+            helperNode.on("input", function (msg) {
+                msg.should.have.property("bool", true);
+                msg.should.have.property("payload", "testOne");
+                // 印出來msg沒東西，但不知為何測試還是會通過
+                // console.log(msg);
+            });
+            n1.receive({
+                "_msgid": "69cb0ee7.8c2d2",
+                "topic": "topicA",
+                "payload": "testOne"
+            });// 接收前面的節點傳過來的msg物件
+        });
+    });
 });
