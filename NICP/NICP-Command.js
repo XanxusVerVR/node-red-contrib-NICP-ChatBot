@@ -108,6 +108,7 @@ module.exports = function (RED) {
             let is_json = false;
             let botName;
             let userName;
+            let query;
             // 先檢查payload這層，如果msg.payload存在，才要找payload的botName
             if (msg.payload) {
                 if (msg.payload.botName) {
@@ -123,10 +124,18 @@ module.exports = function (RED) {
                 else {
                     userName = "none";
                 }
+
+                if (msg.query) {
+                    query = msg.query;
+                }
+                else {
+                    query = "";
+                }
             }
             else {
                 botName = "Default Bot Name";
                 userName = "none";
+                query = "";
             }
 
             // check transport compatibility
@@ -188,6 +197,7 @@ module.exports = function (RED) {
                     roleName: botName,
                     userName: userName
                 };
+                msg.query = query;
 
                 if (msg.whetherToSendLocation) {
                     msg.payload.type = "request";//將type設為request才能在Facebook Out送出詢問位置的請求
