@@ -107,6 +107,7 @@ module.exports = function (RED) {
             let template = MessageTemplate(msg, node);
             let is_json = false;
             let botName;
+            let userName;
             // 先檢查payload這層，如果msg.payload存在，才要找payload的botName
             if (msg.payload) {
                 if (msg.payload.botName) {
@@ -115,9 +116,17 @@ module.exports = function (RED) {
                 else {
                     botName = "Default Bot Name";
                 }
+
+                if (msg.payload.userName) {
+                    userName = msg.payload.userName;
+                }
+                else {
+                    userName = "none";
+                }
             }
             else {
                 botName = "Default Bot Name";
+                userName = "none";
             }
 
             // check transport compatibility
@@ -177,7 +186,7 @@ module.exports = function (RED) {
                     messageId: messageId,
                     inbound: false,
                     roleName: botName,
-                    userName: msg.payload.userName
+                    userName: userName
                 };
 
                 if (msg.whetherToSendLocation) {
