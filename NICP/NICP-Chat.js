@@ -254,7 +254,7 @@ module.exports = function (RED) {
                 let msgAndNodeObject = msgQueue.last();
                 setTimeout(function () {
                     sendMessage(msgAndNodeObject.waiteThisFacebookOutNodeMsg, msgAndNodeObject.waiteThisFacebookOutNode);
-                }, 600);
+                }, 1000);
                 msgQueue.remove();
             }
             // 如果是0，表示訊息queue沒存東西，那就設回false，回到初始狀態，好讓下次新的對話能回到初始狀態，從頭開始
