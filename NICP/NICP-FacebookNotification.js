@@ -262,7 +262,7 @@ module.exports = function (RED) {
 
         node.on("input", function (msg) {
             // 如果msg.payload.content有東西表示message有東西，就是一般餐點的狀態改變通知
-            if (!_.isEmpty(msg.payload.content) || !_.isNull(msg.payload.content)) {
+            if (msg.payload.content) {
                 let _msg = {
                     payload: {
                         type: "message",
@@ -285,7 +285,6 @@ module.exports = function (RED) {
                     });
                 }
             }
-
         });
     }
     RED.nodes.registerType("NICP-FacebookNotification", FacebookNotification, {
