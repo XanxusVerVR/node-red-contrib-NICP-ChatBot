@@ -3,7 +3,7 @@ const bleno = require("bleno");
 const _ = require("underscore");
 module.exports = function (RED) {
 
-    function Beacon(config) {
+    function BeaconOut(config) {
 
         const setStatus = function _setStatus(fill, shape, text) {
             node.status({
@@ -15,7 +15,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.name = config.name || "My Beacon Node";
+        this.name = config.name || "My Beacon Out Node";
         this.broadcastingMode = config.broadcastingMode;
         this.deviceName = config.deviceName;
         this.broadcastingUrl = config.broadcastingUrl;//Google URL
@@ -98,5 +98,5 @@ module.exports = function (RED) {
             done();
         });
     }
-    RED.nodes.registerType("NICP-Beacon", Beacon);
+    RED.nodes.registerType("NICP-Beacon Out", BeaconOut);
 };

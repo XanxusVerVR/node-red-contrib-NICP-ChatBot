@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType("NICP-Beacon", {
+    RED.nodes.registerType("NICP-Beacon Out", {
         category: "NICP",
         color: "#87CEFA",
         defaults: {
@@ -10,7 +10,7 @@
                 value: "url"
             },
             deviceName: { //set device name when advertising (Linux only)
-                value: "My Beacon"
+                value: "My Beacon Out"
             },
             txPowerLevel: {
                 value: ""
@@ -39,10 +39,10 @@
         },
         inputs: 1,
         outputs: 0,
-        paletteLabel: "Beacon",
+        paletteLabel: "Beacon Out",
         icon: "arrow-in.png",
         label: function () {
-            let labelName = "Beacon";
+            let labelName = "Beacon Out";
             if (this.name) {
                 return `${labelName} : ${this.name}`;
             }
@@ -79,7 +79,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="NICP-Beacon">
+<script type="text/x-red" data-template-name="NICP-Beacon Out">
     <div class="form-row">
         <!-- 節點名稱 -->
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
@@ -141,5 +141,5 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="NICP-Eddystone">
+<script type="text/x-red" data-help-name="NICP-Beacon Out">
 </script>
