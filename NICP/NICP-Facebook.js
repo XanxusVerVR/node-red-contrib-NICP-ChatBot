@@ -691,6 +691,22 @@ module.exports = function (RED) {
                             reject(err);
                         });
                         break;
+                    // 這是傳圖片，API是https://bit.ly/31xAzKs
+                    case "image":
+                        bot.sendMessage(
+                            msg.payload.chatId,
+                            {
+                                attachment: {
+                                    type: "image",
+                                    payload: {
+                                        url: msg.payload.content,
+                                        is_reusable: false
+                                    }
+                                }
+                            },
+                            reportError
+                        );
+                        break;
 
                     default:
                         reject("Unable to prepare unknown message type");
