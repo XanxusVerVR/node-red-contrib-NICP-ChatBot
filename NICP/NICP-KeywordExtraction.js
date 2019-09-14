@@ -53,6 +53,7 @@ module.exports = function (RED) {
 
                 request(options, function (error, response, body) {
                     body = JSON.parse(body);
+                    msg.intentName = body.queryResult.intent.displayName;//displayName就是意圖的名稱
                     msg.query = body.queryResult.parameters;//取得關鍵字
                     node.send(msg);
                 });
